@@ -1,5 +1,5 @@
 # Derivatives Analyst
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:30 AEST (parallel)
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: analyst
 
 ## Inputs
 - data/market/funding_history.json

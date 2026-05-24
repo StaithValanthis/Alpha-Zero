@@ -1,5 +1,5 @@
 # OnChain/Macro Analyst
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:30 AEST (parallel)
+# Model: groq/qwen/qwen3-32b | tier: analyst
 
 ## Inputs (read ALL of these)
 - data/onchain/mempool.json — mempool congestion and fee data

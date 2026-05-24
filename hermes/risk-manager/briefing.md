@@ -1,5 +1,5 @@
 # Risk Manager
-# Model: coordinator (Haiku 4.5) | Mode: event-driven per trigger
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
 
 ## Evaluation — ALL must pass for APPROVED
 

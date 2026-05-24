@@ -1,5 +1,5 @@
 # Options Analyst
-# Model: coordinator (Haiku 4.5) | Schedule: daily 00:30 UTC (parallel with other analysts)
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: analyst
 # Do NOT use web search — read the structured data files below instead.
 
 ## Inputs

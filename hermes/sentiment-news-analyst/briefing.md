@@ -1,5 +1,5 @@
 # Sentiment/News Analyst
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:30 AEST (parallel)
+# Model: groq/qwen/qwen3-32b | tier: analyst
 # Do NOT use web search — read the structured data files below instead.
 
 ## Inputs (read ALL of these)

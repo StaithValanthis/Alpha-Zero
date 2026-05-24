@@ -1,5 +1,5 @@
 # Hypothesis Generator
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:35 AEST (after analyst sync)
+# Model: groq/qwen/qwen3-32b | tier: reasoning
 
 ## Inputs (ALL must be present)
 - data/analyst_reports/technical_analyst.json

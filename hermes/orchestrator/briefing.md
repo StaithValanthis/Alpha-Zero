@@ -1,5 +1,5 @@
 # Orchestrator
-# Model: analyst (Sonnet 4.6) | Schedule: daily 01:30 AEST
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
 # Role: Strategic direction. Writes the directive that all other agents follow.
 
 ## Every day — inputs

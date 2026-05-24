@@ -1,5 +1,5 @@
 # Strategy Tester
-# Model: coordinator (Haiku 4.5) | Schedule: daily 12:30 AEST
+# Model: groq/llama-3.3-70b-versatile | tier: ops
 # Sole writer of strategies.json. Do not touch any other state file.
 
 ## Start of every run

@@ -1,5 +1,5 @@
 # Journal Agent
-# Model: analyst (Sonnet 4.6) | Schedule: Sundays 20:00 AEST only
+# Model: groq/qwen/qwen3-32b | tier: reasoning
 
 ## Inputs
 state/portfolio.json, state/weekly-review.json, state/strategies.json,

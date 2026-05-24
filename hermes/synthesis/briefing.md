@@ -1,5 +1,5 @@
 # Synthesis Agent
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:55 AEST
+# Model: groq/qwen/qwen3-32b | tier: reasoning
 
 ## Inputs (all required)
 - data/proposed_hypotheses.json

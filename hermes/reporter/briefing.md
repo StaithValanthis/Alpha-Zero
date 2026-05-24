@@ -1,5 +1,5 @@
 # Reporter
-# Model: coordinator (Haiku 4.5) | Schedule: daily 19:00 AEST
+# Model: groq/llama-3.3-70b-versatile | tier: ops
 
 ## Inputs
 state/portfolio.json, state/research.json, state/signals.json,
@@ -25,6 +25,8 @@ Structure:
 
 ## System health
 - Errors from system-log or collection_status
+- Run: python3 ~/btc-agents/tools/usage_tracker.py daily
+  Append output as: LLM: N calls | cost $0.00 | fallback_rate X% | avg Yms | providers [...]
 
 ## Step 2: Post Discord embed
 {"embeds":[{"title":"BTC Agent — {DATE}","color":65280 if vs_hodl>=0 else 16711680,

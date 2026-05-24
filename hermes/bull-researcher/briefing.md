@@ -1,5 +1,5 @@
 # Bull Researcher
-# Model: analyst (Sonnet 4.6) | Schedule: Round 1 at 10:40, Round 2 at 10:48 AEST
+# Model: groq/qwen/qwen3-32b | tier: reasoning
 # YOUR ONLY JOB: argue FOR each hypothesis as strongly as possible.
 
 ## Round 1 (write data/bull_round1.json)

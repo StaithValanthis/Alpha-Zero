@@ -1,5 +1,5 @@
 # Chief of Staff
-# Model: coordinator (Haiku 4.5) | Mode: always-on daemon
+# Model: groq/llama-3.3-70b-versatile | tier: ops
 # NEVER trades. NEVER calls Bybit trade endpoints. NEVER writes portfolio.json directly.
 
 ## Daily schedule (AEST)
@@ -46,3 +46,109 @@ After Journal Agent completes:
 git add ~/btc-agents/hermes/
 git commit -m "memory-backup: $(date +%Y-%m-%d)"
 git push origin HEAD:memory-backup 2>/dev/null || git push --set-upstream origin memory-backup
+
+## MODEL SELECTION FRAMEWORK
+
+### Decision Tree (4 questions)
+1. Is this a TRADE DECISION or system-critical mutation? → tier: critical
+   → cerebras/qwen-3-235b-a22b-instruct-2507 (primary)
+   → groq/qwen/qwen3-32b (fallback 1)
+   → groq/openai/gpt-4o-mini-oss (fallback 2)
+   → groq/llama-3.3-70b-versatile (fallback 3)
+
+2. Does this require deep multi-step reasoning (hypothesis, synthesis, debate)? → tier: reasoning
+   → groq/qwen/qwen3-32b (primary)
+   → cerebras/qwen-3-235b-a22b-instruct-2507 (fallback 1)
+   → groq/openai/gpt-4o-mini-oss (fallback 2)
+   → groq/llama-3.3-70b-versatile (fallback 3)
+
+3. Is this market analysis, research, or report generation? → tier: analyst
+   → cerebras/qwen-3-235b-a22b-instruct-2507 (primary)
+   → groq/qwen/qwen3-32b (fallback 1)
+   → groq/llama-3.3-70b-versatile (fallback 2)
+   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback 3)
+
+4. Is this routine orchestration, polling, or dispatch? → tier: ops
+   → groq/llama-3.3-70b-versatile (primary)
+   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback 1)
+   → cerebras/llama3.1-8b (fallback 2)
+
+   Classification tasks only → tier: classifier
+   → google/gemini-2.0-flash (primary, 1500 req/day free)
+   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback)
+
+### Zero-Cost Policy
+ALL models used in this system must be FREE with no trial credits required.
+Verified free providers as of 2026-05-24:
+- Cerebras: qwen-3-235b-a22b-instruct-2507, llama3.3-70b, llama3.1-8b
+- Groq: llama-3.3-70b-versatile, qwen/qwen3-32b, openai/gpt-4o-mini-oss, meta-llama/llama-4-scout-17b-16e-instruct
+- Google Gemini: gemini-2.0-flash (via GEMINI_API_KEY, free tier)
+
+EXCLUDED (not free / broken):
+- GLM/Z.ai: returns HTTP 429 "insufficient balance" — excluded from all chains
+- DeepSeek: API key held, monitor for free tier availability
+- Mistral, Anthropic/Claude: paid, never use
+
+### Required Proposal YAML Fields
+Every agent deployment proposal must include:
+```yaml
+model:
+  tier: critical|reasoning|analyst|ops|classifier
+  primary: provider/model-id
+  fallbacks:
+    - provider/model-id
+cost_usd_per_run: 0.00   # must be 0.00 for approval
+```
+
+### Rejection Criteria (auto-reject without review)
+- Any model not in the verified free provider list above
+- cost_usd_per_run > 0.00
+- References to claude, anthropic, gpt-4o (non-oss), mistral, or deepseek in model fields
+- No fallback chain specified for critical/reasoning tiers
+- GLM/Z.ai or any provider that requires paid credit
+
+### Sunday Checklist — Model Compliance Audit
+Added to existing Sunday 20:00 Journal Agent task:
+1. Run: python3 ~/btc-agents/tools/llm_router.py --health-check
+2. Verify all 5 tiers return provider_used from the verified free list
+3. Check ~/btc-agents/logs/llm_router.log — flag any fallback_count > 1 patterns
+4. Review any new proposals in proposals/pending/ — reject if model fields missing or non-free
+5. Post audit summary to Discord: "Model audit ✓ — all tiers free, zero cost confirmed"
+
+## WEEKLY PROVIDER HEALTH REVIEW (Sunday 20:30 AEST)
+
+Run after Journal Agent completes. Takes ~2 min.
+
+### Commands
+```bash
+# 1. Weekly LLM usage summary
+python3 ~/btc-agents/tools/usage_tracker.py weekly
+
+# 2. Check each provider is still responding
+curl -s -o /dev/null -w "%{http_code}" \
+  https://api.cerebras.ai/v1/models \
+  -H "Authorization: Bearer $CEREBRAS_API_KEY"
+
+curl -s -o /dev/null -w "%{http_code}" \
+  https://api.groq.com/openai/v1/models \
+  -H "Authorization: Bearer $GROQ_API_KEY"
+
+# 3. Check router log for persistent fallback patterns
+grep -c "fallbacks:[^0]" ~/btc-agents/logs/llm_router.log || true
+```
+
+### Decision Rules
+| Condition | Action |
+|-----------|--------|
+| Any provider returns non-200 | Flag in Discord, update fallback order |
+| fallback_count > 20% of weekly calls | Investigate primary model availability |
+| New free model announced by Groq/Cerebras | Add to tier chain, test, update jobs.json |
+| Provider adds rate limits or removes free tier | Remove from chains, promote fallback to primary |
+
+### Discord Report Template
+```
+📊 Weekly LLM Health — {DATE}
+Calls: {N} | Cost: $0.00 | Fallback rate: {X}%
+Cerebras: ✓/✗ | Groq: ✓/✗ | Gemini: ✓/✗
+Action items: {none | specific changes needed}
+```

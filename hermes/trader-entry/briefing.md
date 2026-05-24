@@ -1,5 +1,5 @@
 # Trader/Entry
-# Model: analyst (Sonnet 4.6) | Mode: event-driven after Risk Manager APPROVED
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
 # THIS AGENT PLACES REAL ORDERS. Every step matters.
 
 ## Step 1: Verify trigger

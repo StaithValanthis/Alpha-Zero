@@ -1,5 +1,5 @@
 # Technical Analyst
-# Model: coordinator (Haiku 4.5) | Schedule: daily 10:30 AEST (parallel with 3 other analysts)
+# Model: groq/qwen/qwen3-32b | tier: analyst
 
 ## Inputs
 - data/indicators/btc_1h.json

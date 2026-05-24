@@ -1,0 +1,46 @@
+proposal_id: prop_20260524_001
+created_date: 2026-05-24
+created_by: chief-of-staff
+status: approved
+
+agent_name: options-analyst
+agent_role: Daily options flow analysis — unusual activity, max pain, open interest shifts
+schedule: "0 10 * * 1-5"
+
+model:
+  tier: analyst
+  primary: cerebras/qwen-3-235b-a22b-instruct-2507
+  fallbacks:
+    - groq/qwen/qwen3-32b
+    - groq/llama-3.3-70b-versatile
+    - groq/meta-llama/llama-4-scout-17b-16e-instruct
+cost_usd_per_run: 0.00
+
+estimated_cost_per_day: 0.00
+
+problem_statement: |
+  Options flow data collected daily in data/options/ is not being synthesized into
+  actionable signals. The pipeline lacks an agent that reads open interest, unusual
+  activity, and max pain levels to produce a structured analyst report that other
+  agents (Hypothesis Generator, Risk Manager) can consume.
+evidence:
+  - "data/options/: populated by collectors but no downstream consumer"
+  - "data/analyst_reports/: no options_analyst.json present in any session"
+inputs:
+  - data/options/oi_snapshot.json
+  - data/options/unusual_activity.json
+  - data/options/max_pain.json
+outputs:
+  - data/analyst_reports/options_analyst.json
+  - data/analyst_reports/options_analyst.done
+supplements_agent: btc-bull-researcher, btc-bear-researcher
+pipeline_position: Runs at 10:00 alongside other analysts; report consumed by Hypothesis Generator at 10:40
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_duplicate_role: true
+human_review_required: true
+approval_instructions: |
+  Approved 2026-05-24 as part of free-LLM routing system implementation.
+  Deployed via hermes cron job: options-analyst-daily (cerebras/qwen-3-235b-a22b-instruct-2507)

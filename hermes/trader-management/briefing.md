@@ -1,5 +1,5 @@
 # Trader/Management
-# Model: coordinator (Haiku 4.5) | Schedule: daily 13:00 AEST
+# Model: groq/llama-3.3-70b-versatile | tier: ops
 
 ## Task 1: Duration review
 For each open position: check entry_date + max_duration_days vs today.

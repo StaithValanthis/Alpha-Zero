@@ -4,11 +4,11 @@
   "cold_start": true,
   "cold_start_day": 5,
   "priority_this_week": "validate",
-  "focus_area": "strategy hypothesis validation and signal watcher stability",
+  "focus_area": "Maintain BTC accumulation floor during cold start; validate strat_001 thesis and system stability",
   "strategy_to_retire": null,
   "max_position_size_pct": 5,
-  "target_btc_allocation_pct": 100,
-  "allocation_reasoning": "Cold start day 5 enforces hard floor of 90% BTC. Current allocation is 99.94% BTC. No USDT trade meets minimum threshold of 3 independent signals. Research indicates mean-reverting regime with 65% confidence, but no actionable signals for alt rotation or perp shorts. Total underperformance vs hodl is -0.4575%, entirely from bootstrap rebalance fees.",
+  "target_btc_allocation_pct": 99.94,
+  "allocation_reasoning": "Cold start day 5 of 14 enforces \u226590% BTC allocation. No corroborating signals (3+) for USDT trade. Regime is mean-reverting but confidence (0.65) insufficient to deviate from BTC accumulation floor. No alt rotation signals (BTC dominance stable, candidates_above_threshold = 0).",
   "allocation_confidence": "high",
   "usdt_trade_active": false,
   "usdt_trade_entry_btc_price": null,
@@ -24,6 +24,6 @@
   "dca_enabled": true,
   "crisis_mode": false,
   "circuit_breaker_active": false,
-  "notes": "No active anomalies. One unhandled error in signal watcher pipeline from missing 'content' key in live_triggers.json; system recovered. All 18 strategies in paper_testing, none triggered. Mon/Wed/Fri hypothesis-aging active: ensure all paper_testing strategies have thesis validated within 14 days.",
+  "notes": "Cold start constraints dominate allocation. strat_001 thesis_last_validated (2026-05-24) remains recent; no revalidation required today. System error ('content' KeyError) logged; input validation fallback implemented. BTC dominance stable (58.13%), alt rotation OFF. No anomalies or Tier-1 events. Focus: validate strat_001 paper trades and monitor system stability.",
   "alt_rotation_signal": "none"
 }

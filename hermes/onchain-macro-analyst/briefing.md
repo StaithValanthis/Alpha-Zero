@@ -3,6 +3,7 @@
 
 ## Inputs (read ALL of these)
 - data/onchain/mempool.json — mempool congestion and fee data
+- data/onchain/blockchair.json — Bitcoin network health: hashrate_24h, transactions_24h, blocks_24h, mempool_transactions, difficulty. Use hashrate_24h and transactions_24h as supporting context for on-chain activity level.
 - data/onchain/netflow.json — exchange inflow/outflow/netflow (CoinMetrics), MVRV ratio, active addresses
 - data/whales/large_transactions.json — transactions ≥500 BTC, source and count
 - data/macro/fear_greed_7d.json — fear/greed index
@@ -32,7 +33,9 @@ Then: data/analyst_reports/onchain_macro_analyst.done
     "whale_tx_count_24h": 0,
     "options_pcr": null,
     "options_max_pain_weekly": null,
-    "network_health": "1 sentence on transaction activity and any anomalies",
+    "network_health": "1 sentence on transaction activity, hash rate context, and any anomalies",
+    "transactions_24h": null,
+    "hashrate_24h": null,
     "btc_24h_change_pct": 0.0,
     "btc_market_cap_usd": 0,
     "accumulation_signal": "strong | moderate | neutral | distribution",
@@ -45,5 +48,8 @@ Then: data/analyst_reports/onchain_macro_analyst.done
 - MVRV < 1.0 = undervalued; 1-2 = fair; 2-3.5 = overvalued; >3.5 = extreme (bubble risk)
 - PCR > 1.2 = bearish hedge; PCR < 0.7 = complacency/bullish
 - Max pain: price gravitates toward this strike at expiry
+- hashrate_24h rising = network security increasing, miner confidence signal
+- transactions_24h > 700k = high on-chain activity; < 400k = low; use as context for mempool/netflow interpretation
+- blockchair.json is collected every 2h; if file is >3h old, note as stale but do not abort
 
 Write .done file LAST.

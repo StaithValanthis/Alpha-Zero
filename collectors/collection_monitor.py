@@ -16,6 +16,7 @@ CHECKS = {
     'etf_flows':      (f'{B}/data/macro/etf/flows.json',            50000),
     'whales':         (f'{B}/data/whales/large_transactions.json',   3600),
     'netflow':        (f'{B}/data/onchain/netflow.json',             8000),
+    'alt_watchlist':  (f'{B}/data/alts/watchlist_prices.json',      90000),
 }
 while True:
     now = time.time()

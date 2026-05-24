@@ -12,6 +12,8 @@ Read ALL of these before making any decision:
 - state/pipeline_state.json         (what completed vs failed yesterday)
 - state/anomaly_state.json          (any active anomalies)
 - hermes/orchestrator/memory/       (short_term.json, feedback.jsonl)
+- data/alts/watchlist_prices.json   (live prices and 24h change for ETH, SOL, BNB, XRP, ADA — alt rotation context)
+- state/watchlist.json              (alt scan results: btc_dominance_trend, btc_dominance_pct, alt_rotation_status, candidates)
 
 ## Every day — core decisions
 
@@ -32,6 +34,19 @@ Otherwise false.
 ### 4. Signal watcher pause assessment
 Set signal_watcher_paused: true ONLY if there is an active Tier-1 negative event.
 Do NOT set this for normal market volatility.
+
+### 5. Alt rotation signal assessment
+Read state/watchlist.json and data/alts/watchlist_prices.json.
+Count how many alts in watchlist_prices.json have positive price24hPcnt.
+
+Set alt_rotation_signal in the directive as follows:
+- "active": btc_dominance_trend is "falling" AND ≥2 alts show positive 24h change AND at least one candidate exists in watchlist.json with candidates_above_threshold > 0
+- "watch": btc_dominance_trend is "falling" OR ≥3 alts show positive 24h change (but hard rotation criteria not yet met)
+- "none": all other cases (default)
+
+Do NOT change capital allocation based on alt_rotation_signal alone.
+"active" or "watch" means flag for human review — it is not a trade instruction.
+Note the specific alts showing momentum in the directive's notes field.
 
 ## Monday/Wednesday/Friday only — hypothesis validity aging
 For each strategy in paper_testing or ready_to_trade:

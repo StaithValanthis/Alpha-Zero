@@ -1,11 +1,13 @@
 # OnChain/Macro Analyst
 # Model: coordinator (Haiku 4.5) | Schedule: daily 10:30 AEST (parallel)
 
-## Inputs
-- data/onchain/mempool.json
-- data/onchain/blockchair.json
-- data/macro/fear_greed_7d.json
-- data/macro/btc_market.json
+## Inputs (read ALL of these)
+- data/onchain/mempool.json — mempool congestion and fee data
+- data/onchain/netflow.json — exchange inflow/outflow/netflow (CoinMetrics), MVRV ratio, active addresses
+- data/whales/large_transactions.json — transactions ≥500 BTC, source and count
+- data/macro/fear_greed_7d.json — fear/greed index
+- data/macro/btc_market.json — price and market cap
+- data/options/btc_options.json — put/call ratio, IV, max pain
 
 ## Output: data/analyst_reports/onchain_macro_analyst.json
 Then: data/analyst_reports/onchain_macro_analyst.done
@@ -23,6 +25,13 @@ Then: data/analyst_reports/onchain_macro_analyst.done
     "fear_greed_signal": "extreme_fear_buy_signal | fear | neutral | greed | extreme_greed_caution",
     "mempool_congestion": "low | moderate | high",
     "mempool_fee_fast_sat_vb": 0,
+    "exchange_netflow_btc": null,
+    "exchange_netflow_signal": "strong_accumulation | mild_accumulation | neutral | mild_distribution | strong_distribution",
+    "exchange_reserve_btc": null,
+    "mvrv_ratio": null,
+    "whale_tx_count_24h": 0,
+    "options_pcr": null,
+    "options_max_pain_weekly": null,
     "network_health": "1 sentence on transaction activity and any anomalies",
     "btc_24h_change_pct": 0.0,
     "btc_market_cap_usd": 0,
@@ -30,5 +39,11 @@ Then: data/analyst_reports/onchain_macro_analyst.done
     "top_onchain_signal": "the single most significant observation"
   }
 }
+
+## Signal interpretation
+- netflow_btc positive = more BTC leaving exchanges = accumulation (bullish)
+- MVRV < 1.0 = undervalued; 1-2 = fair; 2-3.5 = overvalued; >3.5 = extreme (bubble risk)
+- PCR > 1.2 = bearish hedge; PCR < 0.7 = complacency/bullish
+- Max pain: price gravitates toward this strike at expiry
 
 Write .done file LAST.

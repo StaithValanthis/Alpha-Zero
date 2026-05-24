@@ -4,11 +4,18 @@ from datetime import datetime, timezone
 
 B = os.path.expanduser('~/btc-agents')
 CHECKS = {
-    'btc_candles': (f'{B}/data/market/btc_candles_1h.json', 360),
-    'derivatives': (f'{B}/data/market/funding_history.json', 3600),
-    'fear_greed':  (f'{B}/data/macro/fear_greed_7d.json', 90000),
-    'onchain':     (f'{B}/data/onchain/mempool.json', 4000),
-    'ta_engine':   (f'{B}/data/indicators/btc_4h.json', 400),
+    'btc_candles':    (f'{B}/data/market/btc_candles_1h.json',        360),
+    'derivatives':    (f'{B}/data/market/funding_history.json',       3600),
+    'fear_greed':     (f'{B}/data/macro/fear_greed_7d.json',         90000),
+    'onchain':        (f'{B}/data/onchain/mempool.json',              4000),
+    'ta_engine':      (f'{B}/data/indicators/btc_4h.json',            400),
+    # New tier-1 collectors
+    'news':           (f'{B}/data/news/articles.json',               1800),
+    'news_classified':(f'{B}/data/news/classified.json',             5000),
+    'options':        (f'{B}/data/options/btc_options.json',         4000),
+    'etf_flows':      (f'{B}/data/macro/etf/flows.json',            50000),
+    'whales':         (f'{B}/data/whales/large_transactions.json',   3600),
+    'netflow':        (f'{B}/data/onchain/netflow.json',             8000),
 }
 while True:
     now = time.time()

@@ -1,6 +1,6 @@
 {
   "last_updated": "2026-05-22T13:43:16Z",
-  "demo_mode": false,
+  "demo_mode": true,
   "exchange": "bybit",
   "measurement_unit": "BTC \u2014 sats are the only score. USDT is just the risk-off asset.",
   "starting_date": "2026-05-19",

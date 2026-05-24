@@ -5,7 +5,28 @@ from _utils import atomic_write, envelope, load_env
 
 B = os.path.expanduser('~/btc-agents'); env = load_env()
 URL = env.get('BYBIT_BASE_URL', 'https://api.bybit.com')
-watchlist = json.load(open(f'{B}/state/watchlist.json')).get('alts', [])
+
+# Primary: state/symbol_watchlist.json (static config)
+# Fallback: universe_details[*].symbol from state/watchlist.json (scanner output)
+def load_symbols():
+    try:
+        d = json.load(open(f'{B}/state/symbol_watchlist.json'))
+        syms = d.get('symbols', [])
+        if syms:
+            return syms
+    except Exception:
+        pass
+    try:
+        d = json.load(open(f'{B}/state/watchlist.json'))
+        details = d.get('universe_details', [])
+        syms = [item['symbol'] for item in details if item.get('symbol')]
+        if syms:
+            return syms
+    except Exception:
+        pass
+    return []
+
+watchlist = load_symbols()
 prices = {}
 for sym in watchlist:
     try:

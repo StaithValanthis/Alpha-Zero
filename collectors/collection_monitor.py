@@ -7,7 +7,7 @@ CHECKS = {
     'btc_candles':    (f'{B}/data/market/btc_candles_1h.json',        360),
     'derivatives':    (f'{B}/data/market/funding_history.json',       3600),
     'fear_greed':     (f'{B}/data/macro/fear_greed_7d.json',         90000),
-    'onchain':        (f'{B}/data/onchain/mempool.json',              4000),
+    'onchain':        (f'{B}/data/onchain/mempool.json',             90000),
     'ta_engine':      (f'{B}/data/indicators/btc_4h.json',            400),
     # New tier-1 collectors
     'news':           (f'{B}/data/news/articles.json',               1800),

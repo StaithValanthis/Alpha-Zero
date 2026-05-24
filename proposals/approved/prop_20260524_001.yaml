@@ -1,0 +1,44 @@
+proposal_id: prop_20260524_001
+created_date: 2026-05-24
+created_by: chief-of-staff
+status: approved
+agent_name: options-analyst
+agent_role: Reads data/options/btc_options.json and produces a daily options market report covering put/call ratio, IV, max pain, and IV skew — signals not covered by any existing analyst
+schedule: "30 0 * * *"
+model: coordinator
+estimated_cost_per_day: 0.007
+
+problem_statement: |
+  data/options/btc_options.json is being collected daily by options_collector and contains
+  high-signal options data (put/call OI ratio, IV, max pain, IV skew) that is read by zero
+  existing agents. The derivatives analyst covers only perpetual futures (funding, OI, long/short
+  ratio) and the options market represents a structurally different participant base (sophisticated
+  hedgers, market makers). Max pain at $76,000 is directly relevant to the current active strategy
+  strat_001 (entered $76,848 with TP $79,539) yet produced no signal input in today's debates.
+
+evidence:
+  - "data/options/btc_options.json: collected_at 2026-05-24T10:58:59Z, put/call OI ratio 1.1347 (bearish hedging), max pain weekly $76,000, IV skew +0.05 (puts priced above calls), Deribit put/call 0.696 — rich signal dataset with zero analyst coverage"
+  - "data/analyst_reports/derivatives_analyst.json: covers only funding_rate, OI, long_short_ratio — no reference to options market; options field entirely absent from derivatives analyst output"
+  - "data/debates/hch_20260524_001.json through hch_20260524_004.json: all 4 debates and all 8 debate rounds contain zero references to put/call ratio, implied volatility, max pain, or options skew — confirmed signal blind spot in hypothesis generation"
+  - "state/strategies.json strat_001: entry 76848.90, TP 79539 — max pain at 76000 means options market makers are incentivized to push price BELOW entry; this risk factor was never surfaced in any debate"
+
+inputs:
+  - data/options/btc_options.json
+
+outputs:
+  - data/analyst_reports/options_analyst.json
+
+supplements_agent: derivatives-analyst
+pipeline_position: Runs in parallel with technical-analyst, derivatives-analyst, onchain-macro-analyst, and sentiment-news-analyst in the morning pipeline. Output is consumed by debate synthesis alongside other analyst reports.
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_duplicate_role: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260524_001.yaml proposals/approved/
+  To reject: cp proposals/pending/prop_20260524_001.yaml proposals/rejected/
+  The agent deployer checks proposals/approved/ every hour and will deploy within 60 minutes of approval.

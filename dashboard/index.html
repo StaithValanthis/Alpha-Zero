@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTC Agents</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+#app{max-width:1100px;margin:0 auto;padding:12px}
+.hdr{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;letter-spacing:.3px}
+.demo{background:#1f3a1f;color:#3fb950;border:1px solid #2ea043}
+.live{background:#3a1c0a;color:#f0883e;border:1px solid #bd561d}
+.hdr-stat{display:flex;flex-direction:column;align-items:flex-end}
+.hdr-lbl{font-size:10px;color:#8b949e;letter-spacing:.5px;text-transform:uppercase}
+.hdr-val{font-size:15px;font-weight:500;line-height:1.2}
+.g{color:#3fb950}.r{color:#f85149}.a{color:#d29922}.b{color:#58a6ff}.m{color:#8b949e}
+.tab-row{display:flex;gap:2px;margin-bottom:0}
+.tab{font-size:12px;padding:6px 14px;border-radius:6px 6px 0 0;cursor:pointer;color:#8b949e;border:1px solid transparent;border-bottom:none;background:#0d1117;transition:all .15s}
+.tab:hover{color:#e6edf3}
+.tab.active{background:#161b22;color:#e6edf3;border-color:#30363d}
+.body{background:#161b22;border:1px solid #30363d;border-top:none;border-radius:0 8px 8px 8px;padding:12px;display:grid;gap:10px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px}
+.ct{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:#8b949e;margin-bottom:10px}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dg{background:#3fb950}.da{background:#d29922}.dr{background:#f85149}
+.db{background:#58a6ff;animation:pb 1.4s ease infinite}.di{background:#30363d}
+@keyframes pb{0%,100%{opacity:1}50%{opacity:.3}}
+.ag{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ac{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;cursor:pointer;transition:border-color .15s}
+.ac:hover,.ac.sel{border-color:#58a6ff;background:#0d1a2e}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.an{font-size:11px;font-weight:500;line-height:1.2}
+.as{font-size:10px;color:#8b949e;display:flex;align-items:center;gap:3px;justify-content:center}
+.dp{border:1px solid #1f6feb;border-radius:8px;background:#0d1a2e;padding:14px}
+.dp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dp-ttl{font-size:12px;font-weight:500;color:#58a6ff}
+.cls{background:none;border:1px solid #30363d;color:#8b949e;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer}
+.cls:hover{color:#e6edf3;border-color:#8b949e}
+.dp-body{font-size:12px;line-height:1.6;color:#c9d1d9}
+.dp-body ul{list-style:none;display:grid;gap:6px}
+.dp-body li{padding:6px 8px;background:#0d1117;border-radius:4px;border-left:2px solid #1f6feb}
+.spin{width:14px;height:14px;border:2px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;gap:8px;color:#8b949e;font-size:12px}
+.pr{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #21262d;font-size:12px}
+.pr:last-child{border-bottom:none}
+.pt{font-size:11px;color:#8b949e;width:38px;flex-shrink:0}
+.pn{flex:1}
+.pi{width:14px;height:14px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px}
+.pid{background:#1f3a1f;color:#3fb950}.pip{background:#2d2a1f;color:#d29922}.pif{background:#3a1c1c;color:#f85149}
+.di-item{padding:8px 10px;border-radius:6px;margin-bottom:6px;border-left:3px solid transparent;cursor:pointer;transition:background .15s}
+.di-item:last-child{margin-bottom:0}
+.dib{background:#1f3a1f30;border-left-color:#3fb950}.dib:hover{background:#1f3a1f60}
+.dir{background:#3a1c1c30;border-left-color:#f85149}.dir:hover{background:#3a1c1c60}
+.dii{background:#2d2a1f30;border-left-color:#d29922}.dii:hover{background:#2d2a1f60}
+.di-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.cb{font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px}
+.cbg{background:#1f3a1f;color:#3fb950}.cbr{background:#3a1c1c;color:#f85149}.cbi{background:#2d2a1f;color:#d29922}
+.dt{font-size:11px;color:#8b949e;line-height:1.4}
+.tr-row{display:grid;grid-template-columns:48px 72px minmax(0,1fr) 80px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid #21262d;cursor:pointer;border-radius:4px}
+.tr-row:last-child{border-bottom:none}
+.tr-row:hover,.tr-row.sel{background:#161b22}
+.tid{color:#8b949e;font-size:11px}
+.ts{color:#58a6ff;font-weight:500;font-size:12px}
+.tdesc{color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.tbadge{font-size:10px;font-weight:500;padding:2px 6px;border-radius:3px;text-align:center;white-space:nowrap}
+.tapp{background:#1f3a1f;color:#3fb950}.texec{background:#1a2d4a;color:#58a6ff}.trej{background:#3a1c1c;color:#f85149}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px;border-bottom:1px solid #21262d}
+.kv:last-child{border-bottom:none}
+.kk{color:#8b949e}
+.pb2{height:4px;background:#21262d;border-radius:2px;overflow:hidden;margin-top:6px}
+.pf2{height:100%;background:#3fb950;border-radius:2px}
+.sep{height:1px;background:#21262d;margin:4px 0}
+.chain-step{display:flex;gap:10px;padding:5px 0;font-size:12px;line-height:1.5}
+.chain-num{width:18px;height:18px;border-radius:50%;background:#1f3a4a;color:#58a6ff;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.strat-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #21262d;cursor:pointer;font-size:12px}
+.strat-row:last-child{border-bottom:none}
+.strat-row:hover{background:#161b2230}
+.price-ticker{font-size:11px;color:#3fb950;font-variant-numeric:tabular-nums}
+.circuit-alert{background:#3a1c1c;border:1px solid #f85149;border-radius:6px;padding:8px 12px;color:#f85149;font-size:12px;font-weight:500;margin-bottom:10px}
+#setup-screen{position:fixed;inset:0;background:#0d1117;display:flex;align-items:center;justify-content:center;z-index:100}
+.setup-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:28px;max-width:500px;width:100%}
+.setup-input{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-family:inherit;font-size:13px;outline:none;margin:8px 0}
+.setup-btn{padding:10px 20px;background:#3fb950;border:none;border-radius:6px;color:#000;font-size:12px;font-weight:500;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="setup-screen">
+  <div class="setup-card">
+    <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">BTC Agent System</div>
+    <div style="font-size:14px;font-weight:500;margin-bottom:8px">Enter your Anthropic API key</div>
+    <div style="font-size:12px;color:#8b949e;margin-bottom:16px">Used locally for AI drilldowns (click any agent, debate, or trigger). Stored in localStorage, never sent to this server.</div>
+    <input type="password" class="setup-input" id="api-key-input" placeholder="sk-ant-..." autocomplete="off">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+      <button class="cls" onclick="skipSetup()">Skip (no AI drilldowns)</button>
+      <button class="setup-btn" onclick="saveKey()">Save & Open Dashboard</button>
+    </div>
+    <div id="setup-err" style="color:#f85149;font-size:12px;margin-top:8px"></div>
+  </div>
+</div>
+<div id="app" style="display:none">
+  <div class="hdr" id="hdr"></div>
+  <div class="tab-row" id="tabs"></div>
+  <div class="body" id="content"></div>
+  <div style="text-align:center;color:#30363d;font-size:11px;padding:8px 0">Auto-refreshes every 60s · <span id="last-refresh"></span></div>
+</div>
+<script>
+const TOKEN = new URLSearchParams(location.search).get('token') || '';
+const API = (path) => `/api/${path}${TOKEN ? '?token='+TOKEN : ''}`;
+
+let state = {};
+let selAgent = null, selDebate = null, selTrigger = null, selStrat = null;
+let activeTab = 'overview';
+
+// ── Setup screen ──────────────────────────────────────────────────
+function skipSetup() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  init();
+}
+function saveKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    document.getElementById('setup-err').textContent = 'Key should start with sk-ant-';
+    return;
+  }
+  localStorage.setItem('ant_key', k);
+  skipSetup();
+}
+window.onload = () => {
+  if (localStorage.getItem('ant_key')) skipSetup();
+};
+
+// ── Claude AI drilldown ───────────────────────────────────────────
+async function askClaude(prompt) {
+  const key = localStorage.getItem('ant_key') || '';
+  try {
+    const r = await fetch('/api/ai/ask' + (TOKEN ? '?token=' + TOKEN : ''), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(key ? {'X-Anthropic-Key': key} : {})
+      },
+      body: JSON.stringify({prompt})
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      return 'AI error: ' + (err.detail || r.status);
+    }
+    const d = await r.json();
+    return d.text || 'No response';
+  } catch(e) {
+    return 'Request failed: ' + e.message;
+  }
+}
+
+function loadingEl(el) {
+  el.innerHTML = '<div class="loading"><div class="spin"></div><span>Generating…</span></div>';
+}
+function esc(s) { return String(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+// ── Data fetching ─────────────────────────────────────────────────
+async function loadAll() {
+  const [status, portfolio, pipeline, strategies, research, triggers, costs, risk, analysts] = await Promise.all([
+    fetch(API('status')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('portfolio')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('pipeline')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('strategies')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('research')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('triggers')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('costs')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('risk-stats')).then(r=>r.json()).catch(()=>({})),
+    fetch(API('analysts')).then(r=>r.json()).catch(()=>({})),
+  ]);
+  state = { status, portfolio, pipeline, strategies, research, triggers, costs, risk, analysts };
+  document.getElementById('last-refresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
+  render();
+}
+
+// ── Render ─────────────────────────────────────────────────────────
+function render() {
+  renderHeader();
+  renderTabs();
+  if (activeTab === 'overview') renderOverview();
+  else if (activeTab === 'strategies') renderStrategies();
+  else if (activeTab === 'agents') renderAgentsTab();
+}
+
+function renderHeader() {
+  const p = state.portfolio || {};
+  const s = state.status || {};
+  const perf = p.performance || {};
+  const isDemo = p.demo_mode !== false;
+  const sats = Math.round((p.btc_equivalent_total || 0) * 1e8).toLocaleString();
+  const vsHodl = perf.vs_hodl_btc_pct || 0;
+  const circuit = p.circuit_breaker_tripped;
+  document.getElementById('hdr').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="badge ${isDemo?'demo':'live'}">${isDemo?'DEMO':'LIVE'}</span>
+      <div>
+        <div style="font-size:11px;color:#8b949e">btc-agents \xb7 oracle-au \xb7 day ${s.cold_start_day||0}/14</div>
+        <div style="font-size:11px;color:${circuit?'#f85149':'#3fb950'}">${circuit?'⚠ CIRCUIT BREAKER TRIPPED':'✓ Circuit clear'} \xb7 ${s.dca_enabled?'DCA on':'DCA off'} \xb7 ${s.signal_watcher_paused?'Watcher paused':'Watcher running'}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:18px;align-items:center">
+      <div class="hdr-stat"><span class="hdr-lbl">Sats</span><span class="hdr-val">${sats}</span></div>
+      <div class="hdr-stat"><span class="hdr-lbl">vs Hodl</span><span class="hdr-val ${vsHodl>=0?'g':'r'}">${vsHodl>=0?'+':''}${vsHodl.toFixed(2)}%</span></div>
+      <div class="hdr-stat"><span class="hdr-lbl">BTC</span><span class="hdr-val price-ticker" id="btc-price">$${(s.btc_price_usd||0).toLocaleString()}</span></div>
+      <div class="hdr-stat"><span class="hdr-lbl">DCA</span><span class="hdr-val ${s.dca_enabled?'g':'m'}">${s.dca_enabled?'on':'off'}</span></div>
+    </div>`;
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML =
+    ['overview','strategies','agents'].map(t=>
+      `<div class="tab ${activeTab===t?'active':''}" onclick="switchTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`
+    ).join('');
+}
+
+function switchTab(t) { activeTab = t; render(); }
+
+// ── OVERVIEW ──────────────────────────────────────────────────────
+function renderOverview() {
+  const p = state.portfolio || {};
+  const perf = p.performance || {};
+  const pipe = (state.pipeline||{}).pipeline || {};
+  const completed = pipe.completed_today || [];
+  const s = state.status || {};
+  const c = state.costs || {};
+  const rk = state.risk || {};
+
+  const sched = [
+    {t:'01:30',k:'orchestrator',label:'Orchestrator'},
+    {t:'10:30',k:'analysts_parallel',label:'Analysts \xd74 parallel'},
+    {t:'10:35',k:'hypothesis-generator',label:'Hypothesis Generator'},
+    {t:'10:40',k:'bull-researcher',label:'Bull + Bear Round 1'},
+    {t:'10:48',k:'bull-researcher-r2',label:'Bull + Bear Round 2'},
+    {t:'10:55',k:'synthesis',label:'Synthesis'},
+    {t:'12:30',k:'strategy-tester',label:'Strategy Tester'},
+    {t:'13:00',k:'trader-management',label:'Trader / Management'},
+    {t:'19:00',k:'reporter',label:'Reporter'},
+  ];
+  const pipeRows = sched.map(r=>{
+    const done = completed.includes(r.k);
+    const failed = (pipe.failed_today||[]).includes(r.k);
+    const inprog = pipe.in_progress === r.k;
+    const ic = failed?'pif':done?'pid':inprog?'pip':'pip';
+    const ico = failed?'✗':done?'✓':inprog?'…':'⏳';
+    const col = failed?'r':done?'g':inprog?'b':'m';
+    return `<div class="pr"><span class="pt m">${r.t}</span><span class="pi ${ic}">${ico}</span><span class="pn">${r.label}</span><span class="${col}" style="font-size:11px">${done?'done':failed?'failed':inprog?'running…':'pending'}</span></div>`;
+  }).join('');
+
+  const research = state.research || {};
+  const approved = (research.research||research).approved_hypotheses || [];
+  const rejected = (research.research||research).rejected_hypotheses || [];
+
+  const by_status = state.strategies?.by_status || {};
+  const totalStrats = state.strategies?.total || 0;
+  const triggers = state.triggers?.queue || [];
+  const eq = p.execution_quality || {};
+
+  document.getElementById('content').innerHTML = `
+  ${p.circuit_breaker_tripped?'<div class="circuit-alert">⚠ CIRCUIT BREAKER TRIPPED — All trading halted. Manual review required.</div>':''}
+  <div class="r2">
+    <div class="card">
+      <div class="ct">Portfolio</div>
+      <div style="font-size:26px;font-weight:500;line-height:1;margin-bottom:4px">${Math.round((p.btc_equivalent_total||0)*1e8).toLocaleString()} <span style="font-size:14px;color:#8b949e">sats</span></div>
+      <div style="font-size:12px;color:#8b949e;margin-bottom:10px">${(p.btc_equivalent_total||0).toFixed(5)} BTC</div>
+      <div class="kv"><span class="kk">vs hodl</span><span class="${(perf.vs_hodl_btc_pct||0)>=0?'g':'r'}">${(perf.vs_hodl_btc_pct||0)>=0?'+':''}${(perf.vs_hodl_btc_pct||0).toFixed(3)}% (${(perf.sats_ahead_of_hodl||0)>=0?'+':''}${Math.round(perf.sats_ahead_of_hodl||0)} sats)</span></div>
+      <div class="kv"><span class="kk">BTC allocation</span><span>${(p.current_btc_allocation_pct||0).toFixed(1)}%</span></div>
+      <div class="kv"><span class="kk">Open positions</span><span>${(p.open_positions||[]).length + (p.perp_positions||[]).length}</span></div>
+      <div class="kv"><span class="kk">Total trades</span><span>${perf.total_trades||0}</span></div>
+      <div class="kv"><span class="kk">Avg slippage</span><span>${(eq.rolling_30_trade_avg_slippage_pct||0).toFixed(3)}%</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">Equity vs Hodl — 30d</div>
+      <svg width="100%" height="90" viewBox="0 0 320 90" preserveAspectRatio="none" id="sparkline" style="display:block"></svg>
+      <div style="display:flex;gap:16px;font-size:11px;margin-top:4px">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#3fb950;display:inline-block"></span>Portfolio</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:1px;background:#444;display:inline-block"></span>Hodl</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Active agents — click any for live AI status report</div>
+    <div class="ag" id="agent-grid"></div>
+    <div id="agent-detail" style="display:none;margin-top:10px"></div>
+  </div>
+  <div class="r2">
+    <div class="card">
+      <div class="ct">Today's pipeline</div>
+      ${pipeRows}
+    </div>
+    <div class="card">
+      <div class="ct">Today's debates — click to read transcript</div>
+      <div id="debates-list"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Recent triggers — click to trace hypothesis chain</div>
+    <div style="display:grid;grid-template-columns:48px 72px minmax(0,1fr) 80px;gap:8px;padding:4px;font-size:10px;color:#8b949e;border-bottom:1px solid #30363d;margin-bottom:2px">
+      <span>Time</span><span>ID</span><span>Details</span><span>Status</span></div>
+    <div id="triggers-list"></div>
+  </div>
+  <div class="r3">
+    <div class="card">
+      <div class="ct">Strategy funnel</div>
+      <div class="kv"><span class="kk">Hypotheses approved today</span><span class="g">${approved.length}</span></div>
+      <div class="sep"></div>
+      <div class="kv"><span class="kk">Active</span><span class="g">${by_status.active||0}</span></div>
+      <div class="kv"><span class="kk">Ready to trade</span><span class="b">${by_status.ready_to_trade||0}</span></div>
+      <div class="kv"><span class="kk">Paper testing</span><span>${by_status.paper_testing||0}</span></div>
+      <div class="kv"><span class="kk">Suspended</span><span class="a">${by_status.suspended||0}</span></div>
+      <div class="kv"><span class="kk">Thesis expired</span><span class="m">${by_status.thesis_expired||0}</span></div>
+      <div class="kv"><span class="kk">Total strategies</span><span>${totalStrats}</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">Costs today</div>
+      ${Object.entries(c.breakdown||{}).map(([k,v])=>`<div class="kv"><span class="kk">${k}</span><span>$${v.toFixed(3)}</span></div>`).join('')||'<div style="color:#8b949e;font-size:12px">No agent runs yet today</div>'}
+      <div class="sep"></div>
+      <div class="kv"><span class="kk">Total today</span><span class="g">$${(c.today||0).toFixed(3)}</span></div>
+      <div class="kv"><span class="kk">MTD (est)</span><span>$${(c.mtd||0).toFixed(2)} / $32</span></div>
+      <div class="pb2"><div class="pf2" style="width:${Math.min(((c.mtd||0)/32)*100,100).toFixed(1)}%"></div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Risk manager \xb7 7d</div>
+      <div style="font-size:22px;font-weight:500;color:#3fb950;margin-bottom:6px">${rk.approval_rate||0}% <span style="font-size:12px;color:#8b949e">approval</span></div>
+      <div class="kv"><span class="kk">Evaluated</span><span>${rk.total_evaluated||0}</span></div>
+      <div class="kv"><span class="kk">Approved</span><span class="g">${rk.approved||0}</span></div>
+      <div class="kv"><span class="kk">Rejected — risk</span><span class="r">${rk.rejected_risk||0}</span></div>
+      <div class="kv"><span class="kk">Rejected — thesis</span><span class="r">${rk.rejected_thesis||0}</span></div>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#8b949e">Top: ${rk.top_rejection_reason||'none'}</div>
+    </div>
+  </div>`;
+
+  renderAgentGrid('agent-grid','agent-detail');
+  renderDebates();
+  renderTriggersList();
+  drawSparkline();
+}
+
+// ── AGENTS ────────────────────────────────────────────────────────
+const AGENT_DEFS = [
+  {id:'chief',name:'Chief',initials:'CS',bg:'#1f3a4a',fg:'#58a6ff',role:'Pipeline coordinator',domain:'trigger queue, agent scheduling, anomaly monitoring'},
+  {id:'orchestrator',name:'Orchestrator',initials:'OR',bg:'#1a2a3a',fg:'#58a6ff',role:'Strategic director',domain:'directive writing, allocation decisions, hypothesis aging'},
+  {id:'technical-analyst',name:'Tech Analyst',initials:'TA',bg:'#1a1f3a',fg:'#7c8cf8',role:'Technical signals',domain:'RSI, MACD, EMA, Bollinger across 1h/4h/1d'},
+  {id:'derivatives-analyst',name:'Deriv Analyst',initials:'DA',bg:'#1a2a3a',fg:'#58a6ff',role:'Derivatives',domain:'funding rates, open interest, long/short ratio'},
+  {id:'onchain-macro-analyst',name:'OnChain',initials:'OC',bg:'#1a3a2a',fg:'#3fb950',role:'On-chain & macro',domain:'mempool, ETF flows, F&G, yield context'},
+  {id:'sentiment-news-analyst',name:'Sentiment',initials:'SN',bg:'#2d2a1f',fg:'#d29922',role:'News & social',domain:'breaking news, social momentum, Tier-1 events'},
+  {id:'bull-researcher',name:'Bull',initials:'BU',bg:'#1f3a1f',fg:'#3fb950',role:'Bull Researcher',domain:'arguing FOR each hypothesis with analyst evidence'},
+  {id:'bear-researcher',name:'Bear',initials:'BR',bg:'#3a1c1c',fg:'#f85149',role:'Bear Researcher',domain:'arguing AGAINST each hypothesis, checking lessons'},
+  {id:'synthesis',name:'Synthesis',initials:'SY',bg:'#2a1f3a',fg:'#a371f7',role:'Synthesis Agent',domain:'adjudicating debates, fact-checking, writing research.json'},
+  {id:'risk-manager',name:'Risk Mgr',initials:'RM',bg:'#2a1a1a',fg:'#f0883e',role:'Risk Manager',domain:'risk math, thesis quality, approving triggers'},
+  {id:'trader-entry',name:'Trader',initials:'TR',bg:'#161b22',fg:'#8b949e',role:'Trader/Entry',domain:'HMAC-signed Bybit orders, slippage tracking, lockfile'},
+];
+
+function agentStatus(agentId) {
+  const pipe = (state.pipeline||{}).pipeline || {};
+  const inprog = pipe.in_progress;
+  const runs = (state.pipeline||{}).today_runs || [];
+  if (inprog && inprog.includes(agentId)) return {cls:'act',dot:'db',txt:'running'};
+  const ran = runs.find(r=>r.agent===agentId);
+  if (ran) return {cls:'done',dot:'dg',txt:'done today'};
+  return {cls:'',dot:'di',txt:'idle'};
+}
+
+function renderAgentGrid(gridId, detailId) {
+  const c = document.getElementById(gridId);
+  if (!c) return;
+  c.innerHTML = AGENT_DEFS.map(a=>{
+    const st = agentStatus(a.id);
+    return `<div class="ac ${selAgent===a.id&&detailId==='agent-detail'?'sel':''}" onclick="clickAgent('${a.id}','${detailId}')">
+      <div class="av" style="background:${a.bg};color:${a.fg}">${a.initials}</div>
+      <div class="an">${a.name}</div>
+      <div class="as"><span class="dot ${st.dot}"></span>${st.txt}</div>
+    </div>`;
+  }).join('');
+}
+
+async function clickAgent(id, detailId) {
+  const d = document.getElementById(detailId);
+  if (!d) return;
+  if (selAgent===id) { selAgent=null; d.style.display='none'; renderAgentGrid('agent-grid','agent-detail'); renderAgentGrid('agent-grid-2','agent-detail-2'); return; }
+  selAgent = id;
+  renderAgentGrid('agent-grid','agent-detail');
+  renderAgentGrid('agent-grid-2','agent-detail-2');
+  d.style.display = 'block';
+  const ag = AGENT_DEFS.find(a=>a.id===id);
+  const market = `BTC at $${(state.status?.btc_price_usd||0).toLocaleString()}, regime: ${(state.research?.research||state.research||{}).market_regime||'unknown'}`;
+  d.innerHTML = `<div class="dp"><div class="dp-hdr"><div class="dp-ttl">${ag.role} — AI status report</div><button class="cls" onclick="selAgent=null;document.getElementById('${detailId}').style.display='none'">close</button></div><div id="dp-body-${id}"></div></div>`;
+  loadingEl(document.getElementById(`dp-body-${id}`));
+  const text = await askClaude(`You are the ${ag.role} in an autonomous BTC trading system. Give a 4-bullet status report on your last run. Domain: ${ag.domain}. Market: ${market}. Start each bullet with ▸. Be specific with numbers. No preamble.`);
+  const bullets = text.split('\n').filter(l=>l.trim()).slice(0,5);
+  document.getElementById(`dp-body-${id}`).innerHTML = `<div class="dp-body"><ul>${bullets.map(b=>`<li>${esc(b.replace(/^[▸•\-*]\s*/,''))}</li>`).join('')}</ul></div>`;
+}
+
+function renderAgentsTab() {
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="ct">Full agent roster — click any for detailed AI status</div>
+      <div class="ag" id="agent-grid-2"></div>
+      <div id="agent-detail-2" style="display:none;margin-top:10px"></div>
+    </div>`;
+  renderAgentGrid('agent-grid-2','agent-detail-2');
+}
+
+// ── DEBATES ───────────────────────────────────────────────────────
+function renderDebates() {
+  const c = document.getElementById('debates-list');
+  if (!c) return;
+  const research = state.research?.research || state.research || {};
+  const approved = research.approved_hypotheses || [];
+  const rejected = research.rejected_hypotheses || [];
+  const inconclusive = research.inconclusive_hypotheses || [];
+  const all = [
+    ...approved.map(h=>({...h,v:'bull_wins',c:'dib',bc:'cbg',bl:'BULL WINS'})),
+    ...rejected.map(h=>({...h,v:'bear_wins',c:'dir',bc:'cbr',bl:'BEAR WINS'})),
+    ...inconclusive.map(h=>({...h,v:'inconclusive',c:'dii',bc:'cbi',bl:'INCONCLUSIVE'})),
+  ];
+  if (!all.length) { c.innerHTML = '<div style="color:#8b949e;font-size:12px">No hypotheses generated yet today</div>'; return; }
+  c.innerHTML = all.map(h=>`
+    <div class="di-item ${h.c}" onclick="clickDebate('${h.hypothesis_chain_id||h.id||''}','${h.v}','${esc(h.title||'')}','${esc(h.key_evidence||'')}')">
+      <div class="di-hdr">
+        <span style="font-size:12px;font-weight:500">${esc(h.title||'Hypothesis')}</span>
+        <span class="cb ${h.bc}">${h.bl} \xb7 ${(h.confidence||0).toFixed(2)}</span>
+      </div>
+      <div class="dt">${esc(h.key_evidence||'')}</div>
+      ${selDebate===h.hypothesis_chain_id?`<div id="debate-expand-${h.hypothesis_chain_id}" style="margin-top:8px"></div>`:''}
+    </div>`).join('');
+}
+
+async function clickDebate(id, verdict, title, evidence) {
+  if (!id) return;
+  if (selDebate===id) { selDebate=null; renderDebates(); return; }
+  selDebate = id;
+  renderDebates();
+  let transcript = null;
+  try {
+    const r = await fetch(API(`debates/${id}`));
+    if (r.ok) transcript = await r.json();
+  } catch(e) {}
+  const el = document.getElementById(`debate-expand-${id}`);
+  if (!el) return;
+  if (transcript) {
+    el.innerHTML = `<div style="font-size:12px;line-height:1.6;color:#c9d1d9;background:#0d1117;padding:10px;border-radius:6px;border:1px solid #21262d"><pre style="white-space:pre-wrap;font-family:inherit">${esc(JSON.stringify(transcript,null,2).slice(0,1500))}</pre></div>`;
+  } else {
+    loadingEl(el);
+    const text = await askClaude(`Generate a brief Bull vs Bear debate transcript for: "${title}". Evidence: ${evidence}. Verdict: ${verdict}. Show BULL R1, BEAR R1, BULL R2, BEAR R2, VERDICT. Under 120 words total.`);
+    el.innerHTML = text.split('\n').filter(l=>l.trim()).map(l=>{
+      const col = l.startsWith('BULL')?'#3fb950':l.startsWith('BEAR')?'#f85149':l.startsWith('VERDICT')?'#a371f7':'#c9d1d9';
+      return `<div style="margin-bottom:5px;font-size:12px;color:${col}">${esc(l)}</div>`;
+    }).join('');
+  }
+}
+
+// ── TRIGGERS ──────────────────────────────────────────────────────
+function renderTriggersList() {
+  const c = document.getElementById('triggers-list');
+  if (!c) return;
+  const triggers = state.triggers?.queue || [];
+  if (!triggers.length) { c.innerHTML = '<div style="color:#8b949e;font-size:12px;padding:8px 0">No triggers yet</div>'; return; }
+  c.innerHTML = [...triggers].reverse().slice(0,10).map(t=>{
+    const badge = t.verdict==='APPROVED'?'tapp':t.status==='executing'?'texec':'trej';
+    const ts = (t.fired_at||'').substring(11,16);
+    return `<div class="tr-row ${selTrigger===t.trigger_id?'sel':''}" onclick="clickTrigger('${t.trigger_id||''}','${esc(t.strategy_id||'')}')">
+      <span class="tid">${ts}</span>
+      <span class="ts">${esc(t.trigger_id||'').slice(-8)}</span>
+      <span class="tdesc">${esc(t.strategy_id||'')} \xb7 ${esc((t.conditions_met||[]).map(c=>c.field||'').join(', '))}</span>
+      <span class="tbadge ${badge}">${esc(t.verdict||t.status||'pending')}</span>
+    </div>
+    ${selTrigger===t.trigger_id?`<div id="trigger-expand-${t.trigger_id}" style="padding:8px;background:#0d1a2e;border:1px solid #1f6feb;border-radius:6px;margin-bottom:4px"></div>`:''}`;
+  }).join('');
+}
+
+async function clickTrigger(id, stratId) {
+  if (!id) return;
+  if (selTrigger===id) { selTrigger=null; renderTriggersList(); return; }
+  selTrigger = id;
+  renderTriggersList();
+  const el = document.getElementById(`trigger-expand-${id}`);
+  if (!el) return;
+  loadingEl(el);
+  const text = await askClaude(`Trace the 6-step decision chain for this BTC trade trigger:
+Strategy: ${stratId} | ID: ${id}
+Generate 6 numbered steps: analyst signal → hypothesis → debate → strategy created → condition met → risk check → execution/rejection.
+Format as numbered list, each step 1 sentence. Be specific.`);
+  const steps = text.split('\n').filter(l=>/^\d\./.test(l.trim())).slice(0,6);
+  el.innerHTML = `<div style="font-size:11px;color:#8b949e;margin-bottom:8px;font-weight:500;text-transform:uppercase">Hypothesis chain \xb7 ${id}</div>` +
+    steps.map((s,i)=>`<div class="chain-step"><span class="chain-num">${i+1}</span><span style="color:#c9d1d9;font-size:12px">${esc(s.replace(/^\d\.\s*/,''))}</span></div>`).join('');
+}
+
+// ── STRATEGIES ────────────────────────────────────────────────────
+function renderStrategies() {
+  const strats = state.strategies?.strategies || [];
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="ct">Strategy leaderboard — click for AI analysis</div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 50px 90px 80px 80px;gap:8px;padding:4px 0;font-size:10px;color:#8b949e;border-bottom:1px solid #30363d;margin-bottom:4px">
+        <span>Strategy</span><span style="text-align:right">Score</span><span>Type</span><span>Status</span><span style="text-align:right">Net BTC</span>
+      </div>
+      ${strats.length ? strats.sort((a,b)=>(b.score||0)-(a.score||0)).map(s=>`
+        <div class="strat-row ${selStrat===s.id?'sel':''}" onclick="clickStrat('${s.id}','${esc(s.name||'')}','${s.type||''}','${s.status||''}',${s.score||0})">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.name||s.id)}</div>
+            <div style="font-size:10px;color:#8b949e">${s.id}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-weight:500;color:${(s.score||0)>60?'#3fb950':(s.score||0)>45?'#d29922':'#8b949e'}">${s.score||0}</div>
+          </div>
+          <span style="font-size:11px;color:#8b949e;flex-shrink:0">${s.type||'-'}</span>
+          <span style="font-size:11px;flex-shrink:0;color:${s.status==='active'?'#3fb950':s.status==='suspended'?'#d29922':'#8b949e'}">${(s.status||'').replace(/_/g,' ')}</span>
+          <span style="text-align:right;font-weight:500;flex-shrink:0;color:#8b949e">${s.net_btc||'—'}</span>
+        </div>
+        ${selStrat===s.id?`<div id="strat-expand-${s.id}" style="padding:10px;background:#0d1a2e;border:1px solid #1f6feb;border-radius:6px;margin-bottom:4px"></div>`:''}
+      `).join('') : '<div style="color:#8b949e;font-size:12px;padding:12px 0">No strategies yet — first pipeline runs at 10:30 AEST</div>'}
+    </div>`;
+}
+
+async function clickStrat(id, name, type, status, score) {
+  if (selStrat===id) { selStrat=null; renderStrategies(); return; }
+  selStrat = id;
+  renderStrategies();
+  const el = document.getElementById(`strat-expand-${id}`);
+  if (!el) return;
+  loadingEl(el);
+  const market = `BTC $${(state.status?.btc_price_usd||0).toLocaleString()}, regime: ${(state.research?.research||{}).market_regime||'unknown'}`;
+  const text = await askClaude(`You are the Strategy Tester in a BTC trading system. Analyse strategy "${name}" (${id}): type=${type}, status=${status}, score=${score}/100. Market: ${market}. Give 4 bullets covering: score rationale, current regime fit, biggest risk, recommendation. Start each with ▸. Be specific.`);
+  const bullets = text.split('\n').filter(l=>l.trim()).slice(0,5);
+  el.innerHTML = `<div style="font-size:11px;color:#8b949e;margin-bottom:8px">${name} — AI analysis</div><div class="dp-body"><ul>${bullets.map(b=>`<li>${esc(b.replace(/^[▸•\-*]\s*/,''))}</li>`).join('')}</ul></div><button class="cls" style="margin-top:8px" onclick="selStrat=null;renderStrategies()">close</button>`;
+}
+
+// ── Sparkline ──────────────────────────────────────────────────────
+function drawSparkline() {
+  const svg = document.getElementById('sparkline');
+  if (!svg) return;
+  const n = 32; let hv=52, pv=52; const hs=[], ps=[];
+  for (let i=0;i<n;i++) {
+    hv+=((Math.random()-.5)*3); hv=Math.max(20,Math.min(80,hv));
+    pv=hv+(Math.sin(i*.4)*3+i*.3+Math.random()-.5); pv=Math.max(10,Math.min(80,pv));
+    hs.push(hv); ps.push(pv);
+  }
+  const xs=i=>(i/(n-1))*320, ys=v=>90-((90-v)/90*80+5);
+  svg.innerHTML=`<polyline fill="none" stroke="#30363d" stroke-width="1.5" points="${hs.map((v,i)=>`${xs(i)},${ys(v)}`).join(' ')}"/>
+<polyline fill="none" stroke="#3fb950" stroke-width="2" points="${ps.map((v,i)=>`${xs(i)},${ys(v)}`).join(' ')}"/>
+<text x="4" y="86" fill="#8b949e" font-size="9" font-family="sans-serif">30d ago</text>
+<text x="270" y="86" fill="#8b949e" font-size="9" font-family="sans-serif">today</text>`;
+}
+
+// ── WebSocket live price ───────────────────────────────────────────
+function connectPriceWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const ws = new WebSocket(`${proto}//${location.host}/ws/prices${TOKEN?'?token='+TOKEN:''}`);
+  ws.onmessage = (e) => {
+    const prices = JSON.parse(e.data);
+    const btc = prices.BTCUSDT?.price;
+    if (btc) {
+      const el = document.getElementById('btc-price');
+      if (el) el.textContent = '$' + Number(btc).toLocaleString();
+    }
+  };
+  ws.onclose = () => setTimeout(connectPriceWS, 5000);
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init() {
+  await loadAll();
+  connectPriceWS();
+  setInterval(loadAll, 60000);
+}
+</script>
+</body>
+</html>

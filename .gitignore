@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.so
+*.egg-info/
+
+# Large data files - stay local only
+data/historical/
+data/market/
+data/indicators/
+langfuse_data/
+*.db
+*.log
+
+# Sensitive
+.env
+
+# Temp files
+*.tmp
+*.lock

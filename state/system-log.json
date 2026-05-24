@@ -1,0 +1,39 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-05-23T15:30:25Z",
+      "agent": "orchestrator",
+      "status": "error",
+      "duration_seconds": 0.3,
+      "notes": "Error code: 400 - {'error': {'message': \"400: {'error': 'anthropic_messages: Invalid model name passed in model=claude-sonnet-4-6. Call `/v1/models` to view available models for your key.'}\", 'type': 'None', 'param': 'None', 'code': '400'}}"
+    },
+    {
+      "timestamp": "2026-05-24T00:30:25Z",
+      "agent": "technical-analyst",
+      "status": "error",
+      "duration_seconds": 0.1,
+      "notes": "Error code: 400 - {'error': {'message': \"400: {'error': 'anthropic_messages: Invalid model name passed in model=claude-haiku-4-5-20251001. Call `/v1/models` to view available models for your key.'}\", 'type': 'None', 'param': 'None', 'code': '400'}}"
+    },
+    {
+      "timestamp": "2026-05-24T00:30:25Z",
+      "agent": "derivatives-analyst",
+      "status": "error",
+      "duration_seconds": 0.1,
+      "notes": "Error code: 400 - {'error': {'message': \"400: {'error': 'anthropic_messages: Invalid model name passed in model=claude-haiku-4-5-20251001. Call `/v1/models` to view available models for your key.'}\", 'type': 'None', 'param': 'None', 'code': '400'}}"
+    },
+    {
+      "timestamp": "2026-05-24T00:30:25Z",
+      "agent": "onchain-macro-analyst",
+      "status": "error",
+      "duration_seconds": 0.1,
+      "notes": "Error code: 400 - {'error': {'message': \"400: {'error': 'anthropic_messages: Invalid model name passed in model=claude-haiku-4-5-20251001. Call `/v1/models` to view available models for your key.'}\", 'type': 'None', 'param': 'None', 'code': '400'}}"
+    },
+    {
+      "timestamp": "2026-05-24T00:30:25Z",
+      "agent": "sentiment-news-analyst",
+      "status": "error",
+      "duration_seconds": 0.1,
+      "notes": "Error code: 400 - {'error': {'message': \"400: {'error': 'anthropic_messages: Invalid model name passed in model=claude-haiku-4-5-20251001. Call `/v1/models` to view available models for your key.'}\", 'type': 'None', 'param': 'None', 'code': '400'}}"
+    }
+  ]
+}

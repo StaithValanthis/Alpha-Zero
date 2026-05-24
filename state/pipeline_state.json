@@ -1,0 +1,21 @@
+{
+  "date": "2026-05-24",
+  "scheduled_today": [
+    "orchestrator",
+    "analysts_parallel",
+    "strategy-tester",
+    "trader-management",
+    "reporter",
+    "journal-agent"
+  ],
+  "completed_today": [
+    "daily_reset",
+    "orchestrator",
+    "analysts_parallel"
+  ],
+  "in_progress": null,
+  "failed_today": [
+    "analysts"
+  ],
+  "last_update": "2026-05-24T00:50:26Z"
+}

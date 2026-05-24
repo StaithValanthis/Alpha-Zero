@@ -1,0 +1,16 @@
+{
+  "week_ending": "BOOTSTRAP",
+  "portfolio_vs_btc_7d_pct": 0,
+  "portfolio_vs_btc_30d_pct": 0,
+  "trades_this_week": 0,
+  "winning_trades": 0,
+  "losing_trades": 0,
+  "strategies_retired": [],
+  "strategies_promoted": [],
+  "system_issues_detected": [],
+  "recommend_crisis_mode": false,
+  "strategy_diversity_score": "good",
+  "weekly_verdict": "Bootstrap — no week of data yet",
+  "key_finding": null,
+  "recommendation_for_next_week": null
+}

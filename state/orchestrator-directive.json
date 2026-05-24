@@ -1,14 +1,14 @@
 {
-  "date": "2026-05-23",
+  "date": "2026-05-25",
   "mode": "daily",
   "cold_start": true,
-  "cold_start_day": 0,
-  "priority_this_week": "explore",
-  "focus_area": "Bootstrap \u2014 explore all signal types systematically",
+  "cold_start_day": 5,
+  "priority_this_week": "validate",
+  "focus_area": "strategy hypothesis validation and signal watcher stability",
   "strategy_to_retire": null,
   "max_position_size_pct": 5,
   "target_btc_allocation_pct": 100,
-  "allocation_reasoning": "Bootstrap \u2014 default 100% BTC until Orchestrator runs",
+  "allocation_reasoning": "Cold start day 5 enforces hard floor of 90% BTC. Current allocation is 99.94% BTC. No USDT trade meets minimum threshold of 3 independent signals. Research indicates mean-reverting regime with 65% confidence, but no actionable signals for alt rotation or perp shorts. Total underperformance vs hodl is -0.4575%, entirely from bootstrap rebalance fees.",
   "allocation_confidence": "high",
   "usdt_trade_active": false,
   "usdt_trade_entry_btc_price": null,
@@ -24,6 +24,6 @@
   "dca_enabled": true,
   "crisis_mode": false,
   "circuit_breaker_active": false,
-  "notes": "System bootstrap. Orchestrator has not run yet.",
+  "notes": "No active anomalies. One unhandled error in signal watcher pipeline from missing 'content' key in live_triggers.json; system recovered. All 18 strategies in paper_testing, none triggered. Mon/Wed/Fri hypothesis-aging active: ensure all paper_testing strategies have thesis validated within 14 days.",
   "alt_rotation_signal": "none"
 }

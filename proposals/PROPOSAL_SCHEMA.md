@@ -1,6 +1,23 @@
 # Proposal YAML Schema (v3 — parallel-pool aware)
 
-All proposals require the `model` block. Missing fields = auto-rejected by deployer.
+All proposals require the `model` block.
+
+## FORBIDDEN MODELS
+
+The following models are registered in Hermes for manual operator chat sessions only
+and must NEVER appear in a proposal's `recommended_model` or `fallback_chain` fields:
+
+- `anthropic/claude-sonnet-4-6`
+- `anthropic/claude-haiku-4-5-20251001`
+- Any model with prefix `anthropic/*` or `claude-*`
+
+The btc-chief-evaluator will automatically reject any proposal containing these models
+with the reason: "Claude is reserved for manual analysis only — use the free tier
+framework instead."
+
+---
+
+ Missing fields = auto-rejected by deployer.
 
 ```yaml
 proposal_id: prop_YYYYMMDD_001

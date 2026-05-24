@@ -50,6 +50,14 @@ git push origin HEAD:memory-backup 2>/dev/null || git push --set-upstream origin
 
 ## MODEL SELECTION FRAMEWORK
 
+**IMPORTANT — CLAUDE/ANTHROPIC EXCLUSION:**
+`anthropic/claude-sonnet-4-6` and `anthropic/claude-haiku-4-5-20251001` are registered
+in hermes config for **manual operator chat sessions only**. They are NOT permitted in
+any agent proposal. If you see claude or anthropic models in the provider list, treat
+them as INVALID for agent assignment. Any proposal recommending a Claude or Anthropic
+model must be REJECTED with reason: "Claude is reserved for manual analysis only —
+use the free tier framework instead."
+
 Every agent proposal MUST include a model recommendation.
 Zero paid models. Zero models that use expiring credits. Zero models that
 share rate-limit pools with other parallel-running agents.
@@ -175,6 +183,8 @@ cost: $0.00/day
 - Any proposal placing a parallel agent on a pool already in use during same window: REJECT
 - Any proposal missing parallel_pool_check field: REJECT
 - Any model referencing: claude, anthropic, gpt-4o (non-oss), deepseek paid, dashscope: REJECT
+- Any proposal with recommended_model containing anthropic/* or claude-*: REJECT
+  (reserved for manual operator analysis — reason: "Claude is reserved for manual analysis only")
 
 ### Sunday Model + Pool Compliance Audit (20:00 AEST)
 

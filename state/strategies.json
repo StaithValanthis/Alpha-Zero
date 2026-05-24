@@ -1,1 +1,91 @@
-{"last_updated": "2026-05-24T01:56:00Z", "strategies": [], "summary": {"total_strategies": 0, "statuses": {}, "next_strategy_id": "strat_001"}}
+{
+  "last_updated": "2026-05-24T02:09:00Z",
+  "strategies": [
+    {
+      "id": "strat_001",
+      "hypothesis_chain_id": "hch_20260524_001",
+      "parent_hypothesis_id": "hch_20260524_001",
+      "title": "Daily Mean Reversion Long from Extreme Oversold + Accumulation Setup",
+      "debate_transcript_ref": "research.json:approved_hypotheses[0]",
+      "debate_verdict": "bull_wins",
+      "synthesis_confidence": 0.72,
+      "status": "paper_testing",
+      "created_date": "2026-05-24",
+      "thesis_last_validated": "2026-05-24",
+      "consecutive_losses": 0,
+      "watcher_compatible": true,
+      "data_dependencies": [
+        "daily_rsi",
+        "daily_ema200",
+        "daily_price",
+        "fear_gauge_index",
+        "onchain_accumulation",
+        "price_24h_change"
+      ],
+      "execution_urgency": "immediate",
+      "entry_conditions": [
+        {
+          "source": "technical_analysis",
+          "field": "daily_rsi",
+          "operator": "lte",
+          "value": 30
+        },
+        {
+          "source": "onchain_data",
+          "field": "fear_gauge_index",
+          "operator": "eq",
+          "value": 25
+        },
+        {
+          "source": "technical_analysis",
+          "field": "daily_price_vs_ema200_pct",
+          "operator": "gte",
+          "value": 5
+        }
+      ],
+      "entry_logic": "ALL",
+      "take_profit_pct": 3.5,
+      "stop_loss_pct": 2.0,
+      "max_duration_days": 7,
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "ta_signal",
+      "risk_reward_ratio": 1.75,
+      "entry_price": 76848.90,
+      "tp_target": 79539,
+      "sl_target": 76253.55,
+      "support_level": 76253.55,
+      "resistance_level": 79079.38,
+      "key_factors": {
+        "daily_rsi_extreme_oversold": 29.49,
+        "daily_ema200": 70154.37,
+        "fear_gauge_index_explicit_buy_signal": true,
+        "positive_24h_price_action_pct": 1.45,
+        "accumulation_backdrop": "moderate",
+        "4h_bearish_structure": true,
+        "4h_ema50": 77223.50,
+        "4h_ema200": 79079.38,
+        "etf_outflows_risk": true
+      },
+      "performance": {
+        "trades_executed": 0,
+        "wins": 0,
+        "losses": 0,
+        "win_rate": null,
+        "out_of_sample_win_rate": null,
+        "sharpe_ratio": null,
+        "out_of_sample_trades": 0,
+        "backtest_score": 0,
+        "backtest_status": "pending_live_data",
+        "backtest_error": "curve fit: historical sample too small for stable parameters"
+      }
+    }
+  ],
+  "summary": {
+    "total_strategies": 1,
+    "statuses": {
+      "paper_testing": 1
+    },
+    "next_strategy_id": "strat_002"
+  }
+}

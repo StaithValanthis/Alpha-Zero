@@ -1,1 +1,6 @@
-{"generated_at": "2026-05-24T01:56:00Z", "signals": [], "summary": {"total_signals": 0}}
+{
+  "last_updated": "2026-05-24T02:09:00Z",
+  "active_signals": [],
+  "signal_type": "manual_non_watcher_compatible",
+  "note": "All current strategies are watcher_compatible; no manual signals required"
+}

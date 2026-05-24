@@ -1,6 +1,6 @@
 ---
 name: btc-chief-evaluator
-description: Weekly Sunday agent team evaluator — reviews evidence gaps and writes hiring proposals to proposals/pending/. Posts to Discord.
+description: Weekly Sunday agent team evaluator — reviews evidence gaps and writes hiring proposals to proposals/pending/. Posts to Discord with interactive Approve/Reject buttons.
 triggers:
   - cron: "0 11 * * 0"
 ---
@@ -77,14 +77,25 @@ guard_rails:
   no_duplicate_role: true
 human_review_required: true
 approval_instructions: |
-  To approve: cp proposals/pending/prop_YYYYMMDD_001.yaml proposals/approved/
-  To reject: cp proposals/pending/prop_YYYYMMDD_001.yaml proposals/rejected/
+  Tap the ✅ Approve or ❌ Reject button on the Discord message.
+  Or use slash commands: /approve prop_YYYYMMDD_001  /reject prop_YYYYMMDD_001
   The agent deployer checks proposals/approved/ every hour and will deploy within 60 minutes of approval.
 ```
 
 ### Discord notification
 
-Post amber-colored (16776960) Discord embed:
-- Title: "Chief Evaluation — New Agent Proposal"
-- Fields: agent_name, role, problem_statement, estimated cost, evidence summary
-- Approval command: `cp proposals/pending/prop_YYYYMMDD_001.yaml proposals/approved/`
+After writing the proposal YAML, post it to Discord **with interactive Approve/Reject buttons** by running:
+
+```bash
+/home/btc-agent/btc-agents/venv/bin/python3 -c "
+import sys, yaml
+sys.path.insert(0, '/home/btc-agent/btc-agents')
+from tools.discord_notify import post_proposal_with_buttons
+with open('proposals/pending/prop_YYYYMMDD_001.yaml') as f:
+    data = yaml.safe_load(f)
+result = post_proposal_with_buttons('prop_YYYYMMDD_001', data)
+print('Posted message id:', result.get('id'))
+"
+```
+
+Replace `prop_YYYYMMDD_001` with the actual proposal ID. This posts an amber embed with ✅ Approve and ❌ Reject buttons directly in Discord — no SSH required to approve.

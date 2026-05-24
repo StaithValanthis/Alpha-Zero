@@ -200,6 +200,45 @@ def check_health():
         discord("CIRCUIT BREAKER", "Portfolio circuit breaker is tripped. All trading halted. Manual review required.", 16711680)
 
 # ── Main scheduling loop ──────────────────────────────────────────
+
+def _chief_heartbeat():
+    """Write JSONL events so Chief appears in pixel office as always-on."""
+    import re, json, uuid
+    from pathlib import Path
+    base = str(Path.home() / "btc-agents")
+    normalized = re.sub(r"[^a-zA-Z0-9-]", "-", base)
+    d = Path.home() / ".claude" / "projects" / normalized
+    d.mkdir(parents=True, exist_ok=True)
+    session_file = d / "chief-of-staff-persistent.jsonl"
+    
+    now = datetime.now(timezone.utc).isoformat()
+    pipe = load_json("state/pipeline_state.json", {})
+    in_progress = pipe.get("in_progress")
+    
+    # Write tool_use to show Chief is active (keeps character at desk)
+    tool_name = "Bash" if in_progress else "Read"
+    record = {
+        "type": "assistant",
+        "message": {"role": "assistant", "content": [{
+            "type": "tool_use",
+            "id": str(uuid.uuid4()).replace("-","")[:24],
+            "name": tool_name,
+            "input": {}
+        }]},
+        "uuid": str(uuid.uuid4()),
+        "timestamp": now
+    }
+    try:
+        with open(str(session_file), "a") as f:
+            f.write(json.dumps(record) + "\n")
+        # Keep file small - truncate if over 500 lines
+        lines = session_file.read_text().splitlines()
+        if len(lines) > 500:
+            session_file.write_text("\n".join(lines[-200:]) + "\n")
+    except Exception as e:
+        print(f"Chief heartbeat error: {e}")
+
+
 def run_scheduled(key):
     pipe = load_json("state/pipeline_state.json", {})
     pipe["in_progress"] = key

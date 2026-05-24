@@ -6,6 +6,67 @@ import os, json, subprocess, time, requests, anthropic
 from datetime import datetime, timezone
 from pathlib import Path
 
+import re
+
+import uuid as _uuid_mod
+
+# Map our tool names to Claude Code tool names (drives pixel office animations)
+_CLAUDE_TOOL_MAP = {
+    'read_file':    'Read',
+    'write_file':   'Write',
+    'run_shell':    'Bash',
+    'list_files':   'Glob',
+    'post_discord': 'Bash',
+}
+
+# JSONL project dir: ~/.claude/projects/{normalizedPath}/
+def _get_jsonl_dir():
+    import os
+    base = str(Path.home() / "btc-agents")
+    normalized = re.sub(r"[^a-zA-Z0-9-]", "-", base)
+    d = Path.home() / ".claude" / "projects" / normalized
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+def _write_jsonl(session_file, record):
+    """Append one JSON line to the agent JSONL session file."""
+    try:
+        with open(session_file, "a") as f:
+            import json as _json
+            f.write(_json.dumps(record) + "\n")
+    except Exception:
+        pass  # Never let JSONL writing crash an agent run
+
+def _jsonl_tool_use(session_file, tool_name, tool_id):
+    _write_jsonl(session_file, {
+        "type": "assistant",
+        "message": {"role": "assistant", "content": [{
+            "type": "tool_use", "id": tool_id,
+            "name": _CLAUDE_TOOL_MAP.get(tool_name, "Bash"), "input": {}
+        }]},
+        "uuid": str(_uuid_mod.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+
+def _jsonl_tool_result(session_file, tool_id):
+    _write_jsonl(session_file, {
+        "type": "user",
+        "message": {"role": "user", "content": [{
+            "type": "tool_result", "tool_use_id": tool_id, "content": ""
+        }]},
+        "uuid": str(_uuid_mod.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+
+def _jsonl_turn_done(session_file):
+    _write_jsonl(session_file, {
+        "type": "system", "subtype": "turn_duration",
+        "duration_ms": 1000,
+        "uuid": str(_uuid_mod.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+
+
 B = Path(os.path.expanduser("~/btc-agents"))
 
 def load_env():
@@ -194,6 +255,10 @@ def run_agent(agent_name, extra_context=""):
 
     messages = [{"role": "user", "content": user_message}]
 
+    # Create JSONL session file for Pixel Agents office
+    _jsonl_dir = _get_jsonl_dir()
+    _session_ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    _session_file = str(_jsonl_dir / f"{agent_name}-{_session_ts}.jsonl")
     print(f"[{agent_name}] Starting ({model})...")
 
     try:
@@ -238,6 +303,7 @@ def run_agent(agent_name, extra_context=""):
                 if hasattr(block, "text")
             )
             duration = round(time.time() - start, 1)
+            _jsonl_turn_done(_session_file)
             print(f"  [{agent_name}] Done in {duration}s")
             return {"status": "success", "message": final_text[:500], "duration_seconds": duration}
 

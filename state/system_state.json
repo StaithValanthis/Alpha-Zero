@@ -1,6 +1,7 @@
 {
-  "computed_at": "2026-05-23T14:01:25Z",
-  "cold_start_day": 1,
+  "computed_at": "2026-05-24T09:44:24.130981+00:00",
+  "cold_start_day": 5,
   "is_cold_start": true,
+  "btc_price_usdt": 0,
   "last_pipeline_completion": null
 }

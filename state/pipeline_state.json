@@ -2,20 +2,14 @@
   "date": "2026-05-24",
   "scheduled_today": [
     "orchestrator",
-    "analysts_parallel",
+    "morning-pipeline",
     "strategy-tester",
     "trader-management",
     "reporter",
     "journal-agent"
   ],
-  "completed_today": [
-    "daily_reset",
-    "orchestrator",
-    "analysts_parallel"
-  ],
+  "completed_today": [],
   "in_progress": null,
-  "failed_today": [
-    "analysts"
-  ],
-  "last_update": "2026-05-24T00:50:26Z"
+  "failed_today": [],
+  "last_update": "2026-05-24T09:44:24.131317+00:00"
 }

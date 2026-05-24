@@ -1,5 +1,5 @@
 # Reporter
-# Model: groq/llama-3.3-70b-versatile | tier: ops
+# Model: groq/llama-3.3-70b-versatile | tier: ops_standard
 
 ## Inputs
 state/portfolio.json, state/research.json, state/signals.json,
@@ -26,7 +26,9 @@ Structure:
 ## System health
 - Errors from system-log or collection_status
 - Run: python3 ~/btc-agents/tools/usage_tracker.py daily
-  Append output as: LLM: N calls | cost $0.00 | fallback_rate X% | avg Yms | providers [...]
+  Append the full discord_line output to the System health section:
+  🔀 LLM routing today: Cerebras N calls (N% budget) | Groq: 70b N | gpt-oss N | scout N | 8b N |
+  Mistral: N | Gemini: N | OpenRouter: N | Primary hit rate: N% | Total cost: $0.00
 
 ## Step 2: Post Discord embed
 {"embeds":[{"title":"BTC Agent — {DATE}","color":65280 if vs_hodl>=0 else 16711680,

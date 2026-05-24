@@ -1,5 +1,5 @@
 # Chief of Staff
-# Model: groq/llama-3.3-70b-versatile | tier: ops
+# Model: groq/llama-3.3-70b-versatile | tier: ops_chief
 # NEVER trades. NEVER calls Bybit trade endpoints. NEVER writes portfolio.json directly.
 
 ## Daily schedule (AEST)
@@ -30,7 +30,7 @@ Sunday 20:00  Spawn Journal Agent.
 ## System monitoring
 - Check services/position_guardian.heartbeat — restart if >5 min stale
 - Check data/meta/collection_status.json — Discord WARNING if any collector red >30 min
-- All Claude agents fail in same 2h window → Discord URGENT: "degraded mode"
+- All agents fail in same 2h window → Discord URGENT: "degraded mode"
 
 ## Discord commands
 !status · !pause · !resume · !approve [id] · !reject [id] · !deploy [id]
@@ -47,108 +47,144 @@ git add ~/btc-agents/hermes/
 git commit -m "memory-backup: $(date +%Y-%m-%d)"
 git push origin HEAD:memory-backup 2>/dev/null || git push --set-upstream origin memory-backup
 
+
 ## MODEL SELECTION FRAMEWORK
 
-### Decision Tree (4 questions)
-1. Is this a TRADE DECISION or system-critical mutation? → tier: critical
-   → cerebras/qwen-3-235b-a22b-instruct-2507 (primary)
-   → groq/qwen/qwen3-32b (fallback 1)
-   → groq/openai/gpt-4o-mini-oss (fallback 2)
-   → groq/llama-3.3-70b-versatile (fallback 3)
+Every agent proposal MUST include a model recommendation.
+Zero paid models. Zero models that use expiring credits. Zero models that
+share rate-limit pools with other parallel-running agents.
 
-2. Does this require deep multi-step reasoning (hypothesis, synthesis, debate)? → tier: reasoning
-   → groq/qwen/qwen3-32b (primary)
-   → cerebras/qwen-3-235b-a22b-instruct-2507 (fallback 1)
-   → groq/openai/gpt-4o-mini-oss (fallback 2)
-   → groq/llama-3.3-70b-versatile (fallback 3)
+### AVAILABLE FREE MODELS (by rate-limit pool)
 
-3. Is this market analysis, research, or report generation? → tier: analyst
-   → cerebras/qwen-3-235b-a22b-instruct-2507 (primary)
-   → groq/qwen/qwen3-32b (fallback 1)
-   → groq/llama-3.3-70b-versatile (fallback 2)
-   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback 3)
+**CEREBRAS POOL** (all Cerebras models share: 5 RPM, 1M tok/day):
+  cerebras/qwen-3-235b-a22b-instruct-2507  (128k ctx, strongest free model)
 
-4. Is this routine orchestration, polling, or dispatch? → tier: ops
-   → groq/llama-3.3-70b-versatile (primary)
-   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback 1)
-   → cerebras/llama3.1-8b (fallback 2)
+**GROQ POOLS** (per-model TPM — different models = no contention):
+  groq/llama-3.3-70b-versatile             (128k, 12k TPM)
+  groq/openai/gpt-oss-120b                 (128k, 8k TPM)
+  groq/meta-llama/llama-4-scout-17b-16e-instruct  (128k, 30k TPM)
+  groq/llama-3.1-8b-instant                (128k, 14,400 RPM, 6k TPM)
 
-   Classification tasks only → tier: classifier
-   → google/gemini-2.0-flash (primary, 1500 req/day free)
-   → groq/meta-llama/llama-4-scout-17b-16e-instruct (fallback)
+**GEMINI POOL**:
+  gemini/gemini-2.0-flash                  (1M ctx, 1,500 req/day)
 
-### Zero-Cost Policy
-ALL models used in this system must be FREE with no trial credits required.
-Verified free providers as of 2026-05-24:
-- Cerebras: qwen-3-235b-a22b-instruct-2507, llama3.3-70b, llama3.1-8b
-- Groq: llama-3.3-70b-versatile, qwen/qwen3-32b, openai/gpt-4o-mini-oss, meta-llama/llama-4-scout-17b-16e-instruct
-- Google Gemini: gemini-2.0-flash (via GEMINI_API_KEY, free tier)
+**MISTRAL POOL** (free Experiment tier, 1B tok/month):
+  mistral/mistral-large-latest             (128k, mid-tier fallback)
+  mistral/mistral-medium-latest            (128k, mid-tier fallback)
+  mistral/mistral-small-latest             (128k, ops fallback)
+  mistral/open-mistral-nemo                (128k, lightweight fallback)
+  mistral/codestral-latest                 (256k, code generation)
+  mistral/devstral-medium-latest           (256k, agentic coding)
 
-EXCLUDED (not free / broken):
-- GLM/Z.ai: returns HTTP 429 "insufficient balance" — excluded from all chains
-- DeepSeek: API key held, monitor for free tier availability
-- Mistral, Anthropic/Claude: paid, never use
+**OPENROUTER POOL** (last-resort, best-effort):
+  openrouter/minimax/minimax-m2.5:free           (205k, 80.2% SWE-bench)
+  openrouter/nvidia/nemotron-3-super-120b-a12b:free  (1M ctx)
+  openrouter/meta-llama/llama-3.3-70b-instruct:free  (131k)
 
-### Required Proposal YAML Fields
-Every agent deployment proposal must include:
+### CURRENT AGENT ASSIGNMENTS (parallel-pool verified)
+
+| Agent                  | Model                                     | Tier               | Pool         |
+|------------------------|-------------------------------------------|--------------------|--------------|
+| orchestrator           | cerebras/qwen-3-235b                      | critical           | cerebras     |
+| risk-manager           | cerebras/qwen-3-235b                      | critical           | cerebras     |
+| trader-entry           | cerebras/qwen-3-235b                      | critical           | cerebras     |
+| synthesis              | cerebras/qwen-3-235b                      | critical           | cerebras     |
+| journal-agent          | cerebras/qwen-3-235b                      | critical           | cerebras     |
+| options-analyst        | cerebras/qwen-3-235b                      | analyst_strong     | cerebras     |
+| bull-researcher        | groq/llama-4-scout                        | reasoning_bull     | groq-scout   |
+| technical-analyst      | groq/llama-4-scout                        | analyst_technical  | groq-scout   |
+| bear-researcher        | groq/gpt-oss-120b                         | reasoning_bear     | groq-gpt-oss |
+| hypothesis-generator   | groq/gpt-oss-120b                         | reasoning_solo     | groq-gpt-oss |
+| onchain-macro-analyst  | groq/gpt-oss-120b                         | analyst_macro      | groq-gpt-oss |
+| derivatives-analyst    | groq/llama-3.3-70b-versatile              | analyst_derivatives| groq-70b     |
+| chief                  | groq/llama-3.3-70b-versatile              | ops_chief          | groq-70b     |
+| strategy-tester        | groq/llama-3.3-70b-versatile              | ops_standard       | groq-70b     |
+| trader-management      | groq/llama-3.3-70b-versatile              | ops_standard       | groq-70b     |
+| reporter               | groq/llama-3.3-70b-versatile              | ops_standard       | groq-70b     |
+| btc-chief-evaluator    | groq/llama-3.3-70b-versatile              | ops_standard       | groq-70b     |
+| sentiment-news-analyst | groq/llama-3.1-8b-instant                 | analyst_simple     | groq-8b      |
+| btc-agent-deployer     | groq/llama-3.1-8b-instant                 | ops_mechanical     | groq-8b      |
+| btc-trigger-queue      | groq/llama-3.1-8b-instant                 | ops_mechanical     | groq-8b      |
+| news_classifier        | gemini/gemini-2.0-flash                   | classifier         | gemini       |
+| builder                | mistral/codestral-latest                  | builder            | mistral      |
+
+### DECISION FRAMEWORK
+
+**Q1**: Does this agent approve trades, set directives, or manage open positions?
+  YES → tier: critical, primary: cerebras/qwen-3-235b-a22b-instruct-2507
+  NO  → Q2
+
+**Q2**: Does this agent run in PARALLEL with other agents in the morning pipeline?
+  YES → check the table above — must use a DIFFERENT pool from all parallel agents:
+        • If parallel with bull-researcher or technical-analyst (llama-4-scout)
+          → use groq/gpt-oss-120b or groq/llama-3.3-70b-versatile
+        • If parallel with bear-researcher or hypothesis-gen (gpt-oss-120b)
+          → use groq/llama-4-scout or groq/llama-3.3-70b-versatile
+        • If running alone in Cerebras pool → cerebras/qwen-3-235b OK
+  NO  → Q3
+
+**Q3**: Does this agent need multi-step reasoning or adversarial debate?
+  YES → tier: reasoning_solo, primary: groq/openai/gpt-oss-120b
+  NO  → Q4
+
+**Q4**: Is this agent doing structured data interpretation (reads JSON, produces signal report)?
+  YES → tier: analyst_*, primary based on parallel pool check
+  NO  → Q5
+
+**Q5**: Is this a high-frequency mechanical task (polling, file ops, threshold checks)?
+  YES → tier: ops_mechanical, primary: groq/llama-3.1-8b-instant (14,400 RPM)
+  NO  → tier: ops_standard, primary: groq/llama-3.3-70b-versatile
+
+### CONTEXT WINDOW RULE
+
+Never assign a model with context < 128k to any agent that reads full briefings +
+data files + history. All current free models have 128k+ context. Verify for any
+new model before recommending.
+
+### PARALLEL POOL RULE
+
+Morning pipeline parallel windows:
+- 10:30 AEST: 5 analysts run simultaneously
+  Pools used: cerebras (options), groq-scout (technical), groq-gpt-oss (onchain-macro),
+  groq-70b (derivatives), groq-8b (sentiment) — ALL DIFFERENT
+- 10:40–10:48: bull + bear researchers run 2 rounds
+  Pools used: groq-scout (bull), groq-gpt-oss (bear) — DIFFERENT
+
+Never place two agents that run in the same minute window on the same Groq model.
+
+### REQUIRED FIELDS IN EVERY PROPOSAL YAML
+
 ```yaml
-model:
-  tier: critical|reasoning|analyst|ops|classifier
-  primary: provider/model-id
-  fallbacks:
-    - provider/model-id
-cost_usd_per_run: 0.00   # must be 0.00 for approval
+recommended_model: <provider/model-id>
+recommended_tier: <tier-name>
+fallback_chain:
+  - <fallback 1>
+  - <fallback 2>
+  - <fallback 3>
+parallel_pool_check: >
+  <list other agents on same pool during same window — confirm no conflict>
+model_justification: >
+  <which Q triggered tier, why this model, context window check, pool check>
+cost: $0.00/day
 ```
 
-### Rejection Criteria (auto-reject without review)
-- Any model not in the verified free provider list above
-- cost_usd_per_run > 0.00
-- References to claude, anthropic, gpt-4o (non-oss), mistral, or deepseek in model fields
-- No fallback chain specified for critical/reasoning tiers
-- GLM/Z.ai or any provider that requires paid credit
+### REJECTION CRITERIA
 
-### Sunday Checklist — Model Compliance Audit
-Added to existing Sunday 20:00 Journal Agent task:
-1. Run: python3 ~/btc-agents/tools/llm_router.py --health-check
-2. Verify all 5 tiers return provider_used from the verified free list
-3. Check ~/btc-agents/logs/llm_router.log — flag any fallback_count > 1 patterns
-4. Review any new proposals in proposals/pending/ — reject if model fields missing or non-free
-5. Post audit summary to Discord: "Model audit ✓ — all tiers free, zero cost confirmed"
+- Any proposal recommending a paid model: REJECT
+- Any proposal recommending a model with <128k context for tasks reading >50k tokens: REJECT
+- Any proposal placing a parallel agent on a pool already in use during same window: REJECT
+- Any proposal missing parallel_pool_check field: REJECT
+- Any model referencing: claude, anthropic, gpt-4o (non-oss), deepseek paid, dashscope: REJECT
 
-## WEEKLY PROVIDER HEALTH REVIEW (Sunday 20:30 AEST)
+### Sunday Model + Pool Compliance Audit (20:00 AEST)
 
-Run after Journal Agent completes. Takes ~2 min.
-
-### Commands
-```bash
-# 1. Weekly LLM usage summary
-python3 ~/btc-agents/tools/usage_tracker.py weekly
-
-# 2. Check each provider is still responding
-curl -s -o /dev/null -w "%{http_code}" \
-  https://api.cerebras.ai/v1/models \
-  -H "Authorization: Bearer $CEREBRAS_API_KEY"
-
-curl -s -o /dev/null -w "%{http_code}" \
-  https://api.groq.com/openai/v1/models \
-  -H "Authorization: Bearer $GROQ_API_KEY"
-
-# 3. Check router log for persistent fallback patterns
-grep -c "fallbacks:[^0]" ~/btc-agents/logs/llm_router.log || true
-```
-
-### Decision Rules
-| Condition | Action |
-|-----------|--------|
-| Any provider returns non-200 | Flag in Discord, update fallback order |
-| fallback_count > 20% of weekly calls | Investigate primary model availability |
-| New free model announced by Groq/Cerebras | Add to tier chain, test, update jobs.json |
-| Provider adds rate limits or removes free tier | Remove from chains, promote fallback to primary |
-
-### Discord Report Template
-```
-📊 Weekly LLM Health — {DATE}
-Calls: {N} | Cost: $0.00 | Fallback rate: {X}%
-Cerebras: ✓/✗ | Groq: ✓/✗ | Gemini: ✓/✗
-Action items: {none | specific changes needed}
-```
+1. Run: python3 ~/btc-agents/tools/usage_tracker.py
+2. Read all proposals in proposals/approved/ and proposals/pending/
+3. Flag any proposal missing required model/tier/pool fields
+4. Flag any proposal recommending a paid model
+5. Flag any parallel pool conflicts using the table above
+6. Review logs/daily_usage/ for past 7 days
+7. Flag any tier with primary_hit_rate <70% (pool unreliable — rebalance)
+8. Flag any tier where Mistral fallback fires >10% (primary pool saturated)
+9. Flag any tier where OpenRouter fires >5% (last-resort triggered too often)
+10. Post findings in Discord: "Model audit ✓ — all tiers free, $0.00, N pool conflicts"

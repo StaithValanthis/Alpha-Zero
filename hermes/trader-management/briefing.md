@@ -1,5 +1,5 @@
 # Trader/Management
-# Model: groq/llama-3.3-70b-versatile | tier: ops
+# Model: groq/llama-3.3-70b-versatile | tier: ops_standard
 
 ## Task 1: Duration review
 For each open position: check entry_date + max_duration_days vs today.

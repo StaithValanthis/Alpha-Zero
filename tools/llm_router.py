@@ -1,135 +1,168 @@
 """
-llm_router.py — Permanent free LLM routing for BTC Agent System.
+llm_router.py — Zero-cost LLM fallback router for BTC agent system.
 
-All providers are permanently free tiers. No paid models. No Claude.
-All chains end with a reliable free fallback (Groq llama-3.3-70b).
+14 tiers, each with a 4-step chain: primary → alt Groq pool → Mistral free → OpenRouter free.
+Parallel-pool aware: parallel-running agents never share the same Groq model.
 
-VERIFIED WORKING MODELS (tested 2026-05-24):
-  Cerebras (free, ~1M tok/day):
-    qwen-3-235b-a22b-instruct-2507  — 235B MoE, highest capability available
-    llama3.1-8b                     — fast, small, reliable fallback
-
-  Groq (free tier):
-    qwen/qwen3-32b                           — strong reasoning, ~44 Intelligence Index
-    openai/gpt-oss-120b                      — 120B MoE, reliable mid-tier
-    llama-3.3-70b-versatile                  — ~28 Intelligence Index, reliable
-    meta-llama/llama-4-scout-17b-16e-instruct — 512K context, fast
-
-  Gemini (Google AI Studio free, 1500 req/day):
-    gemini-2.0-flash                         — 1M context, classifier primary
-
-EXCLUDED:
-  GLM/Z.ai   — requires paid credit (1113: insufficient balance), NOT free
-  zai-glm-4.7 on Cerebras — returns no text content (streaming-only model)
-  gpt-oss-120b on Cerebras — returns no text content
-  DeepSeek R1 on Groq — decommissioned as of 2026-05-24
-  QwQ-32b on Groq — model removed
+All providers are permanently free. No trial credits. No expiry.
 """
 
-from __future__ import annotations
-
-import os
-import sys
-import time
 import logging
-from datetime import datetime, timezone
+import os
+import time
 from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
+from openai import OpenAI
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path.home() / "btc-agents" / ".env")
 
-try:
-    from openai import OpenAI, APIStatusError, APITimeoutError, APIConnectionError
-except ImportError:
-    raise ImportError("openai package required: pip install openai")
+LOG_FILE = Path.home() / "btc-agents" / "logs" / "llm_router.log"
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename=str(LOG_FILE),
+    level=logging.INFO,
+    format="%(message)s",
+)
 
-# ── Log path ─────────────────────────────────────────────────────────────────
-_LOG_PATH = Path(__file__).parent.parent / "logs" / "llm_router.log"
-_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-# ── Timeout per call ─────────────────────────────────────────────────────────
-CALL_TIMEOUT_S = 45
-
-# ── Provider connection factories ─────────────────────────────────────────────
-def _cerebras() -> OpenAI:
-    return OpenAI(
-        api_key=os.environ["CEREBRAS_API_KEY"],
-        base_url="https://api.cerebras.ai/v1",
-    )
-
-def _groq() -> OpenAI:
-    return OpenAI(
-        api_key=os.environ["GROQ_API_KEY"],
-        base_url="https://api.groq.com/openai/v1",
-    )
-
-def _gemini() -> OpenAI:
-    return OpenAI(
-        api_key=os.environ["GEMINI_API_KEY"],
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai",
-    )
-
-# ── Tier definitions ──────────────────────────────────────────────────────────
-# Each entry: (provider_label, client_factory, model_id)
-# Ordered highest Intelligence Index first; fallback last.
-#
-# CRITICAL — orchestrator, risk-manager, trader-entry, synthesis, chief
-#   Highest-stakes agents. Use the largest available free model first.
-_CRITICAL = [
-    ("cerebras", _cerebras, "qwen-3-235b-a22b-instruct-2507"),  # 235B, best free
-    ("groq",     _groq,     "qwen/qwen3-32b"),                  # Index ~44
-    ("groq",     _groq,     "openai/gpt-oss-120b"),             # 120B MoE, reliable
-    ("groq",     _groq,     "llama-3.3-70b-versatile"),         # Index ~28, guaranteed
-]
-
-# REASONING — bull-researcher, bear-researcher, hypothesis-generator, journal-agent
-#   Multi-step reasoning, adversarial debate, hypothesis generation.
-_REASONING = [
-    ("groq",     _groq,     "qwen/qwen3-32b"),                  # reasoning specialist
-    ("cerebras", _cerebras, "qwen-3-235b-a22b-instruct-2507"),  # 235B deep reasoning
-    ("groq",     _groq,     "openai/gpt-oss-120b"),             # reliable mid
-    ("groq",     _groq,     "llama-3.3-70b-versatile"),         # guaranteed fallback
-]
-
-# ANALYST — options-analyst, onchain-macro-analyst, technical-analyst,
-#           derivatives-analyst, sentiment-news-analyst
-#   Structured data interpretation, signal analysis, JSON output.
-_ANALYST = [
-    ("cerebras", _cerebras, "qwen-3-235b-a22b-instruct-2507"),  # 235B, strong JSON
-    ("groq",     _groq,     "qwen/qwen3-32b"),                  # Index ~44
-    ("groq",     _groq,     "llama-3.3-70b-versatile"),         # reliable structured output
-    ("groq",     _groq,     "meta-llama/llama-4-scout-17b-16e-instruct"),  # long context
-]
-
-# OPS — trader-management, reporter, btc-chief-evaluator, btc-agent-deployer,
-#       btc-trigger-queue
-#   Mechanical tasks: file ops, threshold checks, Discord formatting, scheduling.
-#   Speed over depth; use smaller fast models.
-_OPS = [
-    ("groq",     _groq,     "llama-3.3-70b-versatile"),                    # fast, reliable
-    ("groq",     _groq,     "meta-llama/llama-4-scout-17b-16e-instruct"),  # long context
-    ("cerebras", _cerebras, "llama3.1-8b"),                                # fast, small
-]
-
-# CLASSIFIER — news_classifier
-#   Needs 1M context for large document sets. Gemini Flash is the only
-#   free model with this context window.
-_CLASSIFIER = [
-    ("gemini", _gemini, "gemini-2.0-flash"),                            # 1M ctx, 1500/day
-    ("groq",   _groq,   "meta-llama/llama-4-scout-17b-16e-instruct"),  # 512K fallback
-]
-
-_TIERS: dict[str, list] = {
-    "critical":   _CRITICAL,
-    "reasoning":  _REASONING,
-    "analyst":    _ANALYST,
-    "ops":        _OPS,
-    "classifier": _CLASSIFIER,
+# ── Provider endpoints ──────────────────────────────────────────────────────
+_PROVIDERS = {
+    "cerebras": {
+        "base_url": "https://api.cerebras.ai/v1",
+        "key_env": "CEREBRAS_API_KEY",
+    },
+    "groq": {
+        "base_url": "https://api.groq.com/openai/v1",
+        "key_env": "GROQ_API_KEY",
+    },
+    "mistral": {
+        "base_url": "https://api.mistral.ai/v1",
+        "key_env": "MISTRAL_API_KEY",
+    },
+    "gemini": {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "key_env": "GEMINI_API_KEY",
+    },
+    "openrouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        "key_env": "OPENROUTER_API_KEY",
+    },
 }
+
+# ── Tier chains ─────────────────────────────────────────────────────────────
+# Each entry: (provider_key, model_id)
+_TIERS: dict[str, list[tuple[str, str]]] = {
+    # Highest-stakes: sequential, no parallel contention
+    "critical": [
+        ("cerebras", "qwen-3-235b-a22b-instruct-2507"),
+        ("groq",     "openai/gpt-oss-120b"),
+        ("mistral",  "mistral-large-latest"),
+        ("openrouter", "minimax/minimax-m2.5:free"),
+    ],
+    # Bull-researcher: separate Groq pool from bear (llama-4-scout vs gpt-oss-120b)
+    "reasoning_bull": [
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("groq",     "openai/gpt-oss-120b"),
+        ("mistral",  "mistral-large-latest"),
+        ("openrouter", "nvidia/nemotron-3-super-120b-a12b:free"),
+    ],
+    # Bear-researcher: separate Groq pool from bull
+    "reasoning_bear": [
+        ("groq",     "openai/gpt-oss-120b"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-large-latest"),
+        ("openrouter", "nvidia/nemotron-3-super-120b-a12b:free"),
+    ],
+    # Hypothesis-generator: sequential, strong reasoning
+    "reasoning_solo": [
+        ("groq",     "openai/gpt-oss-120b"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-medium-latest"),
+        ("openrouter", "minimax/minimax-m2.5:free"),
+    ],
+    # Options-analyst: only Cerebras call during morning pipeline
+    "analyst_strong": [
+        ("cerebras", "qwen-3-235b-a22b-instruct-2507"),
+        ("groq",     "openai/gpt-oss-120b"),
+        ("mistral",  "mistral-large-latest"),
+        ("openrouter", "minimax/minimax-m2.5:free"),
+    ],
+    # Onchain-macro: gpt-oss-120b pool (parallel with bear/hypothesis)
+    "analyst_macro": [
+        ("groq",     "openai/gpt-oss-120b"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-medium-latest"),
+        ("openrouter", "minimax/minimax-m2.5:free"),
+    ],
+    # Technical-analyst: llama-4-scout pool (parallel with bull)
+    "analyst_technical": [
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("groq",     "openai/gpt-oss-120b"),
+        ("mistral",  "mistral-medium-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Derivatives-analyst: 70b pool, chief shares but calls are tiny
+    "analyst_derivatives": [
+        ("groq",     "llama-3.3-70b-versatile"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-small-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Sentiment-news: lightweight synthesis, high-RPM pool
+    "analyst_simple": [
+        ("groq",     "llama-3.1-8b-instant"),
+        ("groq",     "llama-3.3-70b-versatile"),
+        ("mistral",  "mistral-small-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Chief: continuous coordination, short prompts
+    "ops_chief": [
+        ("groq",     "llama-3.3-70b-versatile"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-small-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Standard ops: strategy-tester, trader-management, reporter, evaluator
+    "ops_standard": [
+        ("groq",     "llama-3.3-70b-versatile"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
+        ("mistral",  "mistral-small-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # High-frequency polling: deployer, trigger-queue
+    "ops_mechanical": [
+        ("groq",     "llama-3.1-8b-instant"),
+        ("groq",     "llama-3.3-70b-versatile"),
+        ("mistral",  "open-mistral-nemo"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Classification only
+    "classifier": [
+        ("gemini",   "gemini-2.0-flash"),
+        ("groq",     "llama-3.1-8b-instant"),
+        ("mistral",  "mistral-small-latest"),
+        ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+    ],
+    # Code generation — free Mistral Experiment tier
+    "builder": [
+        ("mistral",  "codestral-latest"),
+        ("mistral",  "devstral-medium-latest"),
+        ("groq",     "openai/gpt-oss-120b"),
+        ("openrouter", "minimax/minimax-m2.5:free"),
+    ],
+}
+
+TIMEOUT_S = 45
+
+
+def _get_client(provider: str) -> OpenAI:
+    cfg = _PROVIDERS[provider]
+    api_key = os.getenv(cfg["key_env"])
+    if not api_key:
+        raise ValueError(f"Missing env var {cfg['key_env']}")
+    return OpenAI(api_key=api_key, base_url=cfg["base_url"], timeout=TIMEOUT_S)
 
 
 def call_with_fallback(
@@ -140,100 +173,84 @@ def call_with_fallback(
     max_tokens: int = 4096,
 ) -> dict[str, Any]:
     """
-    Call the appropriate model chain for the given tier.
-
-    Args:
-        messages:      OpenAI-format message list (without system message).
-        task_tier:     One of: critical, reasoning, analyst, ops, classifier.
-        system_prompt: Optional system message prepended to messages.
-        agent_name:    Name of the calling agent (for logging).
-        max_tokens:    Max tokens in response.
-
-    Returns:
-        {
-          response, provider_used, model_used, fallback_count,
-          tokens_input, tokens_output, latency_ms, cost_usd
-        }
-
-    Raises:
-        RuntimeError if all providers in the chain fail.
-        ValueError   if task_tier is unknown.
+    Try each provider in the tier chain. Return on first success.
+    Raises RuntimeError if all providers fail.
     """
     if task_tier not in _TIERS:
-        raise ValueError(
-            f"Unknown task_tier {task_tier!r}. "
-            f"Valid: {list(_TIERS)}"
-        )
+        raise ValueError(f"Unknown tier '{task_tier}'. Valid: {sorted(_TIERS)}")
 
     chain = _TIERS[task_tier]
+    errors: list[str] = []
+    fallback_count = 0
+
     full_messages = messages
     if system_prompt:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
 
-    errors: list[str] = []
-    fallback_count = 0
-    start_total = time.time()
-
-    for provider_label, client_factory, model_id in chain:
+    for provider, model in chain:
         try:
-            client = client_factory()
+            client = _get_client(provider)
             t0 = time.time()
             resp = client.chat.completions.create(
-                model=model_id,
+                model=model,
                 messages=full_messages,
                 max_tokens=max_tokens,
-                timeout=CALL_TIMEOUT_S,
             )
             latency_ms = int((time.time() - t0) * 1000)
 
             content = resp.choices[0].message.content
             if content is None:
-                # Some models (zai-glm-4.7) return None content; treat as failure
-                raise ValueError(f"Model {model_id} returned null content")
+                raise ValueError(f"Null content from {provider}/{model} "
+                                 f"(finish_reason={resp.choices[0].finish_reason})")
 
-            usage = resp.usage or type("U", (), {"prompt_tokens": 0, "completion_tokens": 0})()
-            result = {
-                "response":       content,
-                "provider_used":  provider_label,
-                "model_used":     model_id,
+            tok_in = getattr(resp.usage, "prompt_tokens", 0) or 0
+            tok_out = getattr(resp.usage, "completion_tokens", 0) or 0
+
+            _log(agent_name, task_tier, provider, model,
+                 fallback_count, tok_in, tok_out, latency_ms)
+
+            return {
+                "response": content,
+                "provider_used": provider,
+                "model_used": model,
                 "fallback_count": fallback_count,
-                "tokens_input":   getattr(usage, "prompt_tokens", 0),
-                "tokens_output":  getattr(usage, "completion_tokens", 0),
-                "latency_ms":     latency_ms,
-                "cost_usd":       0.0,
+                "tokens_input": tok_in,
+                "tokens_output": tok_out,
+                "latency_ms": latency_ms,
+                "cost_usd": 0.00,
             }
-            _write_log(agent_name, task_tier, result)
-            return result
 
-        except (APIStatusError, APITimeoutError, APIConnectionError, ValueError) as exc:
+        except Exception as exc:
             err_str = str(exc)[:200]
-            errors.append(f"{provider_label}/{model_id}: {err_str}")
-            logger.warning(
-                "LLM router fallback — tier=%s agent=%s failed=%s/%s error=%s",
-                task_tier, agent_name, provider_label, model_id, err_str,
-            )
+            errors.append(f"{provider}/{model}: {err_str}")
+            # Only retry on rate-limit (429) or timeout — fail fast on auth/bad-model
+            if "401" in err_str or "403" in err_str:
+                break
             fallback_count += 1
-            continue
 
-    total_ms = int((time.time() - start_total) * 1000)
-    error_summary = " | ".join(errors)
     raise RuntimeError(
-        f"All providers exhausted for tier={task_tier} agent={agent_name} "
-        f"after {total_ms}ms. Errors: {error_summary}"
+        f"All providers exhausted for tier '{task_tier}' agent '{agent_name}'.\n"
+        + "\n".join(errors)
     )
 
 
-def _write_log(agent_name: str, tier: str, result: dict) -> None:
-    """Append one pipe-delimited line to the router log."""
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    line = (
-        f"{ts}|{agent_name}|{tier}|{result['provider_used']}|"
-        f"{result['model_used']}|{result['fallback_count']}|"
-        f"{result['tokens_input']}|{result['tokens_output']}|"
-        f"{result['latency_ms']}|cost_usd:0.00\n"
+def _log(agent: str, tier: str, provider: str, model: str,
+         fallbacks: int, tok_in: int, tok_out: int, latency_ms: int) -> None:
+    ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    line = (f"{ts}|{agent}|{tier}|{provider}|{model}|"
+            f"{fallbacks}|{tok_in}|{tok_out}|{latency_ms}|cost_usd:0.00")
+    logging.info(line)
+
+
+if __name__ == "__main__":
+    import sys
+    tier = sys.argv[1] if len(sys.argv) > 1 else "ops_standard"
+    result = call_with_fallback(
+        messages=[{"role": "user", "content": "Reply with OK only"}],
+        task_tier=tier,
+        system_prompt="You are a test. Reply with OK only.",
+        agent_name="test",
     )
-    try:
-        with open(_LOG_PATH, "a") as f:
-            f.write(line)
-    except OSError as exc:
-        logger.error("Failed to write router log: %s", exc)
+    print(f"provider={result['provider_used']} model={result['model_used']} "
+          f"fb={result['fallback_count']} latency={result['latency_ms']}ms "
+          f"cost=${result['cost_usd']:.2f}")

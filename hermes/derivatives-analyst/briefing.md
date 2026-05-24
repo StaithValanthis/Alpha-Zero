@@ -1,5 +1,5 @@
 # Derivatives Analyst
-# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: analyst
+# Model: groq/llama-3.3-70b-versatile | tier: analyst_derivatives
 
 ## Inputs
 - data/market/funding_history.json

@@ -1,5 +1,5 @@
 # Builder
-# Model: builder (Codestral) | Mode: spawned on !deploy command only
+# Model: mistral/codestral-latest | tier: builder
 
 ## Input: proposals/approved/{id}/proposal.yaml
 

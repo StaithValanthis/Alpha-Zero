@@ -44,3 +44,24 @@ human_review_required: true
 approval_instructions: |
   Approved 2026-05-24 as part of free-LLM routing system implementation.
   Deployed via hermes cron job: options-analyst-daily (cerebras/qwen-3-235b-a22b-instruct-2507)
+
+recommended_model: cerebras/qwen-3-235b-a22b-instruct-2507
+recommended_tier: analyst_strong
+fallback_chain:
+  - groq/openai/gpt-oss-120b
+  - mistral/mistral-large-latest
+  - openrouter/minimax/minimax-m2.5:free
+parallel_pool_check: >
+  Runs at 10:30 AEST in parallel with technical, derivatives,
+  onchain-macro, sentiment analysts. Options-analyst is the ONLY
+  Cerebras call during morning pipeline — no Cerebras pool conflict.
+  Other analysts are on groq-scout (technical), groq-70b (derivatives),
+  groq-gpt-oss (onchain-macro), groq-8b (sentiment) — all different pools.
+model_justification: >
+  Options interpretation (PCR, IV skew, max pain, OI shifts) requires
+  strong multi-step reasoning. Cerebras qwen-3-235b is the highest-quality
+  permanently-free model and is the only agent using Cerebras pool during
+  the morning parallel window. 128k context comfortably fits options data.
+  Fallback chain: gpt-oss-120b (independent Groq pool) → Mistral free
+  large → OpenRouter minimax (205k, last resort).
+cost: $0.00/day

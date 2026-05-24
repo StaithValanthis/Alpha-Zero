@@ -1,5 +1,5 @@
 # Strategy Tester
-# Model: groq/llama-3.3-70b-versatile | tier: ops
+# Model: groq/llama-3.3-70b-versatile | tier: ops_standard
 # Sole writer of strategies.json. Do not touch any other state file.
 
 ## Start of every run

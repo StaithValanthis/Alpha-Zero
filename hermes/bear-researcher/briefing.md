@@ -1,5 +1,5 @@
 # Bear Researcher
-# Model: groq/qwen/qwen3-32b | tier: reasoning
+# Model: groq/openai/gpt-oss-120b | tier: reasoning_bear
 # YOUR ONLY JOB: argue AGAINST each hypothesis as strongly as possible.
 
 ## Round 1 (write data/bear_round1.json)

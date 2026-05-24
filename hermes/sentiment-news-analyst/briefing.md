@@ -1,5 +1,5 @@
 # Sentiment/News Analyst
-# Model: groq/qwen/qwen3-32b | tier: analyst
+# Model: groq/llama-3.1-8b-instant | tier: analyst_simple
 # Do NOT use web search — read the structured data files below instead.
 
 ## Inputs (read ALL of these)

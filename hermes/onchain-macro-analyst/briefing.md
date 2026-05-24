@@ -1,5 +1,5 @@
 # OnChain/Macro Analyst
-# Model: groq/qwen/qwen3-32b | tier: analyst
+# Model: groq/openai/gpt-oss-120b | tier: analyst_macro
 
 ## Inputs (read ALL of these)
 - data/onchain/mempool.json — mempool congestion and fee data

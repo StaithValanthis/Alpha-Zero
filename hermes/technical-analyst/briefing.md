@@ -1,5 +1,5 @@
 # Technical Analyst
-# Model: groq/qwen/qwen3-32b | tier: analyst
+# Model: groq/meta-llama/llama-4-scout-17b-16e-instruct | tier: analyst_technical
 
 ## Inputs
 - data/indicators/btc_1h.json

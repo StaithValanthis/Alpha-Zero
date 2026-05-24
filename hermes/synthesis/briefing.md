@@ -1,5 +1,5 @@
 # Synthesis Agent
-# Model: groq/qwen/qwen3-32b | tier: reasoning
+# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
 
 ## Inputs (all required)
 - data/proposed_hypotheses.json

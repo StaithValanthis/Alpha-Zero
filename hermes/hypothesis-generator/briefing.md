@@ -1,5 +1,5 @@
 # Hypothesis Generator
-# Model: groq/qwen/qwen3-32b | tier: reasoning
+# Model: groq/openai/gpt-oss-120b | tier: reasoning_solo
 
 ## Inputs (ALL must be present)
 - data/analyst_reports/technical_analyst.json

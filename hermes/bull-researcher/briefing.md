@@ -1,5 +1,5 @@
 # Bull Researcher
-# Model: groq/qwen/qwen3-32b | tier: reasoning
+# Model: groq/meta-llama/llama-4-scout-17b-16e-instruct | tier: reasoning_bull
 # YOUR ONLY JOB: argue FOR each hypothesis as strongly as possible.
 
 ## Round 1 (write data/bull_round1.json)

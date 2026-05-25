@@ -1,32 +1,24 @@
 {
-  "timestamp": "2026-05-25T11:11:44.134200Z",
-  "spot_price": 77530.3,
-  "put_call_analysis": {
-    "put_call_oi_ratio": 1.1338,
-    "interpretation": "balanced_hedging",
-    "description": "Put/call ratio indicates hedging sentiment"
-  },
-  "iv_analysis": {
-    "iv_7d_atm": 0.29,
-    "iv_30d_atm": 0.3,
-    "regime": "moderate",
-    "term_structure": "7d lower than 30d"
-  },
-  "iv_skew": {
-    "put_minus_call": 0.06,
-    "signal": "moderate_put_bias",
-    "description": "Volatility skew indicates put premium elevation"
-  },
-  "max_pain_analysis": {
-    "max_pain_weekly": 76000.0,
+  "schema_version": "1.0",
+  "agent": "options_analyst",
+  "produced_at": "2026-05-25T23:30:00Z",
+  "stale_after_seconds": 7200,
+  "findings": {
+    "put_call_oi_ratio": 1.1404,
+    "put_call_bias": "bearish_hedging",
+    "implied_volatility_7d_atm": 0.30,
+    "implied_volatility_30d_atm": 0.30,
+    "iv_regime": "normal",
+    "iv_skew": 0.05,
+    "iv_skew_signal": "put_premium",
+    "max_pain_weekly": 76500.0,
     "max_pain_monthly": 76000.0,
-    "spot_to_max_pain_weekly_diff": 1530.3,
-    "spot_to_max_pain_weekly_diff_pct": 1.97,
-    "signal": "divergence_above"
-  },
-  "top_signal": "Put-biased market (ratio 1.13) with moderate IV; max pain 76000 is 2.0% away from spot",
-  "data_sources": {
-    "bybit": "642 options, put/call OI: 7335.9/6470.4",
-    "deribit": "884 options, put/call OI: 162754.8/237442.3"
+    "max_pain_vs_spot_pct": -0.82,
+    "max_pain_signal": "below_spot",
+    "deribit_put_call_ratio": 0.6934,
+    "deribit_vs_bybit_divergence": "Significant divergence: Bybit shows 1.14 put/call ratio (mild bearish hedging) while Deribit shows 0.69 (call-dominated). Deribit skews bullish while Bybit skews bearish — suggests retail hedging on Bybit vs institutional call buying on Deribit.",
+    "options_summary": "Bybit options show mild bearish hedging (PC ratio 1.14) with elevated put skew (+0.05), indicating defensive positioning. Max pain sits 82 bps below spot, creating minor downside gravity while IV remains normal at 30% ATM across tenors.",
+    "top_options_signal": "Exchange divergence is notable — Bybit hedged, Deribit bullish. If price holds above 76500 weekly max pain, the bearish puts expire worthless and upside acceleration could follow. Watch for IV crush if weekly expires without volatility event.",
+    "data_freshness": "fresh"
   }
 }

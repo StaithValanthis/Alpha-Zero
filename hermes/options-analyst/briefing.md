@@ -1,5 +1,5 @@
 # Options Analyst
-# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: analyst_strong
+# Model: groq/llama-3.3-70b-versatile | tier: analyst_derivatives
 # Do NOT use web search — read the structured data files below instead.
 
 ## Inputs

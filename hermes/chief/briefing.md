@@ -162,7 +162,7 @@ share rate-limit pools with other parallel-running agents.
 | trader-entry           | cerebras/qwen-3-235b           | critical           | cerebras     |
 | synthesis              | cerebras/qwen-3-235b           | critical           | cerebras     |
 | journal-agent          | cerebras/qwen-3-235b           | critical           | cerebras     |
-| options-analyst        | cerebras/qwen-3-235b           | analyst_strong     | cerebras     |
+| options-analyst        | groq/llama-3.3-70b-versatile   | analyst_derivatives| groq-70b     |
 | bull-researcher        | groq/llama-4-scout             | reasoning_bull     | groq-scout   |
 | technical-analyst      | groq/llama-4-scout             | analyst_technical  | groq-scout   |
 | bear-researcher        | groq/gpt-oss-120b              | reasoning_bear     | groq-gpt-oss |

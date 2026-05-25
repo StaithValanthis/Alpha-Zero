@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-05-25T11:11:44.134200Z",
+  "spot_price": 77530.3,
+  "put_call_analysis": {
+    "put_call_oi_ratio": 1.1338,
+    "interpretation": "balanced_hedging",
+    "description": "Put/call ratio indicates hedging sentiment"
+  },
+  "iv_analysis": {
+    "iv_7d_atm": 0.29,
+    "iv_30d_atm": 0.3,
+    "regime": "moderate",
+    "term_structure": "7d lower than 30d"
+  },
+  "iv_skew": {
+    "put_minus_call": 0.06,
+    "signal": "moderate_put_bias",
+    "description": "Volatility skew indicates put premium elevation"
+  },
+  "max_pain_analysis": {
+    "max_pain_weekly": 76000.0,
+    "max_pain_monthly": 76000.0,
+    "spot_to_max_pain_weekly_diff": 1530.3,
+    "spot_to_max_pain_weekly_diff_pct": 1.97,
+    "signal": "divergence_above"
+  },
+  "top_signal": "Put-biased market (ratio 1.13) with moderate IV; max pain 76000 is 2.0% away from spot",
+  "data_sources": {
+    "bybit": "642 options, put/call OI: 7335.9/6470.4",
+    "deribit": "884 options, put/call OI: 162754.8/237442.3"
+  }
+}

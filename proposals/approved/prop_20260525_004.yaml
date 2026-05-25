@@ -1,0 +1,138 @@
+proposal_id: prop_20260525_004
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: new_agent
+priority: medium
+
+agent_name: strategy-diversity-monitor
+agent_role: >
+  Weekly analyst that reads state/strategies.json and state/lessons.json to
+  audit strategy archetype coverage. Outputs a structured gap report to
+  data/analyst_reports/strategy_diversity.json listing which archetypes are
+  covered and which are absent. Consumed by the chief-evaluator and
+  orchestrator during Sunday review.
+
+problem_statement: |
+  The system currently has 1 strategy in paper_testing (strat_001: mean
+  reversion long from oversold). The hypothesis-generator is reactive —
+  it synthesises hypotheses from same-day analyst reports. This creates a
+  structural bias: whatever regime the market is in today tends to dominate
+  the hypothesis pool. Momentum strategies are not generated during a mean-
+  reverting regime; breakout strategies are not generated during low-vol.
+
+  There is no agent that proactively tracks which archetypes are absent and
+  flags gaps to the orchestrator and evaluator. The Sunday chief-evaluator
+  skill references "strategy diversity score" in weekly-review.json but it
+  is currently hardcoded as "too_early" with no mechanism to compute it.
+
+  Archetypes with zero current coverage that have evidence-based use cases
+  for BTC:
+  - Momentum / trend-following (verified in btc_1d_2yr.json — 2yr daily data)
+  - Breakout (4H candles, 6mo — adausdt, bnbusdt, solusdt, ethusdt all present)
+  - Funding carry (funding_history.json collects hourly — 0 carry strategies)
+  - Volatility contraction / IV squeeze (options data now available post P001)
+  - Regime-conditional (research.json has market_regime field, 0 regime-
+    gated strategies exist)
+
+  Without a monitor, the evaluator and orchestrator have no structured input
+  to identify these gaps — they rely on ad-hoc reasoning each week.
+
+evidence:
+  - >
+    state/strategies.json: 1 strategy total (strat_001), type=ta_signal,
+    direction=long, archetype=mean_reversion. Zero momentum, breakout,
+    carry, regime-conditional, or volatility strategies.
+  - >
+    data/historical/: btc_1d_2yr.json (2yr daily), btc_4h_6mo.json,
+    btc_1h_3mo.json, plus 5 alt pairs — sufficient data for momentum and
+    breakout backtests already collected and available.
+  - >
+    data/market/funding_history.json: collected fresh (age 0.1h) — hourly
+    funding rate history available. No strategy has entry_conditions based
+    on funding_rate thresholds.
+  - >
+    state/weekly-review.json: strategy_diversity_score = "too_early" — field
+    exists in schema, no mechanism computes it.
+  - >
+    state/research.json market_regime = "mean_reverting" (2026-05-24) —
+    regime data available but zero strategies have regime_dependency field
+    set to constrain entry to specific regime conditions.
+  - >
+    state/orchestrator-directive.json: references strategy diversity nowhere.
+    Orchestrator cannot proactively direct hypothesis-generator to fill gaps
+    without a structured gap report.
+
+implementation_notes: |
+  Runs weekly on Sunday before the chief-evaluator (schedule: 0 20 * * 0 AEST
+  = 10:00 UTC Sunday).
+  Reads:
+    - state/strategies.json
+    - state/lessons.json (retired strategies — count as "tried and failed")
+    - state/research.json (what regime is most common week-over-week)
+  Outputs: data/analyst_reports/strategy_diversity.json
+    {
+      "produced_at": "...",
+      "archetype_coverage": {
+        "mean_reversion": {"count": 1, "live": 0, "paper": 1, "status": "covered"},
+        "momentum": {"count": 0, "status": "missing"},
+        "breakout": {"count": 0, "status": "missing"},
+        "funding_carry": {"count": 0, "status": "missing"},
+        "volatility_contraction": {"count": 0, "status": "missing"},
+        "regime_conditional": {"count": 0, "status": "missing"},
+        "range_fade": {"count": 0, "status": "missing"}
+      },
+      "priority_gap": "momentum",
+      "priority_gap_rationale": "1-sentence evidence-based reason",
+      "diversity_score": 0-100,
+      "recommendation": "Direct hypothesis-generator to generate 1 momentum thesis next cycle"
+    }
+  Chief-evaluator reads this file during Sunday review and includes
+  diversity_score in weekly-review.json.
+
+schedule: "0 10 * * 0"  # 10:00 UTC Sunday = 20:00 AEST
+
+recommended_model: groq/llama-3.3-70b-versatile
+recommended_tier: ops_standard
+fallback_chain:
+  - groq/meta-llama/llama-4-scout-17b-16e-instruct
+  - mistral/mistral-small-latest
+  - openrouter/meta-llama/llama-3.3-70b-instruct:free
+parallel_pool_check: >
+  Runs Sunday 20:00 AEST — journal agent runs same time but uses Cerebras
+  (critical tier). This agent uses Groq 70b (ops_standard). No pool conflict.
+model_justification: >
+  ops_standard (groq/70b) is appropriate. Task is: read 3 JSON files, classify
+  strategies by archetype, compute coverage score, write structured JSON.
+  No reasoning or debate required — 70b is sufficient and free.
+
+estimated_cost_per_day: "$0.00"
+
+inputs:
+  - state/strategies.json
+  - state/lessons.json
+  - state/research.json (for dominant regime context)
+
+outputs:
+  - data/analyst_reports/strategy_diversity.json
+
+consumers:
+  - hermes/chief/briefing.md (Sunday evaluator reads this file)
+  - hermes/orchestrator/briefing.md (add as optional input for DCA/direction)
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  weekly_not_daily: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_004.yaml proposals/approved/
+  The deployer will:
+    1. Create hermes/strategy-diversity-monitor/briefing.md
+    2. Register the Sunday 10:00 UTC Hermes cron job
+    3. Add data/analyst_reports/strategy_diversity.json as an optional
+       input in hermes/chief/briefing.md and hermes/orchestrator/briefing.md
+  To reject: mv proposals/pending/prop_20260525_004.yaml proposals/rejected/

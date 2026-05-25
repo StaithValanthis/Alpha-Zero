@@ -1,0 +1,127 @@
+proposal_id: prop_20260525_002
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: operational_change
+subtype: pipeline_integration
+priority: high
+
+agent_name: options-analyst
+change_summary: >
+  Integrate options-analyst into btc-morning-pipeline as the 5th parallel
+  analyst. Update synthesis, hypothesis-generator, and onchain-macro-analyst
+  briefings to reflect the new analyst in the pipeline.
+
+problem_statement: |
+  prop_20260524_001 (options-analyst) was approved and deployed. The agent
+  briefing (hermes/options-analyst/briefing.md) exists and is correct. The
+  data source (data/options/btc_options.json) is collected fresh hourly.
+
+  However, data/analyst_reports/options_analyst.json does not exist as of
+  2026-05-25 03:09 UTC — options_analyst has produced zero reports since
+  deployment. The morning pipeline (btc-morning-pipeline Hermes cron skill)
+  was never updated to spawn options-analyst as a 5th parallel analyst.
+
+  Additionally:
+  1. The synthesis briefing still says "All 4 analyst reports" — it will
+     not wait for or include options_analyst.json in adjudication.
+  2. The hypothesis-generator briefing lists only 4 analyst report inputs —
+     options signals are excluded from hypothesis generation entirely.
+  3. The onchain-macro-analyst briefing reads data/options/btc_options.json
+     for 2 fields (options_pcr, options_max_pain_weekly) — creating a partial
+     redundant coverage that will conflict with the options_analyst output.
+
+  Net effect: the options-analyst is deployed but produces no signal. The
+  daily debate pipeline is running without options market intelligence despite
+  the data being collected.
+
+evidence:
+  - >
+    data/analyst_reports/options_analyst.json: DOES NOT EXIST (confirmed
+    2026-05-25 03:09 UTC, 24h+ since deployment approval)
+  - >
+    logs/daily_usage/2026-05-24.json: analyst_strong tier primary_hit_rate_pct: 0.0
+    — the single Cerebras call for options_analyst failed and fell back; the
+    fallback also appears to have failed (report absent). Cerebras model
+    qwen-3-235b-a22b-instruct-2507 may reject very short prompts or the
+    morning pipeline simply never called it.
+  - >
+    hermes/synthesis/briefing.md: "All 4 analyst reports" — hard-coded count,
+    no reference to options_analyst.json.
+  - >
+    hermes/hypothesis-generator/briefing.md: lists exactly 4 analyst inputs,
+    no options_analyst.json.
+  - >
+    hermes/onchain-macro-analyst/briefing.md: reads data/options/btc_options.json
+    for options_pcr and options_max_pain_weekly — duplicates what options_analyst
+    will produce, but at lower depth (2 fields vs full analysis).
+  - >
+    data/options/btc_options.json: collected_at 2026-05-25T03:01:03Z, age 0.1h
+    — data is fresh and ready.
+
+required_changes:
+  btc_morning_pipeline_skill: |
+    Add options-analyst as 5th parallel task alongside the existing 4 analysts.
+    Wait for data/analyst_reports/options_analyst.done before proceeding to
+    hypothesis-generator phase.
+  synthesis_briefing: |
+    Replace "All 4 analyst reports" with "All 5 analyst reports" and add
+    data/analyst_reports/options_analyst.json to the required inputs list.
+    Add options_analyst to the missing_analysts handling logic.
+  hypothesis_generator_briefing: |
+    Add data/analyst_reports/options_analyst.json as a 5th input (optional
+    if .done file absent — degrade gracefully, note in missing_analysts field).
+  onchain_macro_analyst_briefing: |
+    Remove options_pcr and options_max_pain_weekly fields from the onchain
+    analyst's required output. Add a note: "options data is covered by
+    options_analyst — do not duplicate". The onchain analyst should reference
+    options_analyst.json findings if available rather than re-reading raw data.
+
+recommended_model: cerebras/qwen-3-235b-a22b-instruct-2507
+recommended_tier: analyst_strong
+fallback_chain:
+  - groq/openai/gpt-oss-120b
+  - mistral/mistral-large-latest
+  - openrouter/minimax/minimax-m2.5:free
+parallel_pool_check: >
+  Cerebras pool is separate from all Groq pools. Running options-analyst on
+  Cerebras during morning pipeline does not conflict with: bull-researcher
+  (groq/llama-4-scout), bear-researcher (groq/gpt-oss-120b), technical-analyst
+  (groq/llama-4-scout), derivatives-analyst (groq/70b), sentiment-analyst
+  (groq/8b), onchain-macro (groq/gpt-oss-120b). Cerebras assignment is
+  correct for parallel safety. Root issue is pipeline integration, not tier.
+model_justification: >
+  Retain analyst_strong (Cerebras) — correct tier for parallel safety. The 0%
+  hit rate on 2026-05-24 was likely a deployment-day test call that failed due
+  to the agent not being properly invoked by the pipeline, not a Cerebras
+  reliability issue. Cerebras shows 100% hit rate across 5 calls in the
+  critical tier on the same day.
+
+estimated_cost_per_day: "$0.00"
+
+inputs_added:
+  - data/options/btc_options.json (already collected)
+
+outputs_added:
+  - data/analyst_reports/options_analyst.json
+  - data/analyst_reports/options_analyst.done
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_002.yaml proposals/approved/
+  The deployer will:
+    1. Update btc-morning-pipeline Hermes cron skill to include options-analyst
+    2. Patch hermes/synthesis/briefing.md
+    3. Patch hermes/hypothesis-generator/briefing.md
+    4. Patch hermes/onchain-macro-analyst/briefing.md
+  To reject: mv proposals/pending/prop_20260525_002.yaml proposals/rejected/
+
+  NOTE: Also clean up stale proposals/pending/prop_20260524_001.yaml — that
+  options-analyst deployment proposal has already been deployed and the pending/
+  copy is orphaned. Run: mv proposals/pending/prop_20260524_001.yaml proposals/deployed/prop_20260524_001_stale.yaml

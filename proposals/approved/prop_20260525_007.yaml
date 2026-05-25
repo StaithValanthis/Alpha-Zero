@@ -1,0 +1,157 @@
+proposal_id: prop_20260525_007
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: new_agent
+priority: medium
+
+agent_name: regime-monitor
+agent_role: >
+  Daily analyst that detects market regime changes from the prior day's
+  regime (from state/research.json). Specifically watches for: volatility
+  regime shift (IV expansion/contraction), funding rate inversion,
+  BTC dominance inflection, and multi-timeframe regime contradiction.
+  Writes a compact state/regime_state.json consumed by the orchestrator
+  and synthesis agent. Runs before the morning pipeline analysts.
+
+problem_statement: |
+  The current system detects market_regime once daily during synthesis (via
+  technical_analyst output). The orchestrator reads yesterday's research.json
+  regime. There is no agent that:
+  1. Compares today's regime signals against yesterday's to detect a REGIME CHANGE
+  2. Specifically monitors for volatility regime shifts (IV from normal to elevated)
+  3. Monitors BTC dominance inflection (the alt rotation gate)
+  4. Cross-checks regime across timeframes (1h, 4h, 1d can disagree)
+
+  The risk: synthesis produces a regime label ("mean_reverting") that is used
+  by the orchestrator for 24 hours. If the regime transitions at 14:00 UTC to
+  "trending_down" or "high_volatility", no agent detects this until the next
+  morning pipeline. Signal_watcher can still fire entry triggers for
+  mean-reversion strategies into a newly high-volatility market.
+
+  This is distinct from the flash-crash watchdog (prop_20260525_001) which
+  handles price velocity events. Regime changes are slower (hours) and require
+  cross-indicator interpretation that a simple threshold script cannot handle.
+
+evidence:
+  - >
+    state/research.json: market_regime="mean_reverting", regime_confidence=0.65
+    — produced_at 2026-05-24T02:07Z. At audit time (2026-05-25T03:09Z) this
+    is 25h stale. Orchestrator uses this as its regime reference.
+  - >
+    state/orchestrator-directive.json: allocation_reasoning references
+    "Regime is mean-reverting but confidence (0.65) insufficient" — this
+    reasoning was written 2026-05-24, regime freshness is 25h.
+  - >
+    data/indicators/btc_1h.json, btc_4h.json, btc_1d.json: all fresh (age 0.1h)
+    — multi-timeframe indicator data is collected continuously. No agent reads
+    these files between morning pipeline runs to check for regime shift.
+  - >
+    data/options/btc_options.json: implied_volatility_7d_atm=0.33 (33%),
+    implied_volatility_30d_atm=0.33 — elevated for BTC (normal is 20-40%).
+    No agent currently raises an alert or adjusts regime label based on IV.
+  - >
+    data/market/funding_history.json: fresh (age 0.1h) — hourly funding data
+    available. No daily regime monitor reads this.
+  - >
+    state/watchlist.json: btc_dominance_pct=58.13%, last_updated=2026-05-22 —
+    3 days stale. Orchestrator uses this for alt rotation decision. A dominance
+    inflection (e.g., drop below 57%) triggering alt rotation would not be
+    detected for up to 3+ days.
+  - >
+    hermes/orchestrator/briefing.md: "For alt rotation: BTC dominance < 57%"
+    — the threshold is defined but the data source (watchlist.json) has no
+    freshness guarantee and no agent updates it intraday.
+
+implementation_notes: |
+  Runs daily at 00:00 UTC (30 minutes BEFORE the morning pipeline analysts).
+  Schedule: "0 0 * * *"
+  Reads:
+    - data/indicators/btc_1h.json (hourly regime: ADX, BB width, RSI trend)
+    - data/indicators/btc_4h.json (4h regime reference)
+    - data/indicators/btc_1d.json (daily regime reference)
+    - data/options/btc_options.json (IV regime: normal/elevated/extreme)
+    - data/market/funding_history.json (funding regime: extreme/normal)
+    - state/research.json (yesterday's declared regime for delta comparison)
+    - data/alts/watchlist_prices.json (BTC dominance proxy via BTC/alt price action)
+  Outputs: state/regime_state.json
+    {
+      "produced_at": "...",
+      "stale_after_seconds": 90000,
+      "regime_1h": "trending_up|trending_down|mean_reverting|high_volatility",
+      "regime_4h": "...",
+      "regime_1d": "...",
+      "regime_consensus": "...",
+      "regime_consensus_confidence": 0.0-1.0,
+      "regime_change_detected": true|false,
+      "prior_regime": "...",
+      "regime_change_magnitude": "minor|major",
+      "iv_regime": "low|normal|elevated|extreme",
+      "funding_regime": "extreme_negative|negative|neutral|positive|extreme_positive",
+      "btc_dominance_24h_delta_pct": 0.0,
+      "btc_dominance_alert": false,
+      "regime_warning": null or "Regime shifted from mean_reverting to high_volatility"
+    }
+  Orchestrator reads state/regime_state.json as a FIRST input before all others.
+  Synthesis reads it to cross-check its own regime determination.
+  If regime_change_detected=true AND regime_change_magnitude="major":
+    write anomaly_state.json: current_anomalies += {type: "regime_change", ...}
+
+pipeline_position: >
+  Runs at 00:00 UTC — 30 minutes before morning pipeline analysts (00:30 UTC).
+  Output is available to all 5 analysts and hypothesis-generator during their run.
+  Orchestrator (01:30 AEST = 15:30 UTC) reads it for next-day directive.
+
+schedule: "0 0 * * *"
+
+recommended_model: groq/llama-3.3-70b-versatile
+recommended_tier: ops_standard
+fallback_chain:
+  - groq/meta-llama/llama-4-scout-17b-16e-instruct
+  - mistral/mistral-small-latest
+  - openrouter/meta-llama/llama-3.3-70b-instruct:free
+parallel_pool_check: >
+  Runs at 00:00 UTC, 30 min before morning pipeline. Sequential — no parallel
+  conflict. Uses groq/70b (ops_standard) at a time when no other agent is
+  running.
+model_justification: >
+  Cross-timeframe regime synthesis from structured indicator data is a
+  moderate-reasoning task well within 70b capability. The output is a
+  structured JSON with clear fields — no long-form synthesis required.
+  ops_standard is appropriate. Daily run = 1 call/day at negligible cost.
+
+estimated_cost_per_day: "$0.00"
+
+inputs:
+  - data/indicators/btc_1h.json
+  - data/indicators/btc_4h.json
+  - data/indicators/btc_1d.json
+  - data/options/btc_options.json
+  - data/market/funding_history.json
+  - state/research.json
+
+outputs:
+  - state/regime_state.json
+
+consumers:
+  - hermes/orchestrator/briefing.md (add as first daily input)
+  - hermes/synthesis/briefing.md (add as cross-check input)
+  - hermes/hypothesis-generator/briefing.md (add as regime context)
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_duplicate_role: true
+  does_not_write_portfolio_json: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_007.yaml proposals/approved/
+  The deployer will:
+    1. Create hermes/regime-monitor/briefing.md
+    2. Register the 00:00 UTC daily Hermes cron (before morning pipeline)
+    3. Add state/regime_state.json as first input in orchestrator, synthesis,
+       and hypothesis-generator briefings
+  To reject: mv proposals/pending/prop_20260525_007.yaml proposals/rejected/

@@ -1,0 +1,113 @@
+proposal_id: prop_20260525_003
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: operational_change
+subtype: briefing_fix
+priority: high
+
+agent_name: reporter
+change_summary: >
+  Fix reporter briefing to read BYBIT_ACCOUNT_TYPE from .env instead of
+  demo_mode from portfolio.json. Also add collection_status, options_analyst
+  report, and cold_start_day derivation to reporter inputs. Eliminate the
+  known mode-reporting mismatch bug.
+
+problem_statement: |
+  The reporter agent has been producing daily reports with incorrect Mode field
+  since at least 2026-05-22. The weekly-review.json explicitly records this
+  as a known system issue: "mode_reporting_mismatch: daily report states 'LIVE'
+  but BYBIT_ACCOUNT_TYPE=demo in .env — reporter using portfolio.demo_mode
+  field (stale) instead of .env".
+
+  This is a correctness bug. Every daily report has been filing a false claim
+  about trading mode. If the system ever transitions to live, the same stale
+  field problem will mask it going the other way.
+
+  Additionally, the reporter briefing has three data coverage gaps identified
+  in this audit:
+  1. collection_status.json is not listed as a reporter input — system
+     collection health is inferred rather than read directly.
+  2. options_analyst.json is not listed — once integrated (prop_20260525_002),
+     the reporter will not surface options signals in daily reports.
+  3. cold_start_day is shown in the report but the briefing does not specify
+     how to compute it (from portfolio.starting_date, not stored counter).
+
+evidence:
+  - >
+    state/weekly-review.json system_issues_detected[2]:
+    "mode_reporting_mismatch: daily report states 'LIVE' but
+    BYBIT_ACCOUNT_TYPE=demo in .env — reporter using portfolio.demo_mode
+    field (stale) instead of .env; fix required"
+  - >
+    hermes/reporter/briefing.md inputs: lists "state/portfolio.json" but does
+    NOT list "data/meta/collection_status.json" or
+    "data/analyst_reports/options_analyst.json". Both are directly relevant
+    to the daily system health section.
+  - >
+    hermes/reporter/briefing.md: does not mention grep of .env for
+    BYBIT_ACCOUNT_TYPE. The briefing says "**Mode:** DEMO/LIVE" but gives
+    no instruction on where to source this value — agent defaults to
+    portfolio.demo_mode which is a boolean stale field.
+  - >
+    btc-accumulation-ops skill references/known-issues.md and SKILL.md both
+    document this as a tracked open bug with "fix required" status.
+
+required_briefing_changes:
+  inputs_section: |
+    Add the following to the Inputs list:
+      - .env (grep for BYBIT_ACCOUNT_TYPE — this is ground truth for mode)
+      - data/meta/collection_status.json (collection health)
+      - data/analyst_reports/options_analyst.json (if .done file present)
+  mode_detection: |
+    Replace any reference to portfolio.demo_mode with:
+      Run: grep BYBIT_ACCOUNT_TYPE ~/btc-agents/.env
+      If BYBIT_ACCOUNT_TYPE=demo → Mode: DEMO
+      If BYBIT_ACCOUNT_TYPE=live → Mode: LIVE
+      Do NOT read demo_mode from portfolio.json — it may be stale.
+  cold_start_day: |
+    Add explicit computation instruction:
+      cold_start_day = (today_utc - portfolio.starting_date).days
+      Do NOT read cold_start_day from orchestrator-directive.json — it may
+      be from yesterday's run.
+  collection_health: |
+    Add to System health section:
+      Read data/meta/collection_status.json. For each collector where
+      health != "green", report the collector name and age_seconds.
+  options_signal: |
+    If data/analyst_reports/options_analyst.done exists, read
+    data/analyst_reports/options_analyst.json and include top_options_signal
+    in the "What happened today" section alongside other analyst signals.
+  signals_json_note: |
+    state/signals.json is listed as an input but may not exist (strategy
+    signals are now in strategies.json). Add fallback: if state/signals.json
+    missing, read state/strategies.json instead for signal counts.
+
+recommended_model: groq/llama-3.3-70b-versatile
+recommended_tier: ops_standard
+fallback_chain:
+  - groq/meta-llama/llama-4-scout-17b-16e-instruct
+  - mistral/mistral-small-latest
+  - openrouter/meta-llama/llama-3.3-70b-instruct:free
+parallel_pool_check: >
+  Reporter runs at 19:00 AEST (09:00 UTC) — well clear of morning pipeline
+  (00:30 UTC). No pool conflict risk.
+model_justification: >
+  Retain ops_standard (groq/70b). This is a briefing correction, not a model
+  change. The reporter's task — synthesising portfolio state into a markdown
+  report and Discord embed — matches 70b capability. No upgrade needed.
+
+estimated_cost_per_day: "$0.00"
+
+guard_rails:
+  briefing_change_only: true
+  no_new_data_files: true
+  no_trading_authority: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_003.yaml proposals/approved/
+  The deployer will patch hermes/reporter/briefing.md with the changes
+  described above. No new collectors, no new agents.
+  To reject: mv proposals/pending/prop_20260525_003.yaml proposals/rejected/

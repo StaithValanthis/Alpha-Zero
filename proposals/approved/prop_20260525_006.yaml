@@ -1,0 +1,136 @@
+proposal_id: prop_20260525_006
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: operational_change
+subtype: briefing_fix
+priority: medium
+
+agent_name: orchestrator
+change_summary: >
+  Fix orchestrator briefing to correct its model tier assignment from
+  groq/llama-4-scout-17b to a tier that provides appropriate reliability
+  for a "critical" role. Add data/analyst_reports/strategy_diversity.json
+  as an optional input (once prop_20260525_004 deploys). Fix the cold_start_day
+  derivation instruction. Add explicit pipeline_state.json unreliability note.
+
+problem_statement: |
+  The orchestrator is classified in its briefing as tier: critical but the
+  actual Hermes cron job uses llama-4-scout-17b-16e-instruct (the reasoning
+  model), which maps to tier: critical only if Cerebras is the primary.
+  Reviewing the briefing header:
+    "# Model: groq/meta-llama/llama-4-scout-17b-16e-instruct | tier: critical"
+  This is inconsistent: the critical tier in llm_router.py uses Cerebras
+  as primary with llama-4-scout as 3rd fallback. If the briefing directly
+  specifies the Groq model, the router is bypassed and Cerebras is never used
+  for the orchestrator — it runs on scout (17b) every day.
+
+  The orchestrator writes the directive that all other agents follow. It sets:
+  perp_trading_enabled, signal_watcher_paused, max_position_size_pct,
+  usdt_trade_active, alt_rotation_active, and the allocation reasoning.
+  This is the highest-stakes daily decision in the pipeline. Running it on
+  a 17b model when the intent is clearly "critical" tier (Cerebras 235b) is
+  a capability mismatch.
+
+  Secondary issues in the orchestrator briefing also identified:
+  1. The briefing references state/watchlist.json but this file was last
+     updated 2026-05-22 (3 days ago) — the orchestrator should check freshness.
+  2. The briefing lists cold_start_day in orchestrator-directive.json as
+     an input — but the skill explicitly warns never to trust stored counters.
+  3. pipeline_state.json completed_today is unreliable (known logging gap) —
+     orchestrator should not use it to determine if agents ran.
+
+evidence:
+  - >
+    hermes/orchestrator/briefing.md header: "# Model: groq/meta-llama/llama-4-scout-17b-16e-instruct
+    | tier: critical" — model line specifies Groq scout, not Cerebras. In the
+    Hermes cron btc-orchestrator-daily, the skill uses this model reference.
+    The critical tier in llm_router.py uses Cerebras qwen-3-235b as primary.
+  - >
+    state/orchestrator-directive.json: cold_start_day=5 (written 2026-05-24).
+    Running on 2026-05-25 this is already stale. The briefing must compute
+    cold_start_day fresh each run.
+  - >
+    btc-accumulation-ops skill: "cold_start_day must be computed fresh each run
+    from (today_utc - starting_date).days — never use a stored counter."
+    Orchestrator briefing does not include this instruction.
+  - >
+    state/watchlist.json: last_updated=2026-05-22, scan_timestamp=10:27:43Z —
+    3 days old at time of audit. Orchestrator reads this for alt rotation
+    decisions. No freshness check instruction in briefing.
+  - >
+    state/pipeline_state.json: completed_today=[], last_update=2026-05-24T14:01Z.
+    The btc-accumulation-ops skill notes: "completed_today may show [] even when
+    morning pipeline ran successfully — known logging gap." Orchestrator briefing
+    reads pipeline_state but contains no staleness caveat.
+  - >
+    tools/llm_router.py critical tier: primary=(cerebras, qwen-3-235b). The
+    orchestrator is the only agent using the critical tier whose briefing
+    header specifies a non-Cerebras primary — all other critical agents
+    (risk-manager, trader-entry, synthesis, journal) correctly list Cerebras.
+
+required_briefing_changes:
+  model_header: |
+    Change: "# Model: groq/meta-llama/llama-4-scout-17b-16e-instruct | tier: critical"
+    To:     "# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical"
+    This aligns orchestrator with the critical tier primary in llm_router.py.
+  cold_start_day: |
+    Add to "Every day — inputs" section:
+      Compute cold_start_day fresh:
+        cold_start_day = (today_utc_date - date.fromisoformat(portfolio["starting_date"])).days
+      Do NOT read cold_start_day from orchestrator-directive.json — it was
+      written yesterday and is stale by definition.
+  pipeline_state_caveat: |
+    Add to the pipeline_state.json input:
+      Note: completed_today may show [] even if all pipeline agents ran
+      successfully (known Hermes migration logging gap). Use git log and
+      analyst_reports/*.json produced_at timestamps to verify pipeline execution.
+      Do not alarm on completed_today=[] alone.
+  watchlist_freshness: |
+    Add to state/watchlist.json input:
+      Check last_updated. If > 2 days old, treat alt_rotation_status as
+      "STALE — do not base alt rotation decisions on this data."
+      Note in allocation_reasoning that watchlist is stale.
+  strategy_diversity_input: |
+    Add as optional input (once deployed):
+      data/analyst_reports/strategy_diversity.json — if present, read
+      priority_gap and include in focus_area if applicable.
+
+recommended_model: cerebras/qwen-3-235b-a22b-instruct-2507
+recommended_tier: critical
+fallback_chain:
+  - mistral/mistral-large-latest
+  - groq/meta-llama/llama-4-scout-17b-16e-instruct
+  - openrouter/minimax/minimax-m2.5:free
+parallel_pool_check: >
+  Orchestrator runs at 01:30 AEST (15:30 UTC previous day). Morning pipeline
+  runs at 10:30 AEST (00:30 UTC). No parallel execution conflict. Cerebras
+  has separate quota from all Groq pools — safe.
+model_justification: >
+  The orchestrator writes the binding directive for the entire daily pipeline.
+  Incorrect allocation decisions (e.g., enabling usdt_trade_active when it
+  shouldn't be) directly affect the sats vs hodl score. Cerebras qwen-3-235b
+  shows 100% primary hit rate (5/5 calls, critical tier) on 2026-05-24.
+  scout-17b is a competent model but the intent of "critical" tier is
+  Cerebras for exactly this class of high-stakes reasoning task. The
+  discrepancy between briefing model line and tier assignment appears to be
+  a copy-paste error from the initial briefing write.
+
+estimated_cost_per_day: "$0.00"
+
+guard_rails:
+  briefing_change_only: true
+  no_new_data_files: true
+  no_trading_authority: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_006.yaml proposals/approved/
+  The deployer will patch hermes/orchestrator/briefing.md with the 5 changes
+  described above. Takes effect at next 01:30 AEST run.
+  To reject: mv proposals/pending/prop_20260525_006.yaml proposals/rejected/
+
+  NOTE: This is a model alignment fix, not a model upgrade. The critical tier
+  in llm_router.py has always intended Cerebras for orchestrator. This proposal
+  corrects the briefing to match that intent.

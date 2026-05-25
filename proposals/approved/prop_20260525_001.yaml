@@ -1,0 +1,106 @@
+proposal_id: prop_20260525_001
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: new_agent
+priority: critical
+
+agent_name: intraday-risk-watchdog
+agent_role: >
+  No-LLM daemon that monitors ws_prices.json for flash crash (>=5% drop in
+  one 5-min tick), funding rate inversion (extreme negative < -0.03%), and
+  stablecoin depeg proxy (btc_market price divergence vs internal baseline).
+  On trigger: sets anomaly_state.json.auto_pause_signal_watcher=true, posts
+  an urgent Discord embed, writes an entry to state/system-log.json.
+  Resets auto_pause only when price recovers threshold AND 30 min have elapsed.
+
+problem_statement: |
+  The current system has no intraday safety net. position_guardian.py covers
+  TP/SL/liquidation for OPEN positions only. signal_watcher.py evaluates only
+  entry conditions. The morning pipeline (analysts + synthesis) runs once at
+  00:30 UTC. A flash crash, stablecoin depeg, or extreme funding inversion
+  occurring at, say, 15:00 UTC goes completely undetected for 9+ hours —
+  during which signal_watcher could fire a new entry trigger, risk_manager
+  could approve it, and trader-entry could execute a buy into a collapsing
+  market.
+
+  This is the single highest-severity uncovered failure mode in the current
+  architecture. The anomaly_state.auto_pause_signal_watcher flag exists
+  precisely for this scenario but nothing writes it intraday.
+
+evidence:
+  - >
+    services/position_guardian.py L34-55: covers only perp_positions TP/SL/liq.
+    No price-velocity check. No flash crash logic. No funding extreme check.
+  - >
+    services/signal_watcher.py: evaluates entry conditions on a 5-min loop.
+    Only pauses on signal_watcher_paused (manually set), auto_pause_signal_watcher,
+    and circuit_breaker_tripped. None of these are auto-set by any intraday agent.
+  - >
+    state/anomaly_state.json: auto_pause_signal_watcher=false, last_updated="BOOTSTRAP"
+    — field has never been automatically triggered since system bootstrap.
+  - >
+    data/meta/collection_status.json: ws_prices.json is fresh (age 0.0h) — the
+    price feed data required for this watchdog is already available.
+  - >
+    hermes/sentiment-news-analyst/briefing.md: tier-1 event detection (hack,
+    depeg, ban) runs once daily at 00:30 UTC. 23-hour blind window.
+  - >
+    state/orchestrator-directive.json: signal_watcher_paused=false. No mechanism
+    auto-sets this on adverse intraday price action.
+
+implementation_notes: |
+  Deploy as a no_agent=True Hermes cron running every 5 minutes.
+  Script: services/intraday_risk_watchdog.py
+  Logic:
+    1. Read data/market/ws_prices.json for current BTC price
+    2. Read state/price_baseline.json (or last 12 readings cached in the script)
+       to compute 5-min price change pct
+    3. Read data/market/funding_history.json for latest funding rate
+    4. Trigger conditions (ANY of these):
+       a. 5-min price drop >= 5% → flash_crash
+       b. funding_rate_latest < -0.03% (extreme) → funding_inversion
+       c. price_drop_1h >= 8% → cascade_risk
+    5. On trigger:
+       - Atomic write anomaly_state.json: auto_pause_signal_watcher=true,
+         current_anomalies=[{type, value, detected_at}], expected_clear_condition
+       - POST Discord webhook urgent embed (red, @here)
+       - Append system-log.json entry
+    6. Clear logic: if trigger condition no longer met AND 30+ min elapsed AND
+       no open positions in distress → reset auto_pause_signal_watcher=false
+  Silent on clean runs (no Discord, no log) — noise-free.
+
+schedule: "*/5 * * * *"
+
+recommended_model: none
+recommended_tier: no_llm
+fallback_chain: []
+parallel_pool_check: "N/A — no LLM calls"
+model_justification: "Deterministic threshold logic, no reasoning required. Pure Python watchdog reads two JSON files, applies fixed price-velocity and funding-rate thresholds, writes two JSON files, optionally POSTs to Discord webhook. no_agent=True pattern."
+
+estimated_cost_per_day: "$0.00"
+
+inputs:
+  - data/market/ws_prices.json
+  - data/market/funding_history.json
+
+outputs:
+  - state/anomaly_state.json (auto_pause_signal_watcher field)
+  - state/system-log.json (append on trigger)
+  - Discord webhook (urgent embed on trigger only)
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_duplicate_role: true
+  does_not_clear_circuit_breaker: true
+  does_not_write_portfolio_json: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_001.yaml proposals/approved/
+  The deployer will build services/intraday_risk_watchdog.py and register the
+  5-min Hermes cron within 60 minutes of file appearing in approved/.
+  To reject: mv proposals/pending/prop_20260525_001.yaml proposals/rejected/

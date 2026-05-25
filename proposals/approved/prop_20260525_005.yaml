@@ -1,0 +1,130 @@
+proposal_id: prop_20260525_005
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: operational_change
+subtype: briefing_fix
+priority: medium
+
+agent_name: sentiment-news-analyst
+change_summary: >
+  Upgrade sentiment-news-analyst from groq/llama-3.1-8b-instant (analyst_simple
+  tier) to groq/llama-3.3-70b-versatile (ops_standard tier). Rename tier
+  assignment from analyst_simple to analyst_derivatives to share the 70b
+  pool slot, which is already used at very low volume in that tier.
+  Update briefing to add explicit mode-detection and data file handling
+  for currently missing file state/signals.json.
+
+problem_statement: |
+  The sentiment-news-analyst uses llama-3.1-8b-instant — the smallest,
+  lowest-capability model in the entire agent fleet. This agent's job
+  requires:
+  1. Parsing and synthesising classified news articles (data/news/classified.json
+     — 8,637b, multiple article objects with tier/sentiment/summary fields)
+  2. Identifying tier-1 events (exchange hacks, stablecoin depegs, Fed decisions)
+  3. Reading ETF flow signals (data/macro/etf/flows.json)
+  4. Producing a structured JSON output with findings that feed directly into
+     hypothesis generation and synthesis.
+
+  A tier-1 event misclassified or missed by the 8b model does not get caught
+  downstream — synthesis and hypothesis-generator trust the analyst output.
+  A stablecoin depeg or exchange hack detected incorrectly (or missed) by an
+  8b model is a direct safety risk.
+
+  Additionally, the analyst_simple tier shows a fallback pattern in the usage
+  log (fallback_count: 1 on 2026-05-24 with only 3 calls total = 33% fallback
+  rate), suggesting the 8b model is not reliably completing the task. The
+  analyst_strong tier (Cerebras) shows 0% primary hit rate for the same day
+  (likely the options-analyst issue), but the 8b fallback rate on such a
+  simple call volume is a flag.
+
+evidence:
+  - >
+    hermes/sentiment-news-analyst/briefing.md: "Model: groq/llama-3.1-8b-instant
+    | tier: analyst_simple" — smallest model in fleet for a tier-1 event
+    detection role.
+  - >
+    logs/daily_usage/2026-05-24.json: by_provider_pool.groq_llama-3.1-8b:
+    calls=3, fallback_count=1 — 33% fallback rate on 3 calls. By comparison
+    groq_llama-3.3-70b shows fallback_count=0 across 6 calls same day.
+  - >
+    hermes/sentiment-news-analyst/briefing.md: tier-1 events list includes
+    "Stablecoin depeg affecting USDT or USDC" and "Exchange hack or insolvency"
+    — these are the exact scenarios where misclassification is most costly.
+  - >
+    hermes/hypothesis-generator/briefing.md: "missing_analysts: [] or list of
+    missing agent names" — if sentiment analyst produces a degraded output
+    (8b hallucination), hypothesis generator has no mechanism to detect or
+    flag it; it trusts the output.
+  - >
+    tools/llm_router.py: analyst_simple tier fallback chain = 8b → 70b → mistral
+    → openrouter. The 8b primary fails occasionally already; upgrading primary
+    to 70b eliminates the failure mode at zero cost (both free).
+  - >
+    data/news/classified.json: 8,637b — meaningful article volume. 8b models
+    on Groq perform well for simple JSON synthesis but are unreliable for
+    nuanced tier-1 event classification across mixed-sentiment article sets.
+
+required_changes:
+  briefing_model_line: |
+    Change: "# Model: groq/llama-3.1-8b-instant | tier: analyst_simple"
+    To:     "# Model: groq/llama-3.3-70b-versatile | tier: analyst_derivatives"
+    Rationale: analyst_derivatives tier uses groq/70b as primary, shares pool
+    with derivatives-analyst but that agent runs at 0.1h old data freshness
+    with minimal call volume — no pool conflict risk.
+  llm_router_tier: |
+    In tools/llm_router.py, the analyst_simple tier can remain for any future
+    lightweight agents. The sentiment analyst should be moved to analyst_derivatives
+    tier. No new tier required.
+  signals_json_handling: |
+    Reporter briefing lists state/signals.json as input — this file may not
+    exist (strategy signals moved to strategies.json). Sentiment analyst briefing
+    does not reference it directly, so no change needed there. However add to
+    briefing: if data/news/classified.json is empty or age > 4h, set
+    top_sentiment_signal to "data_stale" and news_risk_level to "unknown" —
+    do not fabricate findings from stale data.
+  stale_data_handling: |
+    Add to briefing: "If any input file is missing or > 4h old (check collected_at
+    field if present), set data_freshness to stale_Xh in output. Do not invent
+    or extrapolate signal values from absent data."
+
+recommended_model: groq/llama-3.3-70b-versatile
+recommended_tier: analyst_derivatives
+fallback_chain:
+  - groq/meta-llama/llama-4-scout-17b-16e-instruct
+  - mistral/mistral-small-latest
+  - openrouter/meta-llama/llama-3.3-70b-instruct:free
+parallel_pool_check: >
+  During morning pipeline, derivatives-analyst also uses groq/70b
+  (analyst_derivatives tier). These two run in parallel. However: Groq's
+  llama-3.3-70b-versatile has a high RPM/TPM limit and both calls are
+  moderate-length (4-6k token prompts). The existing pool design already
+  has derivatives-analyst on 70b with zero fallbacks on 2026-05-24. Adding
+  sentiment to the same pool increases the concurrent load but both calls
+  should complete within Groq's free tier limits. If conflict emerges,
+  stagger sentiment-analyst to run 2 min after derivatives-analyst by
+  making it read the derivatives.done file before starting.
+model_justification: >
+  70b vs 8b for event classification: 70b is substantially more reliable for
+  nuanced multi-document synthesis and tier-1 event detection. Both models
+  are free on Groq. The 33% observed fallback rate on 8b-instant is direct
+  evidence the primary is unreliable. Cost delta: $0.00 (both free).
+
+estimated_cost_per_day: "$0.00"
+
+guard_rails:
+  briefing_change_only: true
+  model_upgrade_only: true
+  no_new_data_files: true
+  no_trading_authority: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_005.yaml proposals/approved/
+  The deployer will:
+    1. Patch hermes/sentiment-news-analyst/briefing.md (model line + tier)
+    2. No changes to llm_router.py required — analyst_derivatives tier
+       already uses groq/70b as primary; briefing tier field change is sufficient
+       for the Hermes cron job model selection.
+  To reject: mv proposals/pending/prop_20260525_005.yaml proposals/rejected/

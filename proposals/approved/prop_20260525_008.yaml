@@ -1,0 +1,122 @@
+proposal_id: prop_20260525_008
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: comprehensive_capability_audit_2026-05-25
+status: pending
+type: operational_change
+subtype: schedule_and_briefing_fix
+priority: low
+
+agent_name: multiple (watchlist_updater + orchestrator briefing)
+change_summary: >
+  The alt watchlist (data/alts/watchlist_prices.json) and state/watchlist.json
+  are collected/updated once per morning pipeline run. The orchestrator uses
+  watchlist.json for its alt rotation decision. This file is currently 3 days
+  stale (last_updated 2026-05-22). Proposal: run the alt_watchlist.py collector
+  as a standalone daily cron at 23:50 UTC (just before regime-monitor and
+  morning pipeline), independent of whether the full morning pipeline ran.
+  Additionally fix orchestrator briefing to include watchlist staleness check.
+
+problem_statement: |
+  state/watchlist.json last_updated=2026-05-22 (3 days ago at audit time).
+  The orchestrator uses this file to evaluate:
+  - BTC dominance threshold (< 57% → enable alt rotation gate)
+  - candidates_above_threshold (qualifying alts for rotation)
+
+  If BTC dominance drops from 58.13% to 54% over 3 days while the watchlist
+  stagnates, the orchestrator is making allocation decisions on stale dominance
+  data. The morning pipeline runs the alt_watchlist.py collector as part of
+  its full run, but if the pipeline fails or is delayed, watchlist.json goes
+  stale indefinitely.
+
+  The watchlist collector (collectors/alt_watchlist.py) is a lightweight
+  script with no LLM dependency. It should run as a no_agent=True cron job
+  daily independent of the morning pipeline, so the orchestrator always has
+  fresh dominance data.
+
+evidence:
+  - >
+    state/watchlist.json: last_updated=2026-05-22, scan_timestamp=2026-05-22T10:27:43Z.
+    Audit time: 2026-05-25T03:09Z. Age: 64.7 hours.
+  - >
+    state/orchestrator-directive.json: "BTC dominance stable" — based on
+    stale watchlist. If dominance moved materially in 3 days, this assessment
+    is wrong.
+  - >
+    hermes/orchestrator/briefing.md: "data/alts/watchlist_prices.json (live
+    prices and 24h change for ETH, SOL, BNB, XRP, ADA)" — listed as input
+    but no staleness check instruction in the briefing.
+  - >
+    collectors/alt_watchlist.py: exists as a standalone script. It is currently
+    only invoked from within the morning pipeline orchestration, not as an
+    independent cron job.
+  - >
+    data/alts/watchlist_prices.json: age 2.9h (fresh) — this file IS being
+    updated by the morning pipeline. But state/watchlist.json (the orchestrator's
+    primary input for dominance/rotation decision) is separate and stale.
+    The morning pipeline apparently does not update state/watchlist.json.
+  - >
+    state/watchlist.json scan_notes: "Bybit proxy restored this run — full
+    altcoin scan completed for first time today." — suggests the watchlist
+    update is NOT running reliably every day; it depends on proxy/API conditions.
+
+required_changes:
+  new_cron_watchlist: |
+    Create a no_agent=True Hermes cron at 23:50 UTC (daily) that runs:
+      python3 ~/btc-agents/collectors/alt_watchlist.py
+    This ensures state/watchlist.json is fresh before the 00:00 UTC regime
+    monitor and 00:30 UTC morning pipeline run. Stale data risk is now bounded
+    at 24h max.
+  orchestrator_briefing_staleness: |
+    Add to hermes/orchestrator/briefing.md, watchlist.json input:
+      Check watchlist.json last_updated. If more than 48h old:
+        - Set btc_dominance_status = "STALE — do not base alt rotation on this"
+        - Do NOT enable alt_rotation_active based on stale dominance data
+        - Note staleness in allocation_reasoning
+  orchestrator_briefing_dominance: |
+    Add: If btc_dominance_24h_delta_pct in regime_state.json (once deployed,
+    prop_20260525_007) shows > 1% shift, treat as dominance inflection signal
+    even if watchlist.json hasn't updated.
+
+recommended_model: N/A
+recommended_tier: N/A
+fallback_chain: N/A
+parallel_pool_check: N/A — no_agent=True cron, no LLM
+model_justification: >
+  alt_watchlist.py is a pure Python collector (Bybit API call + JSON write).
+  No LLM required. Runs in < 5 seconds. no_agent=True pattern with empty
+  stdout on clean run (silent watchdog).
+
+estimated_cost_per_day: "$0.00"
+
+schedule_new_cron: "50 23 * * *"  # 23:50 UTC daily
+
+inputs:
+  - Bybit API (alt price data, already used by existing collector)
+  - data/alts/watchlist_prices.json (updated in-place)
+  - state/watchlist.json (updated in-place)
+
+outputs:
+  - data/alts/watchlist_prices.json (fresh daily prices)
+  - state/watchlist.json (fresh dominance + rotation decision)
+
+guard_rails:
+  existing_collector_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_new_code_required: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_008.yaml proposals/approved/
+  The deployer will:
+    1. Register a no_agent=True Hermes cron at 23:50 UTC running
+       python3 ~/btc-agents/collectors/alt_watchlist.py
+    2. Patch hermes/orchestrator/briefing.md with the staleness check
+  To reject: mv proposals/pending/prop_20260525_008.yaml proposals/rejected/
+
+  NOTE: If prop_20260525_007 (regime-monitor) is also approved and adds
+  btc_dominance_24h_delta_pct to regime_state.json, this proposal's watchlist
+  staleness concern is partially mitigated. But the standalone cron is still
+  valuable as it ensures state/watchlist.json candidates_above_threshold
+  (used for alt rotation) is always fresh.

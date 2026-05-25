@@ -17,6 +17,8 @@ rm -f data/analyst_reports/*.done
 
 ### Stage 1: Run all 5 analysts in parallel via delegate_task
 
+**NOTE: Delegation Batching** — `delegate_task` is limited to 4 concurrent children. With 5 analysts, split into two batches: (1) Technical, Derivatives, OnChain, Sentiment/News in first call; (2) Options Analyst alone in second call. Both complete within orchestration timeout.
+
 **Technical Analyst**: Read `hermes/technical-analyst/briefing.md`. Write `data/analyst_reports/technical_analyst.json`, then write `data/analyst_reports/technical_analyst.done` last (atomically after JSON is complete).
 
 **Derivatives Analyst**: Read `hermes/derivatives-analyst/briefing.md`. Write `data/analyst_reports/derivatives_analyst.json`, then `data/analyst_reports/derivatives_analyst.done`.
@@ -26,6 +28,8 @@ rm -f data/analyst_reports/*.done
 **Sentiment/News Analyst**: Read `hermes/sentiment-news-analyst/briefing.md`. Read only the structured data files listed in the briefing — do NOT use web search. Write `data/analyst_reports/sentiment_news_analyst.json`, then `data/analyst_reports/sentiment_news_analyst.done`.
 
 **Options Analyst**: Read `hermes/options-analyst/briefing.md`. Check if `data/analyst_reports/options_analyst.done` already exists (written by the pre-pipeline standalone run at 23:45 UTC). If it exists and `options_analyst.json` is less than 2 hours old, skip this delegate — the report is already fresh. If stale or absent, run the delegate to regenerate it.
+
+⚠️ **Delegation limit:** `delegation.max_concurrent_children` is set to 4 by default. Attempting to include options-analyst as a 5th parallel delegate will fail with "Too many tasks: 5 provided, but max_concurrent_children is 4". This is why options-analyst runs as a separate pre-pipeline cron at 23:45 UTC — so it is skipped here and Stage 1 only dispatches 4 delegates. If options-analyst is missing at pipeline time, it must be queued as a sequential call AFTER Stage 2, not added to the Stage 1 batch. To allow 5 parallel delegates: `hermes config set delegation.max_concurrent_children 5`.
 
 ### Stage 2: Verify completion
 After all delegates return, count `.done` files on disk (not just delegate return status):
@@ -49,6 +53,8 @@ Delegate Hypothesis Generator: reads `hermes/hypothesis-generator/briefing.md` a
 
 ### Stage 6: Synthesis
 Delegate Synthesis Agent: reads `hermes/synthesis/briefing.md`, reads all 4 debate files (bull_round1, bear_round1, bull_round2, bear_round2), adjudicates, writes `state/research.json`. Also write debate transcripts to `data/debates/YYYY-MM-DD-debate.json`.
+
+**Adjudication Framework:** See `references/debate-adjudication-framework.md` for criteria (temporal validity, evidence strength, logical consistency, risk/reward alignment). **Pitfall Alert:** See `references/data-interpretation-pitfalls.md` for common analyst data misinterpretations (e.g., confusing historical whale signals with current transactional activity).
 
 ### Stage 7: Update pipeline completion tracking
 ```python

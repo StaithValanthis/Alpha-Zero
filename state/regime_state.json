@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "produced_at": "2026-05-25T11:14:09Z",
+  "produced_by": "chief-bootstrap",
+  "note": "Bootstrapped from research.json \u2014 regime-monitor will overwrite on next run",
+  "current_regime": "consolidation_with_distribution_pressure",
+  "regime_confidence": 0.68,
+  "previous_regime": null,
+  "regime_changed": false,
+  "volatility_regime": "normal",
+  "funding_inverted": false,
+  "btc_dominance_pct": 58.13,
+  "btc_dominance_trend": "stable",
+  "multi_timeframe_agreement": true,
+  "active_tier1_event": "Fed_Chair_Transition_Kevin_Warsh",
+  "regime_change_alert": false
+}

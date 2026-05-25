@@ -48,6 +48,7 @@ def process(cf, of, label):
             'atr_14_pct': round(atr(hi,lo,cl,14)[-1]/cl[-1]*100,4) if cl[-1]>0 else 0,
             'volume_ratio_20': round(vl[-1]/(sum(vl[-20:])/20),3) if len(vl)>=20 else 1.0,
             'price_vs_ema200': 'above' if cl[-1] > ema(cl,200)[-1] else 'below',
+            'price_vs_ema200_pct': round((cl[-1] - ema(cl,200)[-1]) / ema(cl,200)[-1] * 100, 4) if ema(cl,200)[-1] > 0 else 0,
             'price_vs_sma50': 'above' if cl[-1] > sma(cl,50)[-1] else 'below',
         }
         tmp = of + '.tmp'

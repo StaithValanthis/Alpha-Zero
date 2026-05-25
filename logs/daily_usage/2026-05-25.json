@@ -1,0 +1,19 @@
+{
+  "date": "2026-05-25",
+  "total_cost_usd": 0.0,
+  "total_calls": 3,
+  "by_provider_pool": {
+    "groq_llama-3.3-70b": {
+      "calls": 3,
+      "tokens_used": 5163,
+      "fallback_count": 0
+    }
+  },
+  "by_tier": {
+    "ops_standard": {
+      "calls": 3,
+      "primary_hit_rate_pct": 100.0
+    }
+  },
+  "alerts": []
+}

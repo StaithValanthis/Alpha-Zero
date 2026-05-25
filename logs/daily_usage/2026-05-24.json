@@ -1,0 +1,118 @@
+{
+  "date": "2026-05-24",
+  "total_cost_usd": 0.0,
+  "total_calls": 25,
+  "by_provider_pool": {
+    "cerebras_pool": {
+      "calls": 5,
+      "tokens_used": 145,
+      "fallback_count": 0,
+      "daily_budget_remaining": 999855,
+      "pct_used": 0.0
+    },
+    "groq_other": {
+      "calls": 2,
+      "tokens_used": 369,
+      "fallback_count": 0
+    },
+    "groq_llama-3.3-70b": {
+      "calls": 6,
+      "tokens_used": 294,
+      "fallback_count": 0
+    },
+    "groq_llama-4-scout": {
+      "calls": 4,
+      "tokens_used": 124,
+      "fallback_count": 2
+    },
+    "groq_gpt-oss-120b": {
+      "calls": 4,
+      "tokens_used": 663,
+      "fallback_count": 1
+    },
+    "groq_llama-3.1-8b": {
+      "calls": 3,
+      "tokens_used": 153,
+      "fallback_count": 1
+    },
+    "mistral": {
+      "calls": 1,
+      "tokens_used": 21,
+      "fallback_count": 0
+    }
+  },
+  "by_tier": {
+    "critical": {
+      "calls": 3,
+      "primary_hit_rate_pct": 100.0
+    },
+    "reasoning": {
+      "calls": 2,
+      "primary_hit_rate_pct": 100.0
+    },
+    "analyst": {
+      "calls": 2,
+      "primary_hit_rate_pct": 100.0
+    },
+    "ops": {
+      "calls": 3,
+      "primary_hit_rate_pct": 100.0
+    },
+    "classifier": {
+      "calls": 3,
+      "primary_hit_rate_pct": 0.0
+    },
+    "reasoning_bull": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "reasoning_bear": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "reasoning_solo": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "analyst_strong": {
+      "calls": 1,
+      "primary_hit_rate_pct": 0.0
+    },
+    "analyst_macro": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "analyst_technical": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "analyst_derivatives": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "analyst_simple": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "ops_chief": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "ops_standard": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "ops_mechanical": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    },
+    "builder": {
+      "calls": 1,
+      "primary_hit_rate_pct": 100.0
+    }
+  },
+  "alerts": [
+    "TIER classifier: primary hit rate 0.0% < 70%",
+    "TIER analyst_strong: primary hit rate 0.0% < 70%"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "agent": "onchain_macro_analyst",
+  "produced_at": "2026-05-25T10:35:00Z",
+  "stale_after_seconds": 7200,
+  "findings": {
+    "fear_greed_current": 30,
+    "fear_greed_7d_values": [25, 27, 29, 28, 28, 25, 30],
+    "fear_greed_trend": "improving",
+    "fear_greed_signal": "fear",
+    "mempool_congestion": "low",
+    "mempool_fee_fast_sat_vb": 3,
+    "exchange_netflow_btc": -2352.739,
+    "exchange_netflow_signal": "strong_distribution",
+    "exchange_reserve_btc": 2614631.5937,
+    "mvrv_ratio": 1.4207,
+    "whale_tx_count_24h": 0,
+    "options_pcr": 1.136,
+    "options_max_pain_weekly": 76000.0,
+    "network_health": "Moderate on-chain activity with 674k transactions in 24h and a robust hashrate of 937 EH/s. Block production at 138 blocks in 24h is normal, indicating stable network consensus and consistent miner confidence despite elevated mempool activity (5.4k pending transactions).",
+    "transactions_24h": 674807,
+    "hashrate_24h": 937257031507403938138,
+    "btc_24h_change_pct": 0.79,
+    "btc_market_cap_usd": 1552666889201,
+    "accumulation_signal": "distribution",
+    "top_onchain_signal": "Strong exchange distribution (-2.35k BTC netflow) combined with persistent Fear sentiment (30/100) and options downside gravity (max pain $76k vs $77.5k spot) creates a bearish setup. No large whale accumulation detected, reinforcing the distribution phase. MVRV at 1.42 (fair value) offers no valuation cushion for holders."
+  }
+}

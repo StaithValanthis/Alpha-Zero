@@ -1,0 +1,28 @@
+model_list:
+  - model_name: analyst
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+
+  - model_name: coordinator
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 4096
+
+  - model_name: builder
+    litellm_params:
+      model: mistral/codestral-latest
+      api_key: os.environ/MISTRAL_API_KEY
+      max_tokens: 8192
+
+general_settings:
+  master_key: "btc-agents-litellm"
+  port: 4000
+  telemetry: false
+
+litellm_settings:
+  drop_params: true
+  request_timeout: 120
+  num_retries: 2

@@ -1,0 +1,13 @@
+{
+  "produced_at": "2026-05-25T08:06:16Z",
+  "severity": "OK",
+  "cold_start_day": 6,
+  "pending_proposals": 2,
+  "issue_count": 9,
+  "issues": [],
+  "job_failure_counts": {
+    "intraday-risk-watchdog-daily": 32
+  },
+  "timestamp": "2026-05-25T11:14:09Z",
+  "note": "Manually cleared by Chief after pipeline fix (May 25). All analysts fresh. Watchdog being restarted."
+}

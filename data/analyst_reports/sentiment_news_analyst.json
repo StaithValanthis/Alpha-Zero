@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "agent": "sentiment_news_analyst",
+  "produced_at": "2026-05-25T10:45:00Z",
+  "stale_after_seconds": 7200,
+  "findings": {
+    "active_tier1_event": "Nasdaq Bitcoin options approval pending (bullish catalyst) vs. altcoin rotation away from major ETFs (bearish flow signal)",
+    "sentiment_summary": "Market sentiment is mixed but leaning bearish due to recent ETF outflows and investor rotation into altcoins, despite bullish catalysts from geopolitical de-escalation and new institutional infrastructure. Fear/greed index remains in fear territory (25-30 range) indicating underlying caution despite headline optimism.",
+    "social_momentum": "negative",
+    "narrative_trend": "distribution narrative",
+    "news_risk_level": "medium",
+    "etf_flow_signal": "unavailable",
+    "etf_total_net_flow_musd": null,
+    "breaking_news": [
+      {
+        "event": "Nasdaq Bitcoin options approval pending (Tier-1)",
+        "timestamp": "2026-05-25T05:56:43Z",
+        "sentiment": "bullish",
+        "impact": "Institutional risk management infrastructure expansion"
+      },
+      {
+        "event": "HYPE/XRP funds attract millions as BTC/ETH ETFs see outflows (Tier-1)",
+        "timestamp": "2026-05-25T10:28:47Z",
+        "sentiment": "bearish",
+        "impact": "Capital rotation from major asset ETFs to altcoin speculation"
+      },
+      {
+        "event": "Trump announces Iran peace agreement (Tier-1)",
+        "timestamp": "2026-05-23T20:52:21Z",
+        "sentiment": "bullish",
+        "impact": "Geopolitical de-escalation supporting risk-on sentiment"
+      },
+      {
+        "event": "BTC spot ETF $2.26B outflows in 2 weeks (Tier-1)",
+        "timestamp": "2026-05-23T10:19:40Z",
+        "sentiment": "bearish",
+        "impact": "Institutional weakness, price moved to $74,300"
+      },
+      {
+        "event": "Fed Chairman Kevin Warsh sworn in (Tier-1)",
+        "timestamp": "2026-05-22T14:24:04Z",
+        "sentiment": "bearish",
+        "impact": "Central bank leadership transition coinciding with BTC weakness"
+      }
+    ],
+    "top_sentiment_signal": "Conflicted market: bullish infrastructure developments (Nasdaq options) and geopolitical relief (Iran peace) are being overwhelmed by bearish capital flows—investors dumping $2.26B+ from BTC/ETH ETFs into altcoin speculation (HYPE/XRP)—suggesting retail-driven euphoria masked by institutional caution. Fear/greed index at 25-30 (Fear/Extreme Fear) confirms underlying pessimism despite positive headlines."
+  }
+}

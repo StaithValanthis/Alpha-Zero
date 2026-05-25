@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "collector": "etf_flow_collector",
+  "collected_at": "2026-05-25T09:06:21Z",
+  "stale_after_seconds": 43200,
+  "data": {
+    "date": "2026-05-25",
+    "source": "unavailable",
+    "note": "All sources failed.",
+    "attempts": [
+      {
+        "source": "sosovalue",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      {
+        "source": "farside",
+        "error": "HTTP Error 522: <none>"
+      }
+    ],
+    "flows_mmusd": {},
+    "total_net_flow": null
+  }
+}

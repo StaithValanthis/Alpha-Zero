@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "collector": "whale_collector",
+  "collected_at": "2026-05-25T11:01:22Z",
+  "stale_after_seconds": 1800,
+  "data": {
+    "source": "mempool.space",
+    "min_output_btc": 500,
+    "transactions": [],
+    "count": 0,
+    "largest_btc": 0
+  }
+}

@@ -1,0 +1,14 @@
+version: "3"
+services:
+  langfuse-server:
+    image: langfuse/langfuse:latest
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "file:/data/langfuse.db"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "btc-agents-langfuse-1779530615"
+      SALT: "btc-agents-salt"
+    volumes:
+      - ./langfuse_data:/data
+    restart: always

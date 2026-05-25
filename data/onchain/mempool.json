@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "collector": "onchain",
+  "collected_at": "2026-05-25T10:10:55Z",
+  "stale_after_seconds": 3600,
+  "data": {
+    "fastestFee": 3,
+    "halfHourFee": 1,
+    "hourFee": 1,
+    "economyFee": 1,
+    "minimumFee": 1
+  }
+}

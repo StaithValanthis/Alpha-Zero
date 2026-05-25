@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "agent": "technical_analyst",
+  "produced_at": "2026-05-25T10:57:36Z",
+  "stale_after_seconds": 7200,
+  "findings": {
+    "regime": "mean_reverting",
+    "regime_confidence": 0.72,
+    "regime_reasoning": "1h shows overbought RSI(86.02) while 1d shows oversold RSI(34.17), with price at $77,532 above both 1d moving averages but below 4h EMA200($79,394), indicating consolidation in an uptrend with short-term mean reversion pressure.",
+    "rsi_14_4h": {
+      "value": 65.97,
+      "interpretation": "neutral"
+    },
+    "rsi_7_4h": {
+      "value": 63.55,
+      "interpretation": "neutral"
+    },
+    "ema_context": "On 1h: price $77,532 above EMA50($76,838) and EMA200($77,016), showing strength. On 4h: price below EMA200($79,394) but above EMA50($77,288), indicating near-term weakness. On 1d: price above both EMA50($76,554) and EMA200($71,824), confirming longer-term uptrend.",
+    "ema200_price_pct": 7.73,
+    "atr_context": "1h ATR is $382.8 (0.49% of price) indicating low volatility; 4h ATR is $790.04 (1.02%) showing moderate volatility; 1d ATR is $1,994.14 (2.57%) reflecting daily swings. Current position sizing should reflect 4h volatility (~1%) as the operational timeframe.",
+    "key_levels": {
+      "support": 76554.0,
+      "resistance": 79394.0,
+      "method": "EMA-based: 1d EMA50 support, 4h EMA200 resistance"
+    },
+    "multi_timeframe_alignment": "mixed",
+    "top_ta_signal": "1h shows extreme overbought RSI(86.02) with price $77,532 at the upper end of recent range, while 4h RSI(65.97) remains neutral and 1d RSI(34.17) is oversold—this divergence suggests imminent short-term pullback toward $76,554 support before continuation of longer-term uptrend.",
+    "opposing_signals": "Daily regime remains bullish with price $5,708 above EMA200, and all three timeframes show price above their respective 50-period moving averages; however, 4h price below EMA200($79,394) and extreme 1h RSI create near-term headwinds for continuation.",
+    "data_freshness": "fresh"
+  }
+}

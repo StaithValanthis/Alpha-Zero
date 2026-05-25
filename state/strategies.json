@@ -25,22 +25,25 @@
       "execution_urgency": "immediate",
       "entry_conditions": [
         {
-          "source": "technical_analysis",
-          "field": "daily_rsi",
+          "source": "/home/btc-agent/btc-agents/data/indicators/btc_1d.json",
+          "field": "rsi_14",
           "operator": "lte",
-          "value": 30
+          "value": 30,
+          "description": "Daily RSI <= 30 (extreme oversold)"
         },
         {
-          "source": "onchain_data",
-          "field": "fear_gauge_index",
-          "operator": "eq",
-          "value": 25
+          "source": "/home/btc-agent/btc-agents/data/macro/fear_greed_current.json",
+          "field": "value",
+          "operator": "lte",
+          "value": 30,
+          "description": "Fear & Greed <= 30 (fear zone, replaces eq=25 which is too precise)"
         },
         {
-          "source": "technical_analysis",
-          "field": "daily_price_vs_ema200_pct",
+          "source": "/home/btc-agent/btc-agents/data/indicators/btc_1d.json",
+          "field": "price_vs_ema200_pct",
           "operator": "gte",
-          "value": 5
+          "value": 5,
+          "description": "Price >= 5% above EMA200 (primary uptrend intact)"
         }
       ],
       "entry_logic": "ALL",

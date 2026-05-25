@@ -1,7 +1,10 @@
-[
-  {
-    "timestamp": "2026-05-24T14:17:58.664141",
-    "event": "unhandled_error",
-    "message": "Unhandled error: 'content'\nTraceback (most recent call last):\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 335, in <module>\n    main()\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 285, in main\n    live_trigger_count = bridge_live_triggers()\n                         ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 31, in bridge_live_triggers\n    live = json.loads(read_file('signals/live_triggers.json')['content'])\n                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\nKeyError: 'content'\n"
-  }
-]
+{
+  "last_updated": "2026-05-25T11:13:00Z",
+  "entries": [
+    {
+      "timestamp": "2026-05-24T14:17:58.664141",
+      "event": "unhandled_error",
+      "message": "Unhandled error: 'content'\nTraceback (most recent call last):\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 335, in <module>\n    main()\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 285, in main\n    live_trigger_count = bridge_live_triggers()\n                         ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/hermes_sandbox_uj4i95hl/script.py\", line 31, in bridge_live_triggers\n    live = json.loads(read_file('signals/live_triggers.json')['content'])\n                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\nKeyError: 'content'\n"
+    }
+  ]
+}

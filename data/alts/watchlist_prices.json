@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "collector": "alt_watchlist",
+  "collected_at": "2026-05-25T00:13:05Z",
+  "stale_after_seconds": 900,
+  "data": {
+    "ETHUSDT": {
+      "lastPrice": "2104.7",
+      "price24hPcnt": "-0.0051",
+      "volume24h": "70058.78343"
+    },
+    "SOLUSDT": {
+      "lastPrice": "85.37",
+      "price24hPcnt": "-0.0035",
+      "volume24h": "494908.4305"
+    },
+    "BNBUSDT": {
+      "lastPrice": "658.7",
+      "price24hPcnt": "0.0038",
+      "volume24h": "5183.16139"
+    },
+    "XRPUSDT": {
+      "lastPrice": "1.3526",
+      "price24hPcnt": "-0.0047",
+      "volume24h": "13794519.62"
+    },
+    "ADAUSDT": {
+      "lastPrice": "0.2426",
+      "price24hPcnt": "-0.0130",
+      "volume24h": "18653520.17"
+    }
+  }
+}

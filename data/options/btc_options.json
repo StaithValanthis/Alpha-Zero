@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "collector": "options_collector",
+  "collected_at": "2026-05-25T11:00:26Z",
+  "stale_after_seconds": 3600,
+  "data": {
+    "spot_price": 77530.3,
+    "bybit": {
+      "source": "bybit",
+      "total_call_oi": 6470.4,
+      "total_put_oi": 7335.94,
+      "put_call_oi_ratio": 1.1338,
+      "implied_volatility_7d_atm": 0.29,
+      "implied_volatility_30d_atm": 0.3,
+      "iv_skew_put_minus_call": 0.06,
+      "max_pain_weekly": 76000.0,
+      "max_pain_monthly": 76000.0,
+      "options_count": 642
+    },
+    "deribit": {
+      "source": "deribit",
+      "total_call_oi": 237442.3,
+      "total_put_oi": 162754.8,
+      "put_call_oi_ratio": 0.6854,
+      "implied_volatility_30d_atm": 29.62,
+      "options_count": 884
+    },
+    "put_call_oi_ratio": 1.1338
+  }
+}

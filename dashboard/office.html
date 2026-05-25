@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#0a0e18;width:100%;height:100%;overflow:hidden}
+canvas{display:block;image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;width:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const A='/pixel-assets';
+// Virtual canvas
+const CW=1200,CH=560;
+const c=document.getElementById('c');
+c.width=CW;c.height=CH;
+const ctx=c.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+
+// Responsive height via postMessage
+function resize(){
+  const w=window.innerWidth;
+  const h=Math.round(CH*w/CW);
+  c.style.height=h+'px';
+  document.body.style.height=h+'px';
+  try{window.parent.postMessage({officeHeight:h+4},'*');}catch(e){}
+}
+window.addEventListener('resize',resize);
+setTimeout(resize,100);
+
+// Sprite registry
+const S={};
+function loadImg(k,src){const i=new Image();i.src=A+src;S[k]=i;return i;}
+function loadFurn(k,path,sw,sh){const i=new Image();i.src=A+'/furniture/'+path+'.png';S[k]={img:i,sw,sh};return i;}
+
+for(let i=0;i<9;i++) loadImg('f'+i,'/floors/floor_'+i+'.png');
+for(let i=0;i<6;i++) loadImg('ch'+i,'/characters/char_'+i+'.png');
+
+loadFurn('BIN',           'BIN/BIN',16,16);
+loadFurn('SHELF',         'BOOKSHELF/BOOKSHELF',32,16);
+loadFurn('CACTUS',        'CACTUS/CACTUS',16,32);
+loadFurn('CLOCK',         'CLOCK/CLOCK',16,32);
+loadFurn('COFFEE',        'COFFEE/COFFEE',16,16);
+loadFurn('CTABLE',        'COFFEE_TABLE/COFFEE_TABLE',32,32);
+loadFurn('C_BENCH',       'CUSHIONED_BENCH/CUSHIONED_BENCH',16,16);
+loadFurn('C_CHAIR_B',     'CUSHIONED_CHAIR/CUSHIONED_CHAIR_BACK',16,16);
+loadFurn('C_CHAIR_F',     'CUSHIONED_CHAIR/CUSHIONED_CHAIR_FRONT',16,16);
+loadFurn('C_CHAIR_S',     'CUSHIONED_CHAIR/CUSHIONED_CHAIR_SIDE',16,16);
+loadFurn('DESK',          'DESK/DESK_FRONT',48,32);
+loadFurn('DESK_S',        'DESK/DESK_SIDE',16,64);
+loadFurn('DSHELF',        'DOUBLE_BOOKSHELF/DOUBLE_BOOKSHELF',32,32);
+loadFurn('HPLANT',        'HANGING_PLANT/HANGING_PLANT',16,32);
+loadFurn('LPAINTING',     'LARGE_PAINTING/LARGE_PAINTING',32,32);
+loadFurn('LPLANT',        'LARGE_PLANT/LARGE_PLANT',32,48);
+loadFurn('PC0',           'PC/PC_FRONT_OFF',16,32);
+loadFurn('PC1',           'PC/PC_FRONT_ON_1',16,32);
+loadFurn('PC2',           'PC/PC_FRONT_ON_2',16,32);
+loadFurn('PC3',           'PC/PC_FRONT_ON_3',16,32);
+loadFurn('PLANT',         'PLANT/PLANT',16,32);
+loadFurn('PLANT2',        'PLANT_2/PLANT_2',16,32);
+loadFurn('POT',           'POT/POT',16,16);
+loadFurn('SPAINTING',     'SMALL_PAINTING/SMALL_PAINTING',16,32);
+loadFurn('SPAINTING2',    'SMALL_PAINTING_2/SMALL_PAINTING_2',16,32);
+loadFurn('STABLE',        'SMALL_TABLE/SMALL_TABLE_FRONT',32,32);
+loadFurn('SOFA_B',        'SOFA/SOFA_BACK',16,32);
+loadFurn('SOFA_F',        'SOFA/SOFA_FRONT',16,32);
+loadFurn('SOFA_S',        'SOFA/SOFA_SIDE',16,32);
+loadFurn('CONF_TABLE',    'TABLE_FRONT/TABLE_FRONT',48,64);
+loadFurn('WHITEBOARD',    'WHITEBOARD/WHITEBOARD',32,32);
+loadFurn('W_BENCH',       'WOODEN_BENCH/WOODEN_BENCH',16,16);
+loadFurn('W_CHAIR_B',     'WOODEN_CHAIR/WOODEN_CHAIR_BACK',16,32);
+loadFurn('W_CHAIR_F',     'WOODEN_CHAIR/WOODEN_CHAIR_FRONT',16,32);
+loadFurn('W_CHAIR_S',     'WOODEN_CHAIR/WOODEN_CHAIR_SIDE',16,32);
+
+// Draw furniture at 2x scale, z = bottom edge for sorting
+function df(k,x,y){
+  const f=S[k];if(!f||!f.img||!f.img.complete||!f.img.naturalWidth)return;
+  ctx.drawImage(f.img,x,y,f.sw*2,f.sh*2);
+}
+function dz(k,x,y){return{t:'f',k,x,y,z:y+S[k]?.sh*2||0};}
+
+// Floor tiles (16px source displayed at 32px)
+function drawFloor(fk,rx,ry,rw,rh){
+  const img=S[fk];if(!img||!img.complete||!img.naturalWidth)return;
+  for(let y=ry;y<ry+rh;y+=32)for(let x=rx;x<rx+rw;x+=32)
+    ctx.drawImage(img,x,y,Math.min(32,rx+rw-x),Math.min(32,ry+rh-y));
+}
+
+// ── Room layout ───────────────────────────────────────────────────────────
+// Chief: 0,0 → 260,270   Hallway: 0,270 → 260,560
+// Meeting: 260,0 → 520,200   Main: 520,0 → 1200,270
+// Break: 260,270 → 1200,560
+
+const ROOMS={
+  chief:  {x:0,  y:0,  w:260,h:270,f:'f2',bg:'#111828'},
+  hall:   {x:0,  y:270,w:260,h:290,f:'f1',bg:'#0d1520'},
+  meet:   {x:260,y:0,  w:260,h:200,f:'f3',bg:'#101810'},
+  main:   {x:520,y:0,  w:680,h:270,f:'f0',bg:'#0b0f18'},
+  brk:    {x:260,y:270,w:940,h:290,f:'f5',bg:'#120e08'},
+};
+
+// ── Agent setup ───────────────────────────────────────────────────────────
+const FW=16,FH=32,DW=32,DH=64,FRAMES=7;
+const DD=0,DL=1,DR=2; // direction rows
+
+// Desk front positions [furnX, furnY, charX, charY]  (char stands below desk)
+const DESK_POS={
+  chief:       [40, 80,  56,  160],
+  orchestrator:[530,70,  546, 150],
+  bull:        [670,70,  686, 150],
+  bear:        [810,70,  826, 150],
+  risk:        [950,70,  966, 150],
+  tech:        [530,165, 546, 245],
+  deriv:       [670,165, 686, 245],
+  onchain:     [810,165, 826, 245],
+  sentiment:   [950,165, 966, 245],
+  synthesis:   [330,80,  346, 160], // meeting room
+};
+
+// PC positions on each desk [x,y]
+const PC_POS={
+  chief:       [88,  50],
+  orchestrator:[578, 40],
+  bull:        [718, 40],
+  bear:        [858, 40],
+  risk:        [998, 40],
+  tech:        [578, 135],
+  deriv:       [718, 135],
+  onchain:     [858, 135],
+  sentiment:   [998, 135],
+  synthesis:   [378, 50],
+};
+
+function rnd(x,y,w,h){return{x:x+20+Math.random()*(w-40)-DW/2, y:y+20+Math.random()*(h-40)-DH};}
+function rBreak(){return rnd(280,280,920,270);}
+function rChief(){return rnd(10,10,240,250);}
+function rHall(){return rnd(10,280,240,270);}
+
+const DEFS=[
+  {id:'chief',      name:"Chief",        char:0,wFn:rChief},
+  {id:'orchestrator',name:'Orchestrator',char:1,wFn:rBreak},
+  {id:'bull',       name:'Bull',         char:2,wFn:rBreak},
+  {id:'bear',       name:'Bear',         char:3,wFn:rBreak},
+  {id:'synthesis',  name:'Synthesis',    char:4,wFn:rBreak},
+  {id:'risk',       name:'Risk Mgr',     char:5,wFn:rBreak},
+  {id:'tech',       name:'Tech',         char:1,wFn:rBreak},
+  {id:'deriv',      name:'Deriv',        char:2,wFn:rBreak},
+  {id:'onchain',    name:'OnChain',      char:3,wFn:rBreak},
+  {id:'sentiment',  name:'Sentiment',    char:4,wFn:rBreak},
+];
+
+const agents=DEFS.map(def=>{
+  const sp=def.wFn();
+  const dp=DESK_POS[def.id];
+  return{...def,
+    desk:dp?{x:dp[2],y:dp[3]}:null,
+    x:sp.x,y:sp.y,tx:sp.x,ty:sp.y,
+    state:'idle',frame:0,frameT:0,dir:DD,
+    wanderT:Math.floor(Math.random()*150),pcF:0,pcT:0};
+});
+
+function drawChar(ag){
+  const img=S['ch'+ag.char];
+  if(!img||!img.complete||!img.naturalWidth)return;
+  const fr=ag.state==='working'?0:ag.frame;
+  ctx.drawImage(img,fr*FW,ag.dir*FH,FW,FH,Math.round(ag.x),Math.round(ag.y),DW,DH);
+}
+
+function drawLabel(ag){
+  const cx=Math.round(ag.x+DW/2),cy=Math.round(ag.y-4);
+  const col=ag.state==='working'?'#3fb950':ag.state==='done'?'#58a6ff':'#8b949e';
+  ctx.font='9px monospace';ctx.textAlign='center';
+  const tw=ctx.measureText(ag.name).width;
+  ctx.fillStyle='rgba(8,12,22,0.88)';
+  ctx.fillRect(cx-tw/2-3,cy-9,tw+6,11);
+  ctx.fillStyle=col;ctx.fillText(ag.name,cx,cy);
+}
+
+const SPD=1.3;
+function move(ag){
+  const dx=ag.tx-ag.x,dy=ag.ty-ag.y,d=Math.hypot(dx,dy);
+  if(d<SPD){ag.x=ag.tx;ag.y=ag.ty;return true;}
+  ag.x+=dx/d*SPD;ag.y+=dy/d*SPD;
+  ag.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?DL:DR):DD;
+  return false;
+}
+
+function updateAgents(){
+  agents.forEach(ag=>{
+    ag.frameT++;if(ag.frameT>=6){ag.frameT=0;ag.frame=(ag.frame+1)%FRAMES;}
+    if(ag.state==='working'){ag.frame=0;ag.dir=DD;ag.pcT++;if(ag.pcT>=18){ag.pcT=0;ag.pcF=(ag.pcF+1)%4;}return;}
+    if(ag.state==='walking'){if(move(ag))ag.state='working';return;}
+    ag.wanderT--;
+    if(ag.wanderT<=0){const p=ag.wFn();ag.tx=p.x;ag.ty=p.y;ag.wanderT=80+Math.floor(Math.random()*200);}
+    move(ag);
+  });
+}
+
+function applyState(data){
+  (data.agents||[]).forEach(sa=>{
+    const ag=agents.find(a=>a.id===sa.id);if(!ag)return;
+    if(sa.state==='working'&&ag.state!=='working'&&ag.state!=='walking'){
+      if(ag.desk){ag.state='walking';ag.tx=ag.desk.x;ag.ty=ag.desk.y;}else ag.state='working';
+    }else if(sa.state==='done'&&ag.state==='working'){
+      ag.state='done';const p=ag.wFn();ag.tx=p.x;ag.ty=p.y;ag.wanderT=0;
+    }else if(sa.state==='idle'&&ag.state!=='working'&&ag.state!=='walking'){
+      ag.state='idle';
+    }
+  });
+}
+
+function wsConnect(){
+  const tok=new URLSearchParams(location.search).get('token')||'';
+  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/agents'+(tok?'?token='+tok:''));
+  ws.onmessage=e=>{try{applyState(JSON.parse(e.data));}catch(_){}};
+  ws.onclose=()=>setTimeout(wsConnect,3000);
+}
+wsConnect();
+
+const PCA=['PC0','PC1','PC2','PC3'];
+
+function render(){
+  ctx.clearRect(0,0,CW,CH);
+
+  // ── Floors ─────────────────────────────────────────────────────
+  Object.values(ROOMS).forEach(r=>{
+    ctx.fillStyle=r.bg;ctx.fillRect(r.x,r.y,r.w,r.h);
+    drawFloor(r.f,r.x,r.y,r.w,r.h);
+  });
+
+  // ── Walls / dividers ────────────────────────────────────────────
+  ctx.strokeStyle='#1c2438';ctx.lineWidth=8;
+  // outer border
+  ctx.strokeRect(2,2,CW-4,CH-4);
+  // chief | hall divider
+  ctx.beginPath();ctx.moveTo(0,270);ctx.lineTo(260,270);ctx.stroke();
+  // left block | rest divider
+  ctx.beginPath();ctx.moveTo(260,0);ctx.lineTo(260,CH);ctx.stroke();
+  // meeting | main divider
+  ctx.beginPath();ctx.moveTo(520,0);ctx.lineTo(520,200);ctx.stroke();
+  // meeting bottom
+  ctx.beginPath();ctx.moveTo(260,200);ctx.lineTo(520,200);ctx.stroke();
+  // office | break room
+  ctx.beginPath();ctx.moveTo(260,270);ctx.lineTo(CW,270);ctx.stroke();
+
+  // Wall top strips (light band suggesting wall meets floor)
+  ctx.fillStyle='rgba(255,255,255,0.025)';
+  [[0,0,260,10],[260,0,260,10],[520,0,680,10],[0,270,260,10],[260,270,940,10]].forEach(([x,y,w,h])=>{
+    ctx.fillRect(x,y,w,h);
+  });
+
+  // Room name labels
+  ctx.font='bold 9px monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(140,160,200,0.18)';
+  ctx.fillText("CHIEF'S OFFICE",130,18);
+  ctx.fillText('HALLWAY',130,288);
+  ctx.fillText('MEETING ROOM',390,18);
+  ctx.fillText('MAIN FLOOR',860,18);
+  ctx.fillText('BREAK ROOM',730,288);
+
+  // ── Build draw list (z-sorted) ────────────────────────────────
+  const Z=[];
+  function add(k,x,y){if(S[k]){const sh=S[k].sh||16;Z.push({t:'f',k,x,y,z:y+sh*2});}}
+
+  // CHIEF'S OFFICE
+  add('DSHELF',4,28);      // double bookshelf left
+  add('DSHELF',4,96);      // double bookshelf left 2
+  add('SPAINTING',200,12); // painting on back wall
+  add('CLOCK',236,12);     // clock
+  add('CACTUS',224,70);    // cactus
+  add('DESK',40,80);       // chief desk
+  // Chief PC (dynamic, added below)
+  // Sofa seating area bottom of chief office
+  add('SOFA_B',60,190);
+  add('SOFA_B',100,190);
+  add('SOFA_S',148,198);
+  add('CTABLE',72,218);
+  add('C_CHAIR_F',84,250);
+  add('LPLANT',186,190);
+
+  // HALLWAY
+  add('PLANT',10,290);
+  add('HPLANT',100,272);
+  add('PLANT2',180,360);
+  add('PLANT',10,440);
+  add('BIN',220,520);
+  add('C_BENCH',100,510);
+  add('C_BENCH',130,510);
+
+  // MEETING ROOM
+  add('WHITEBOARD',266,12);
+  add('LPAINTING',436,12);
+  add('CONF_TABLE',312,60);
+  add('W_CHAIR_B',324,58);
+  add('W_CHAIR_B',368,58);
+  add('W_CHAIR_S',296,100);
+  add('W_CHAIR_S',424,100);
+  add('W_CHAIR_F',320,156);
+  add('W_CHAIR_F',364,156);
+  add('PLANT2',490,148);
+  add('DESK',296,80);  // synthesis desk in meeting room
+  // synthesis PC added dynamically
+
+  // MAIN OFFICE - Row 1 desks
+  add('DESK',530,70); add('DESK',670,70); add('DESK',810,70); add('DESK',950,70);
+  // Row 2 desks
+  add('DESK',530,165); add('DESK',670,165); add('DESK',810,165); add('DESK',950,165);
+  // Wall bookshelves on right
+  add('SHELF',1152,30); add('SHELF',1152,62); add('SHELF',1152,94); add('SHELF',1152,126);
+  // Plants and decor
+  add('CACTUS',526,8);
+  add('HPLANT',640,0);
+  add('HPLANT',780,0);
+  add('HPLANT',920,0);
+  add('LPLANT',1148,185);
+  add('SPAINTING2',1152,158);
+
+  // BREAK ROOM - sofas and seating
+  add('SOFA_B',290,308); add('SOFA_B',330,308); add('SOFA_S',374,316);
+  add('CTABLE',298,354); add('C_CHAIR_F',308,390);
+  add('SOFA_B',580,308); add('SOFA_B',620,308); add('SOFA_S',664,316);
+  add('CTABLE',588,354); add('C_CHAIR_F',598,390);
+  add('SOFA_B',870,308); add('SOFA_B',910,308);
+  add('CTABLE',878,354); add('C_CHAIR_F',888,390);
+  // Coffee / kitchen area
+  add('STABLE',1090,288);
+  add('COFFEE',1098,276); add('COFFEE',1122,276);
+  add('STABLE',1090,340);
+  // Plants throughout break room
+  add('LPLANT',264,400);
+  add('PLANT',268,488);
+  add('PLANT2',380,488);
+  add('CACTUS',760,486);
+  add('PLANT',1000,488);
+  add('POT',1050,506);
+  add('PLANT2',1136,488);
+  // Benches
+  add('W_BENCH',470,506); add('W_BENCH',500,506);
+  add('W_BENCH',530,506); add('W_BENCH',800,506);
+  add('W_BENCH',830,506); add('W_BENCH',860,506);
+  // Bin
+  add('BIN',1166,500);
+
+  // Dynamic PC monitors on desks
+  agents.forEach(ag=>{
+    const pp=PC_POS[ag.id];if(!pp)return;
+    const pk=ag.state==='working'?PCA[ag.pcF]:'PC0';
+    Z.push({t:'f',k:pk,x:pp[0],y:pp[1],z:pp[1]+S[pk]?.sh*2||64});
+  });
+
+  // Characters
+  agents.forEach(ag=>{Z.push({t:'c',ag,z:ag.y+DH+2});});
+
+  // Sort by z (back to front)
+  Z.sort((a,b)=>a.z-b.z);
+  Z.forEach(item=>{
+    if(item.t==='f') df(item.k,item.x,item.y);
+    else{drawChar(item.ag);drawLabel(item.ag);}
+  });
+
+  updateAgents();
+  requestAnimationFrame(render);
+}
+
+// Start once sprites ready
+let done=0,total=0;
+Object.values(S).forEach(v=>{
+  total++;
+  const i=v.img||v;
+  i.onload=i.onerror=()=>{if(++done>=total&&!c._go){c._go=1;render();resize();}};
+});
+setTimeout(()=>{if(!c._go){c._go=1;render();resize();}},2000);
+</script>
+</body>
+</html>

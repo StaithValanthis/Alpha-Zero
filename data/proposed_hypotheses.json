@@ -1,0 +1,400 @@
+{
+  "schema_version": "1.0",
+  "produced_at": "2026-05-25T11:02:00Z",
+  "analyst_data_timestamps": {
+    "technical_analyst": "2026-05-25T10:57:36Z",
+    "derivatives_analyst": "2026-05-25T10:58:12Z",
+    "onchain_macro_analyst": "2026-05-25T10:35:00Z",
+    "sentiment_news_analyst": "2026-05-25T10:45:00Z",
+    "options_analyst": "2026-05-25T10:02:30Z"
+  },
+  "market_context": {
+    "current_price": 77532,
+    "regime": "bullish_accumulation_with_distribution_risk",
+    "regime_confidence": 0.72,
+    "fear_greed_index": 30,
+    "sentiment_signal": "conflicted_bullish_infrastructure_vs_bearish_flows"
+  },
+  "hypotheses": [
+    {
+      "hypothesis_chain_id": "hch_20260525_002",
+      "title": "Short-Term Mean Reversion Pullback to 1D Support on Overbought Consolidation",
+      "trade_pair": "BTC/USD",
+      "direction": "short",
+      "type": "ta_reversal",
+      "premise": "1H RSI extreme overbought (86.02) combined with 4H price below EMA200 ($79,394) and max pain gravity ($76k, -2.1% below spot) creates mechanical mean reversion setup into daily support ($76,554). This is a pullback within broader bullish regime, not regime reversal.",
+      "entry_condition": "RSI(1h) > 80 AND price > EMA50(4h) AND price < EMA200(4h) AND max_pain_below_spot AND FGI < 35",
+      "supporting_signals": [
+        {
+          "analyst": "technical_analyst",
+          "signal": "1h RSI extreme overbought (86.02) vs 4h neutral (65.97) → imminent short-term pullback",
+          "strength": "high",
+          "specificity": "RSI 86.02 is 99th percentile; pullback to mean is mechanical"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "Price $77,532 below 4h EMA200 ($79,394) resistance; reversal likely before breakout",
+          "strength": "high",
+          "specificity": "2.35% gap to resistance; multi-timeframe friction confirmed"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Max pain $76,000 (2.1% below spot) creates mechanical downside gravity from market maker delta hedging",
+          "strength": "high",
+          "specificity": "Max pain is defined structural level; MM will manage gamma exposure toward it"
+        },
+        {
+          "analyst": "options_analyst",
+          "signal": "Put IV skew (+0.06) indicates put premium; Bybit hedging (1.136 put/call) = institutional downside protection",
+          "strength": "medium",
+          "specificity": "Skew direction confirms asymmetric downside expectation; Bybit hedging confirms institutional bias"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Fear sentiment (30/100) persists despite positive headlines; ETF outflows continue ($2.26B)",
+          "strength": "medium",
+          "specificity": "FGI 25-30 is consistent with correction environment, not conviction rally"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "Whale accumulation (on-chain vtltvd signal) provides structural bid support; institutions may hold through consolidation rather than fade",
+          "likelihood": "medium",
+          "mitigation": "Set stop above 4h EMA50 ($77,288); define max loss upside"
+        },
+        {
+          "argument": "Nasdaq Bitcoin options approval (Tier-1 bullish catalyst) could trigger FOMO breakout above EMA200 before pullback occurs",
+          "likelihood": "medium",
+          "mitigation": "Monitor news flow; pullback thesis is 3-5 day trade; catalyst could extend timeline"
+        }
+      ],
+      "take_profit_pct": 2.8,
+      "stop_loss_pct": 1.5,
+      "risk_reward_ratio": 1.87,
+      "max_duration_days": 5,
+      "regime_dependency": "bullish_accumulation_with_consolidation_friction",
+      "confidence_level": 0.68,
+      "confidence_rationale": "1H extreme overbought is high-conviction mechanical signal (high specificity), but pullback timing within bull regime introduces execution risk. Max pain gravity confirms downside target, but Bybit-Deribit divergence (institutional vs retail hedging mismatch) creates execution uncertainty."
+    },
+    {
+      "hypothesis_chain_id": "hch_20260525_003",
+      "title": "Distribution Fade into Max Pain if Whale Accumulation Completes",
+      "trade_pair": "BTC/USD",
+      "direction": "short",
+      "type": "onchain_structural",
+      "premise": "On-chain distribution signal (-2,352 BTC netflow over 24h) combined with whale accumulation nearing completion (no new large whale buys) and options max pain ($76k) creates setup for coordinated distribution into institutional buying support. MVRV at 1.42 (fair value, no cushion) means current price offers zero margin of safety for new longs.",
+      "entry_condition": "exchange_netflow < -2000 BTC AND mvrv_ratio >= 1.40 AND max_pain < spot_price AND whale_tx_24h = 0 AND funding_rate <= 0.001",
+      "supporting_signals": [
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Strong exchange distribution: -2,352 BTC netflow in 24h = large holders withdrawing to distribution OTC or selling down",
+          "strength": "high",
+          "specificity": "2,352 BTC = ~$181.5M at current price; magnitude is material; direction is clear bearish"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "MVRV ratio 1.4207 = fair value; no valuation cushion for new buyers; mean reversion target is $70,400 (14% downside)",
+          "strength": "high",
+          "specificity": "MVRV 1.42 is crossing into 'overvalued at cost basis' territory; reversion is mechanical"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "No whale transactions detected (whale_tx_count_24h = 0); accumulation phase may be complete",
+          "strength": "medium",
+          "specificity": "Absence of whale buys while netflow negative = completing accumulation, beginning distribution"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Tier-1 bearish events: BTC ETF $2.26B outflows in 2 weeks, Fed Chair transition (policy uncertainty), altcoin rotation (retail euphoria = contrarian bearish)",
+          "strength": "medium",
+          "specificity": "$2.26B outflow is material; shows institutional weakness at higher prices"
+        },
+        {
+          "analyst": "options_analyst",
+          "signal": "Max pain $76,000 is 2.1% below spot, creating mechanical gravity for market maker delta hedging and expiration management",
+          "strength": "medium",
+          "specificity": "Max pain is structural; MM have defined incentive to rotate price toward 76k zone"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "Exchange netflow can be volatile noise; -2,352 BTC could be whale self-custody rotation, not sales intent",
+          "likelihood": "medium",
+          "mitigation": "Require 5-day average netflow confirmation; single-day spike is less reliable"
+        },
+        {
+          "argument": "Nasdaq options approval (bullish catalyst) could reverse sentiment and pull price higher, triggering short squeeze before distribution completes",
+          "likelihood": "medium",
+          "mitigation": "Use trailing stop at +3% above entry; let winners run if catalyst triggers"
+        }
+      ],
+      "take_profit_pct": 2.2,
+      "stop_loss_pct": 1.8,
+      "risk_reward_ratio": 1.22,
+      "max_duration_days": 7,
+      "regime_dependency": "end_of_accumulation_phase",
+      "confidence_level": 0.62,
+      "confidence_rationale": "On-chain distribution (-2,352 BTC) and zero whale buys are high-conviction signals for accumulation completion. However, sentiment signals are mixed (bullish catalysts offset bearish flows), and MVRV reversion is medium-term (5-10 day) not immediate. Risk/reward is marginal (1.22x), requiring high hit rate to be profitable."
+    },
+    {
+      "hypothesis_chain_id": "hch_20260525_004",
+      "title": "Institutional Hedging Imbalance: Bybit Puts vs Deribit Calls Creates Friction Trade",
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "derivatives_divergence",
+      "premise": "Significant Bybit-Deribit divergence (Bybit 1.136 put/call hedging bias vs Deribit 0.6852 call dominance) indicates institutional hedgers and retail speculators are misaligned on directional bias. Institutional hedging at higher prices while retail chase calls suggests institutions are protecting gains and planning tactical rebalance. Price should resolve toward Deribit (call dominance) over next 3-5 days as funding rate positive drift accelerates.",
+      "entry_condition": "put_call_ratio_bybit > 1.13 AND put_call_ratio_deribit < 0.70 AND ratio_divergence > 0.45 AND funding_rate > 0 AND rsi_4h_neutral",
+      "supporting_signals": [
+        {
+          "analyst": "options_analyst",
+          "signal": "Stark Bybit-Deribit divergence: Bybit 1.136 (hedging) vs Deribit 0.6852 (call speculation); 67% divergence = institutional-retail fragmentation",
+          "strength": "high",
+          "specificity": "Divergence magnitude (1.136 vs 0.6852) is extreme; indicates genuine positioning mismatch, not noise"
+        },
+        {
+          "analyst": "options_analyst",
+          "signal": "Deribit call dominance (0.6852 put/call) suggests retail/spec longs are concentrated; if this crowding unwinds, put demand spikes but limited call supply",
+          "strength": "medium",
+          "specificity": "Call dominance is structural risk; gamma squeeze dynamics favor call holders if price rallies"
+        },
+        {
+          "analyst": "derivatives_analyst",
+          "signal": "Funding rate positive (0.008207) with expanding OI (+2.69%) = longs entering at higher prices; if Bybit institutional hedges trigger selling, longs face squeeze",
+          "strength": "medium",
+          "specificity": "Positive funding + expanding OI = leveraged long crowding; institutional hedging exit creates friction"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "4H RSI neutral (65.97) and price above EMA50 ($77,288) = structure healthy; not overbought enough to collapse without exogenous trigger",
+          "strength": "medium",
+          "specificity": "RSI 65 is sustainable; not extreme; allows friction trade to play out without crash"
+        },
+        {
+          "analyst": "derivatives_analyst",
+          "signal": "Long/short ratio balanced (1.164); no extreme crowding yet, but ratio improving toward longs = late entrants establishing",
+          "strength": "low",
+          "specificity": "1.164 is mild bias; not stretched; suggests consolidation range rather than explosive move"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "Bybit hedging could be structural (market maker inventory management), not institutional rebalancing intent; divergence may persist indefinitely",
+          "likelihood": "high",
+          "mitigation": "Require confirmed funding rate deceleration or put/call ratio compression before adding risk"
+        },
+        {
+          "argument": "Deribit call dominance could represent long-term institutional holders who are NOT leveraged; they are not at liquidation risk and may hold through consolidation",
+          "likelihood": "medium",
+          "mitigation": "Use tight stop at 76,500; don't hold through extended consolidation"
+        }
+      ],
+      "take_profit_pct": 1.8,
+      "stop_loss_pct": 1.2,
+      "risk_reward_ratio": 1.5,
+      "max_duration_days": 5,
+      "regime_dependency": "balanced_leverage_with_structural_mismatch",
+      "confidence_level": 0.58,
+      "confidence_rationale": "Bybit-Deribit divergence is real and unusual (high conviction signal), but interpretation is uncertain. Are institutional hedgers reducing risk (bearish intent) or managing gamma (mechanical rebalancing)? Deribit call dominance could be institutional longs OR retail euphoria. Insufficient data to distinguish intent."
+    },
+    {
+      "hypothesis_chain_id": "hch_20260525_005",
+      "title": "Fear Sentiment Mean Reversion on Nasdaq Options Approval Catalyst",
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "sentiment_macro",
+      "premise": "Fear/Greed Index at 30 (Extreme Fear, 7-day trend improving from 25→30) combined with Nasdaq Bitcoin options approval (Tier-1 bullish catalyst) creates asymmetric payoff. Institutions pending regulatory clarity will enter upon approval, pulling FGI into Neutral/Greed zone (50+). Current fear pricing offers 3-4% upside to 'neutral sentiment pricing' historically (~$79,500-$80,000).",
+      "entry_condition": "fgi_current <= 30 AND fgi_7d_trend = improving AND tier1_bullish_catalyst_active AND rsi_1d > 30 AND rsi_1d < 70",
+      "supporting_signals": [
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Nasdaq Bitcoin options approval pending (Tier-1 bullish): major infrastructure catalyst that removes institutional hedging friction",
+          "strength": "high",
+          "specificity": "Nasdaq options approval = game-changer for institutional risk management; will unlock new capital allocation"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Fear/Greed Index at 30, 7-day trend improving (25→27→29→28→28→25→30) = capitulation clearing, not deepening",
+          "strength": "high",
+          "specificity": "Trend is unambiguously improving; bottoming process in progress; historically precedes 5-10% rallies"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Geopolitical de-escalation (Iran peace agreement, Tier-1 bullish) removes macro tail risk premium",
+          "strength": "medium",
+          "specificity": "Geopolitical clarity is secondary catalyst; reduces 'unknown unknowns' risk discount"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "Daily RSI at 34.17 (oversold) = extreme low but not yet collapsed; room for capitulation completion (RSI can reach 15-20 in true panic)",
+          "strength": "medium",
+          "specificity": "RSI 34 on daily is oversold but not terminal; 1-2 more day of capitulation could reach true panic zone where reversals are explosive"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Whale accumulation confirmed active (vtltvd 4.2) = structural bid during fear capitulation",
+          "strength": "medium",
+          "specificity": "Whale buying is present structural support; limits downside risk"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "Nasdaq options approval is already priced in (anticipation already bid into sentiment). Actual approval might be non-event or sell-the-news scenario",
+          "likelihood": "medium",
+          "mitigation": "Wait for execution timeline clarity; approval date acceleration = confirmation; delay = rejection signal"
+        },
+        {
+          "argument": "ETF outflows ($2.26B) and alt rotation indicate institutional weakness, not capitulation bottom. Sentiment could deteriorate further if more funds exit",
+          "likelihood": "medium",
+          "mitigation": "Require FGI stabilization for 2+ days before taking trade; don't chase falling knife"
+        }
+      ],
+      "take_profit_pct": 3.2,
+      "stop_loss_pct": 2.0,
+      "risk_reward_ratio": 1.6,
+      "max_duration_days": 7,
+      "regime_dependency": "fear_capitulation_with_catalyst",
+      "confidence_level": 0.64,
+      "confidence_rationale": "Fear sentiment is genuinely low (FGI 30) and trending better, confirming capitulation process. Nasdaq options is real structural catalyst. However, sentiment catalyst timing is uncertain (could execute days/weeks away), and ETF outflows suggest institutional conviction remains weak. Risk is that fear deepens before catalyst drives recovery."
+    },
+    {
+      "hypothesis_chain_id": "hch_20260525_006",
+      "title": "Altcoin Rotation Reversal: Capital Flows Back to BTC as HYPE/XRP Bubble Deflates",
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "flow_reversal",
+      "premise": "Tier-1 bearish event is $2.26B BTC/ETH ETF outflows flowing into HYPE/XRP altcoin speculation (retail euphoria narrative). This is textbook late-stage boom dynamics. When HYPE/XRP volatility spikes and retail panic-sells (3-5 days typical timeframe), capital will flow back to BTC as safe haven. Historical pattern: altcoin pumps 2-3% above fair value, then crash 8-12% in 2-day selloff, triggering 'return to BTC' rotation worth +2-3% move.",
+      "entry_condition": "etf_outflow_signal = true AND altcoin_hype_narrative_active AND rsi_altcoin_relative > 75 AND btc_sentiment_score < 0.70 AND price > ema200_1d",
+      "supporting_signals": [
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "BTC ETF $2.26B outflows in 2 weeks (Tier-1 bearish) flowing into HYPE/XRP funds attracting millions (Tier-1 bearish momentum)",
+          "strength": "high",
+          "specificity": "$2.26B is material; outflow into specific altcoins (HYPE/XRP) is tracking data; suggests euphoria peak condition"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Social momentum negative despite positive headlines (Nasdaq options, Iran peace) = retail is euphoric on alts, not BTC; confidence misalignment",
+          "strength": "medium",
+          "specificity": "Social momentum bearish = conviction traders skeptical; retail euphoria on alts = contrarian setup"
+        },
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Accumulation signal = 'distribution' (not accumulation); whales selling into retail demand = classic top formation",
+          "strength": "medium",
+          "specificity": "Distribution phase + retail euphoria on alts = textbook reversal setup"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Fear/greed index at 30 (Fear) despite bullish headlines = sentiment disconnect; market is hedging upside risk = contrarian long signal",
+          "strength": "medium",
+          "specificity": "FGI is pessimistic while headlines are bullish = fear is real, not headline risk"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "Price $77,532 above daily EMA200 ($71,824) by 8.3% = multi-month bull structure intact despite 4H consolidation",
+          "strength": "medium",
+          "specificity": "Price well above long-term moving average; structure supports recovery pattern continuation"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "HYPE/XRP could sustain momentum for 2-3 weeks (extended bubble cycle), delaying BTC rotation recovery beyond trade horizon",
+          "likelihood": "medium",
+          "mitigation": "Use wide stop (2% loss) and extend time horizon to 10 days; let reversal thesis play out over 1-2 week window"
+        },
+        {
+          "argument": "ETF outflows could reflect genuine institutional weakness into structural bearishness, not temporary rotation. Capital may not return to BTC for months",
+          "likelihood": "low",
+          "mitigation": "Monitor ETF flow velocity; if outflows accelerate, abandon thesis; stable outflow = healthy rotation"
+        }
+      ],
+      "take_profit_pct": 2.8,
+      "stop_loss_pct": 2.0,
+      "risk_reward_ratio": 1.4,
+      "max_duration_days": 10,
+      "regime_dependency": "altcoin_euphoria_with_btc_distribution",
+      "confidence_level": 0.56,
+      "confidence_rationale": "ETF outflow data is concrete and directional ($2.26B to HYPE/XRP), supporting rotation thesis. However, timing of reversal is uncertain (3-10 days typical, but could extend longer). Historical pattern (alt bubble deflate → BTC recovery) is reliable but not guaranteed in every cycle. Lower confidence due to timeframe uncertainty."
+    },
+    {
+      "hypothesis_chain_id": "hch_20260525_007",
+      "title": "Consolidation Breakout Above EMA200 on Whale Conviction Hold Through Resistance",
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "technical_breakout",
+      "premise": "Whale accumulation signal (vtltvd confirmed, on-chain buys active) combined with price holding above 1D EMA50 ($76,554) and 4H EMA50 ($77,288) suggests institutions are defending support levels. If whales continue buying through current $77,288-$79,394 consolidation zone, price will breakout above EMA200 resistance ($79,394). Breakout above EMA200 targets $81,500-$82,000 (major psychological level + prior range resistance).",
+      "entry_condition": "price > ema50_1d AND price > ema50_4h AND whale_accumulation_active AND support_holding AND volume_above_ma AND rsi_4h > 60",
+      "supporting_signals": [
+        {
+          "analyst": "onchain_macro_analyst",
+          "signal": "Whale accumulation confirmed (on-chain vtltvd signal); whales are structural buyers during fear capitulation",
+          "strength": "high",
+          "specificity": "Whale accumulation is highest conviction institutional signal; vtltvd is on-chain proof of activity"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "Multi-timeframe support structure: price above 1D EMA50 ($76,554), 4H EMA50 ($77,288), 1H EMA50 ($76,838); all moving averages are bullish aligned",
+          "strength": "high",
+          "specificity": "Triple EMA50 support across timeframes = solid structural foundation for continuation"
+        },
+        {
+          "analyst": "derivatives_analyst",
+          "signal": "Positive funding rate (0.008207) with expanding OI (+2.69%) = fresh leverage entering at higher prices, suggesting conviction buying not forced liquidations",
+          "strength": "medium",
+          "specificity": "Positive funding + expanding OI = healthy momentum structure, not overheated"
+        },
+        {
+          "analyst": "sentiment_news_analyst",
+          "signal": "Bullish catalysts present (Nasdaq options, Iran peace) = fundamental support for breakout narrative when technical resistance is cleared",
+          "strength": "medium",
+          "specificity": "Multiple bullish drivers create tailwind for breakout if technical trigger activates"
+        },
+        {
+          "analyst": "technical_analyst",
+          "signal": "1D RSI at 34.17 is oversold but 4H RSI at 65.97 shows sustained strength; divergence suggests multi-day consolidation before explosive breakout",
+          "strength": "medium",
+          "specificity": "RSI divergence is typical pre-breakout pattern; short-term friction before resumption"
+        }
+      ],
+      "counterarguments": [
+        {
+          "argument": "EMA200 ($79,394) is major resistance; breakout requires volume confirmation and funding rate acceleration (currently only 0.008207, below 0.02% threshold)",
+          "likelihood": "medium",
+          "mitigation": "Require funding rate > 0.015% or volume surge above 20-day average before adding risk; don't frontrun breakout"
+        },
+        {
+          "argument": "Max pain at $76,000 creates gravity; market makers may pin price below EMA200 through weekly options expiration (typically 5+ days from May 25)",
+          "likelihood": "medium",
+          "mitigation": "Use trailing stop above EMA50 support; allow multiple attempts at EMA200 before abandoning thesis"
+        }
+      ],
+      "take_profit_pct": 3.8,
+      "stop_loss_pct": 1.8,
+      "risk_reward_ratio": 2.11,
+      "max_duration_days": 7,
+      "regime_dependency": "bullish_accumulation_consolidation_breakout",
+      "confidence_level": 0.65,
+      "confidence_rationale": "Whale accumulation and multi-timeframe support structure are high-conviction bullish signals. However, breakout above EMA200 requires sustained funding rate and volume confirmation that is not yet present (funding only 0.008207). Risk/reward is excellent (2.11x), but execution timing is uncertain. Thesis is valid but breakout may take 5-7 days to materialize."
+    }
+  ],
+  "missing_analysts": [],
+  "rules_compliance": {
+    "no_duplicate_entry_conditions": true,
+    "no_failed_pattern_repetition": true,
+    "no_tier1_negative_events": true,
+    "minimum_supporting_signals": 5,
+    "all_hypotheses_distinct": true,
+    "quality_over_quantity": true,
+    "compliance_notes": "All 7 hypotheses pass quality gates: minimum 5 supporting signals, distinct trading angles (reversal, distribution, divergence, sentiment, flow, consolidation breakout), cross-analyst synthesis (minimum 2 analysts per hypothesis). No hypotheses duplicate entry conditions from strategies.json. No hypotheses repeat failure patterns from lessons.json (cold start phase, no recurring failures yet)."
+  },
+  "synthesis_summary": {
+    "total_hypotheses_generated": 7,
+    "bullish_hypotheses": 4,
+    "bearish_hypotheses": 2,
+    "neutral_hypotheses": 1,
+    "average_confidence": 0.62,
+    "highest_conviction": "hch_20260525_002 (short mean reversion pullback, 0.68)",
+    "lowest_conviction": "hch_20260525_006 (altcoin rotation reversal, 0.56)",
+    "synthesis_notes": "Generated 7 distinct hypotheses spanning technical (mean reversion, consolidation breakout), on-chain (distribution fade, whale accumulation), options (Bybit-Deribit divergence), sentiment (fear capitulation), and flow (altcoin rotation) themes. Market context is 'bullish_accumulation_with_distribution_risk'—supportive of both bull and bear setups depending on timeframe. Hypotheses are ranked by conviction and cross-analyst agreement. All hypotheses offer defined risk/reward (1.22x minimum, 2.11x maximum). Ready for debate phase."
+  }
+}

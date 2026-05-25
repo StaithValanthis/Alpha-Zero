@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "collector": "netflow_collector",
+  "collected_at": "2026-05-25T10:10:55Z",
+  "stale_after_seconds": 7200,
+  "data": {
+    "date": "2026-05-24",
+    "source": "coinmetrics-community",
+    "inflow_btc": 12356.588,
+    "outflow_btc": 10003.849,
+    "netflow_btc": -2352.739,
+    "inflow_usd": 950851673.5783,
+    "outflow_usd": 769806080.0306,
+    "netflow_usd": -181045593.55,
+    "exchange_reserve_btc": 2614631.5937,
+    "exchange_reserve_change_btc": 2529.0743,
+    "mvrv": 1.4207,
+    "active_addresses": 488204,
+    "signal": "strong_distribution"
+  }
+}

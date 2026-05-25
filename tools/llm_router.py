@@ -57,8 +57,8 @@ _TIERS: dict[str, list[tuple[str, str]]] = {
     # Highest-stakes: sequential, no parallel contention
     "critical": [
         ("cerebras", "qwen-3-235b-a22b-instruct-2507"),
-        ("groq",     "openai/gpt-oss-120b"),
         ("mistral",  "mistral-large-latest"),
+        ("groq",     "meta-llama/llama-4-scout-17b-16e-instruct"),
         ("openrouter", "minimax/minimax-m2.5:free"),
     ],
     # Bull-researcher: separate Groq pool from bear (llama-4-scout vs gpt-oss-120b)
@@ -138,12 +138,12 @@ _TIERS: dict[str, list[tuple[str, str]]] = {
         ("mistral",  "open-mistral-nemo"),
         ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
     ],
-    # Classification only
+    # Classification only — gemini last (billing not enabled on this key)
     "classifier": [
-        ("gemini",   "gemini-2.0-flash"),
         ("groq",     "llama-3.1-8b-instant"),
         ("mistral",  "mistral-small-latest"),
         ("openrouter", "meta-llama/llama-3.3-70b-instruct:free"),
+        ("gemini",   "gemini-2.0-flash"),
     ],
     # Code generation — free Mistral Experiment tier
     "builder": [

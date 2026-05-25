@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "collector": "fear_greed",
+  "collected_at": "2026-05-25T00:11:37Z",
+  "stale_after_seconds": 86400,
+  "data": [
+    {
+      "value": "30",
+      "value_classification": "Fear",
+      "timestamp": "1779667200",
+      "time_until_update": "85703"
+    },
+    {
+      "value": "25",
+      "value_classification": "Extreme Fear",
+      "timestamp": "1779580800"
+    },
+    {
+      "value": "28",
+      "value_classification": "Fear",
+      "timestamp": "1779494400"
+    },
+    {
+      "value": "28",
+      "value_classification": "Fear",
+      "timestamp": "1779408000"
+    },
+    {
+      "value": "29",
+      "value_classification": "Fear",
+      "timestamp": "1779321600"
+    },
+    {
+      "value": "27",
+      "value_classification": "Fear",
+      "timestamp": "1779235200"
+    },
+    {
+      "value": "25",
+      "value_classification": "Extreme Fear",
+      "timestamp": "1779148800"
+    }
+  ]
+}

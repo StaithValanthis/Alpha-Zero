@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "agent": "derivatives_analyst",
+  "produced_at": "2026-05-25T10:58:12.903653Z",
+  "stale_after_seconds": 7200,
+  "findings": {
+    "funding_regime": "positive",
+    "funding_rate_latest": 0.008207,
+    "funding_rate_7d_avg": 0.002586,
+    "funding_trend": "rising",
+    "funding_signal": "mild_crowding_caution",
+    "oi_trend": "expanding",
+    "oi_change_24h_pct": 2.69,
+    "long_short_bias": "balanced",
+    "long_short_ratio_latest": 1.1636,
+    "derivatives_summary": "Bitcoin perpetuals showing positive funding regime with expanding open interest (+2.69% 24h). Long positioning slightly elevated (53.8% buy ratio).",
+    "perp_opportunity": "Neutral funding environment (0.0082%) - limited arb opportunity.",
+    "top_derivatives_signal": "Balanced market structure with 1.164 long/short ratio and 2.69% OI change.",
+    "data_freshness": "fresh"
+  }
+}

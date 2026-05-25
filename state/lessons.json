@@ -5,19 +5,22 @@
       "date": "2026-05-25",
       "observation": "Unhandled KeyError: 'content' when reading live_triggers.json \u2014 add input validation and fallback in bridge_live_triggers().",
       "category": "system",
-      "severity": "warning"
+      "severity": "warning",
+      "lesson": "Unhandled KeyError: 'content' when reading live_triggers.json \u2014 add input validation and fallback in bridge_live_triggers()."
     },
     {
       "date": "2026-05-25",
       "observation": "Input validation and fallback for live_triggers.json 'content' KeyError implemented. Prevents system halt during signal bridge.",
       "category": "system",
-      "severity": "critical"
+      "severity": "critical",
+      "lesson": "Input validation and fallback for live_triggers.json 'content' KeyError implemented. Prevents system halt during signal bridge."
     },
     {
       "date": "2026-05-25",
       "observation": "Cold start BTC allocation floor (90%) effectively limits drawdown risk during strategy validation phase. vs_hodl -0.4575% reflects only bootstrap fees, no alpha trades yet.",
       "category": "strategy",
-      "severity": "info"
+      "severity": "info",
+      "lesson": "Cold start BTC allocation floor (90%) effectively limits drawdown risk during strategy validation phase. vs_hodl -0.4575% reflects only bootstrap fees, no alpha trades yet."
     }
   ],
   "recurring_failure_patterns": [],

@@ -15,12 +15,13 @@ You are a delegated subagent running as the BTC Reporter.
 Read all state files:
 - `state/portfolio.json`
 - `state/research.json`
-- `state/signals.json`
-- `state/strategies.json`
+- `state/strategies.json` (use for signal counts — state/signals.json may not exist)
 - `state/orchestrator-directive.json`
 - `state/system-log.json`
 - `state/lessons.json`
 - `state/system_state.json`
+- `data/meta/collection_status.json` (collection health)
+- `data/analyst_reports/options_analyst.json` (optional — include if options_analyst.done exists)
 
 ### Step 1: Write daily report
 Write `logs/YYYY-MM-DD-report.md` following the exact format in your briefing.

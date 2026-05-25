@@ -15,7 +15,7 @@ Delete any stale .done markers from yesterday:
 rm -f data/analyst_reports/*.done
 ```
 
-### Stage 1: Run all 4 analysts in parallel via delegate_task
+### Stage 1: Run all 5 analysts in parallel via delegate_task
 
 **Technical Analyst**: Read `hermes/technical-analyst/briefing.md`. Write `data/analyst_reports/technical_analyst.json`, then write `data/analyst_reports/technical_analyst.done` last (atomically after JSON is complete).
 
@@ -23,7 +23,9 @@ rm -f data/analyst_reports/*.done
 
 **OnChain/Macro Analyst**: Read `hermes/onchain-macro-analyst/briefing.md`. Write `data/analyst_reports/onchain_macro_analyst.json`, then `data/analyst_reports/onchain_macro_analyst.done`.
 
-**Sentiment/News Analyst**: Read `hermes/sentiment-news-analyst/briefing.md`. Use web search for recent BTC/crypto news. Write `data/analyst_reports/sentiment_news_analyst.json`, then `data/analyst_reports/sentiment_news_analyst.done`.
+**Sentiment/News Analyst**: Read `hermes/sentiment-news-analyst/briefing.md`. Read only the structured data files listed in the briefing — do NOT use web search. Write `data/analyst_reports/sentiment_news_analyst.json`, then `data/analyst_reports/sentiment_news_analyst.done`.
+
+**Options Analyst**: Read `hermes/options-analyst/briefing.md`. Check if `data/analyst_reports/options_analyst.done` already exists (written by the pre-pipeline standalone run at 23:45 UTC). If it exists and `options_analyst.json` is less than 2 hours old, skip this delegate — the report is already fresh. If stale or absent, run the delegate to regenerate it.
 
 ### Stage 2: Verify completion
 After all delegates return, count `.done` files on disk (not just delegate return status):
@@ -32,7 +34,7 @@ ls data/analyst_reports/*.done 2>/dev/null | wc -l
 ```
 - Fewer than 2: **ABORT** — post WARNING to Discord, update `state/pipeline_state.json` with failed status. Stop.
 - 2 or 3: **DEGRADED MODE** — post warning to Discord but continue with available reports.
-- 4: Full run. Continue.
+- 4 or 5: Full run. Continue. (5 = all analysts including options; 4 = options absent, acceptable degraded run)
 
 ### Stage 3: Hypothesis generation
 Delegate Hypothesis Generator: reads `hermes/hypothesis-generator/briefing.md` and all available analyst reports, writes `data/proposed_hypotheses.json`.
@@ -52,6 +54,6 @@ Delegate Synthesis Agent: reads `hermes/synthesis/briefing.md`, reads all 4 deba
 Update `state/pipeline_state.json`: mark morning-pipeline as completed_today.
 
 ### Discord notification
-Post pipeline summary embed: analysts completed (N/4), regime, top hypothesis, debate winner summary.
+Post pipeline summary embed: analysts completed (N/5 or N/4 if options pre-run), regime, top hypothesis, debate winner summary.
 
 **Note**: Do NOT run Strategy Tester — it has its own separate cron at 12:30 AEST.

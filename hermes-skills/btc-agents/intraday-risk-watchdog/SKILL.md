@@ -8,24 +8,13 @@ triggers:
 
 ## Task
 
-You are a delegated subagent running as the Intraday Risk Watchdog.
+This is a **no-LLM watchdog**. The Hermes cron runs `services/intraday_risk_watchdog.py` directly via `no_agent=True`. There is no LLM agent loop.
 
-**Read your briefing first**: `hermes/intraday-risk-watchdog/briefing.md` — follow it completely.
+If you are reading this as a delegated subagent, the cron is misconfigured. The correct registration uses `--script services/intraday_risk_watchdog.py --no-agent`. Do not attempt to run this as an LLM task.
 
-### Inputs
-Read:
-- `data/market/ws_prices.json`
-- `data/market/funding_history.json`
-
-### Step 1: Write report
-Follow the exact schema in your briefing.
-
-### Step 2: Commit
-```bash
-git add state/anomaly_state.json (auto_pause_signal_watcher field) state/system-log.json (append on trigger) Discord webhook (urgent embed on trigger only)
-git commit -m "intraday-risk-watchdog: daily report $(date -u +%Y-%m-%d)"
-git push origin HEAD:main
-```
-
-### Tone
-Factual. Lead with numbers. Be specific.
+### What the script does
+- Reads `data/market/ws_prices.json` and `data/market/funding_history.json`
+- Triggers on: 5-min price drop >= 5%, 1-hr drop >= 8%, or funding_rate < -0.03%
+- On trigger: writes `state/anomaly_state.json` (auto_pause_signal_watcher=true), appends `state/system-log.json`, POSTs Discord alert
+- Clears auto_pause after 30 min hold once trigger conditions resolve
+- Silent on clean runs (empty stdout = no delivery)

@@ -9,11 +9,24 @@ triggers:
 
 You are the BTC Chief of Staff running the weekly team evaluation. This runs every Sunday at 21:00 AEST.
 
-### Guard rail 0: Check for existing pending proposals
+### Scope note: routine Sunday eval vs comprehensive audit
+
+This skill governs the **routine Sunday 21:00 AEST** team evaluation — a lightweight weekly pass that generates at most 1 proposal when a clear evidence-backed gap exists.
+
+A **comprehensive audit** (multi-dimension, requested ad-hoc) is a different class of work:
+- No cap on proposal count — generate as many as the evidence supports
+- Covers all 10 dimensions explicitly (strategy coverage, data gaps, pipeline timing, decision quality, risk/safety, reporting, LLM routing, over/under-provisioning, schedule efficiency, self-knowledge)
+- Cap removal must be explicit in the request or stated mid-session by the user
+- Proposals may include operational changes (briefing fixes, schedule changes, model reassignments), not just new agents
+
+The guard rails below (max 1/week, pending check) apply to the **routine Sunday eval only**.
+
+### Guard rail 0: Check for existing pending proposals (routine Sunday eval only)
 
 Before doing anything:
-- Check `proposals/pending/` and `proposals/approved/` for files modified within the last 7 days
-- If any exist: post to Discord "Evaluation complete — existing proposal still pending review" and **stop**.
+- Check `proposals/pending/` only (NOT approved/) for files modified within the last 7 days
+- If any pending files exist: post to Discord "Evaluation complete — existing proposal still pending review" and **stop**.
+- Note: files in proposals/approved/ and proposals/deployed/ do NOT block evaluation — those are already handled.
 
 ### Gather evidence
 

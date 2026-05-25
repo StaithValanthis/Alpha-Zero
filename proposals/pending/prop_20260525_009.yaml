@@ -1,0 +1,92 @@
+proposal_id: prop_20260525_009
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: workflow_gap_review_2026-05-25
+status: pending
+type: operational_change
+subtype: code_improvement
+priority: medium
+
+agent_name: backtester
+change_summary: >
+  Extend tools/backtester.py to support momentum, breakout, and funding-carry
+  strategy types in addition to the existing RSI mean-reversion logic.
+  Required before the strategy-diversity-monitor (P004) can surface gaps that
+  lead to actionable new strategies.
+
+problem_statement: |
+  tools/backtester.py contains a single hardcoded signal: RSI(14) < 30 entry
+  for a long mean-reversion trade. The strategy-tester briefing instructs it
+  to "run backtests for ta_signal and hybrid types" across all strategies.
+
+  When the diversity monitor (P004) surfaces the momentum, breakout, and
+  funding-carry gaps and the morning pipeline generates hypotheses for those
+  archetypes, Strategy Tester will call backtester.py with non-RSI parameters.
+  The current backtester ignores all parameters except take_profit_pct,
+  stop_loss_pct, and timeframe — it runs the same RSI<30 logic regardless of
+  strategy type. This means momentum and breakout strategies will receive
+  backtest results that measure RSI mean-reversion performance, not their
+  actual entry logic. Scores will be meaningless.
+
+evidence:
+  - >
+    tools/backtester.py: simulate() function always evaluates rsi_v < 30 as
+    the sole entry condition (line 23 in the function). No params dict fields
+    other than timeframe, take_profit_pct, stop_loss_pct are read. Entry logic
+    is hardcoded.
+  - >
+    hermes/strategy-tester/briefing.md Step 4: "Walk-forward backtest —
+    python3 tools/backtester.py '{params_as_json}'" — implies arbitrary params.
+  - >
+    state/strategies.json strat_001 type=ta_signal. Proposal P004 will surface
+    that momentum (type=momentum), breakout (type=breakout), and funding_carry
+    are uncovered. These types need backtest support before they can be scored.
+  - >
+    data/historical/: btc_1d_2yr.json, btc_4h_6mo.json, btc_1h_3mo.json,
+    plus 5 alt pairs — sufficient data for all 3 new strategy types.
+
+required_changes:
+  backtester_extension: |
+    Extend tools/backtester.py to read strategy_type from params:
+    - "ta_signal" / "mean_reversion": existing RSI<30 logic (unchanged)
+    - "momentum": entry when EMA20 crosses above EMA50 AND price > EMA200;
+      evaluate on 1d or 4h candles
+    - "breakout": entry when price closes above N-period high (default 20);
+      evaluate on 4h candles
+    - "funding_carry": entry when funding_rate < -X% (read from
+      data/market/funding_history.json as the signal source, not candle data)
+      Note: funding_carry backtests require funding_history.json to have
+      sufficient history — if < 100 periods, return "insufficient_data"
+    Each type must still support TP/SL/timeframe params and return the same
+    output schema as the current backtester.
+
+recommended_model: mistral/codestral-latest
+recommended_tier: builder
+fallback_chain:
+  - mistral/devstral-medium-latest
+  - groq/openai/gpt-oss-120b
+model_justification: >
+  Code generation task. Builder tier (Codestral) is the designated model for
+  writing Python scripts in this system. The change is additive — the existing
+  simulate() function stays unchanged, new type branches are added.
+
+estimated_cost_per_day: "$0.00"
+
+inputs:
+  - tools/backtester.py (modify in-place)
+  - data/historical/btc_1d_2yr.json (test data)
+  - data/historical/btc_4h_6mo.json (test data)
+
+outputs:
+  - tools/backtester.py (updated)
+
+guard_rails:
+  no_trading_authority: true
+  existing_data_only: true
+  code_change_only: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_009.yaml proposals/approved/
+  Deployer will invoke builder agent to write the extended backtester.
+  To reject: mv proposals/pending/prop_20260525_009.yaml proposals/rejected/

@@ -1,0 +1,94 @@
+proposal_id: prop_20260525_010
+created_date: 2026-05-25
+created_by: chief-of-staff
+audit_origin: workflow_gap_review_2026-05-25
+status: pending
+type: operational_change
+subtype: code_improvement
+priority: medium
+
+agent_name: pipeline-completion-tracker
+change_summary: >
+  Each pipeline agent (morning-pipeline, strategy-tester, trader-management,
+  reporter, orchestrator) appends its name to pipeline_state.json completed_today
+  on successful completion. Currently no agent does this. The orchestrator reads
+  this field as its primary signal for whether yesterday's pipeline ran.
+
+problem_statement: |
+  services/daily_reset.py resets pipeline_state.json.completed_today=[] at
+  00:01 AEST every day. No agent ever writes back to this field.
+  The orchestrator reads pipeline_state.json to understand "what completed vs
+  failed yesterday" and adjust its directive accordingly. It always sees
+  completed_today=[] regardless of whether 0 or 5 agents ran.
+
+  This is documented as a "known logging gap from the Hermes migration" in both
+  the btc-accumulation-ops skill and state/weekly-review.json. It has been
+  accepted as a workaround (check analyst_reports/*.json timestamps and git log
+  instead) but it means the orchestrator is flying blind on pipeline health for
+  the directive it writes each day.
+
+  The fix is simple: each skill that successfully completes its run appends
+  itself to pipeline_state.json. No new agent required — this is a 4-line
+  addition to 5 existing SKILL.md files.
+
+evidence:
+  - >
+    state/pipeline_state.json: completed_today=[] as of 2026-05-25, despite
+    morning pipeline, strategy-tester, and trader-management running today.
+  - >
+    state/weekly-review.json system_issues_detected[1]: "pipeline_state_not_updated:
+    completed_today shows [] despite morning pipeline running — known logging gap"
+  - >
+    hermes/orchestrator/briefing.md: "state/pipeline_state.json (what completed
+    vs failed yesterday)" — orchestrator trusts this field, but it's always empty.
+  - >
+    btc-accumulation-ops SKILL.md: "pipeline_state.json completed_today is
+    unreliable — known logging gap. Use git log and analyst_reports timestamps."
+
+required_changes:
+  skill_additions: |
+    Add the following Step to each of these skills, immediately before the Commit step:
+
+    btc-morning-pipeline, btc-strategy-tester, btc-trader-management,
+    btc-reporter, btc-orchestrator:
+
+    ### Update pipeline completion tracking
+    ```python
+    import json, os
+    from datetime import datetime, timezone
+    state_path = "state/pipeline_state.json"
+    with open(state_path) as f:
+        ps = json.load(f)
+    agent_name = "{THIS_AGENT_NAME}"  # replace with actual name per skill
+    if agent_name not in ps.get("completed_today", []):
+        ps.setdefault("completed_today", []).append(agent_name)
+    ps["last_update"] = datetime.now(timezone.utc).isoformat()
+    tmp = state_path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(ps, f, indent=2)
+    os.replace(tmp, state_path)
+    ```
+    On failure (exception raised before this step): append agent_name to
+    ps["failed_today"] instead and set ps["in_progress"] = None.
+
+recommended_model: N/A
+recommended_tier: no_llm
+fallback_chain: []
+parallel_pool_check: "N/A — no LLM calls"
+model_justification: >
+  Deterministic skill text patch. Each skill gets a small Python snippet
+  appended. No LLM reasoning required — the patch is identical across all 5
+  skills with only the agent name changing.
+
+estimated_cost_per_day: "$0.00"
+
+guard_rails:
+  skill_change_only: true
+  no_trading_authority: true
+  no_new_files: true
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260525_010.yaml proposals/approved/
+  Deployer will patch the 5 skill SKILL.md files listed above.
+  To reject: mv proposals/pending/prop_20260525_010.yaml proposals/rejected/

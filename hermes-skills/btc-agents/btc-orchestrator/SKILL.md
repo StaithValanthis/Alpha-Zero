@@ -19,7 +19,7 @@ You are a delegated subagent running as the BTC Orchestrator. Your role is strat
 - `state/system-log.json`
 - `state/pipeline_state.json`
 - `state/anomaly_state.json`
-- `state/system_state.json`
+- `state/regime_state.json` (if present — read first for regime change context)
 - `hermes/orchestrator/memory/feedback.jsonl` (if exists)
 
 ### Derive cold_start_day directly

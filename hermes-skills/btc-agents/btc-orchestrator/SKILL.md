@@ -45,6 +45,20 @@ If today is Sunday AEST:
   - `hermes/bear-researcher/memory/feedback.jsonl`
   - `hermes/trader-entry/memory/feedback.jsonl`
 
+
+### Update pipeline completion tracking
+```python
+import json, os
+from datetime import datetime, timezone
+ps_path = "state/pipeline_state.json"
+with open(ps_path) as f: ps = json.load(f)
+if "orchestrator" not in ps.get("completed_today", []):
+    ps.setdefault("completed_today", []).append("orchestrator")
+ps["last_update"] = datetime.now(timezone.utc).isoformat()
+tmp = ps_path + ".tmp"
+with open(tmp, "w") as f: json.dump(ps, f, indent=2)
+os.replace(tmp, ps_path)
+```
 ### Commit and push
 ```bash
 git add state/orchestrator-directive.json state/lessons.json

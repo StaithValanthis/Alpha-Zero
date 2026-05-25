@@ -50,8 +50,19 @@ Delegate Hypothesis Generator: reads `hermes/hypothesis-generator/briefing.md` a
 ### Stage 6: Synthesis
 Delegate Synthesis Agent: reads `hermes/synthesis/briefing.md`, reads all 4 debate files (bull_round1, bear_round1, bull_round2, bear_round2), adjudicates, writes `state/research.json`. Also write debate transcripts to `data/debates/YYYY-MM-DD-debate.json`.
 
-### Stage 7: Update pipeline state
-Update `state/pipeline_state.json`: mark morning-pipeline as completed_today.
+### Stage 7: Update pipeline completion tracking
+```python
+import json, os
+from datetime import datetime, timezone
+ps_path = "state/pipeline_state.json"
+with open(ps_path) as f: ps = json.load(f)
+if "morning-pipeline" not in ps.get("completed_today", []):
+    ps.setdefault("completed_today", []).append("morning-pipeline")
+ps["last_update"] = datetime.now(timezone.utc).isoformat()
+tmp = ps_path + ".tmp"
+with open(tmp, "w") as f: json.dump(ps, f, indent=2)
+os.replace(tmp, ps_path)
+```
 
 ### Discord notification
 Post pipeline summary embed: analysts completed (N/5 or N/4 if options pre-run), regime, top hypothesis, debate winner summary.

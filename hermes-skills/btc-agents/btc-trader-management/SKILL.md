@@ -25,6 +25,20 @@ Follow all steps in your briefing:
 ### Portfolio writes
 Always acquire `state/portfolio.lock` before writing `state/portfolio.json`. Write the lock file first, complete the update, then delete the lock. Use a try/finally to ensure lock is always released.
 
+
+### Update pipeline completion tracking
+```python
+import json, os
+from datetime import datetime, timezone
+ps_path = "state/pipeline_state.json"
+with open(ps_path) as f: ps = json.load(f)
+if "trader-management" not in ps.get("completed_today", []):
+    ps.setdefault("completed_today", []).append("trader-management")
+ps["last_update"] = datetime.now(timezone.utc).isoformat()
+tmp = ps_path + ".tmp"
+with open(tmp, "w") as f: json.dump(ps, f, indent=2)
+os.replace(tmp, ps_path)
+```
 ### Commit
 ```bash
 git add state/portfolio.json

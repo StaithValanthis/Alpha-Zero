@@ -42,6 +42,20 @@ From `state/orchestrator-strategy-actions.json`:
 - `retire` list: set strategy status to "retired" with retire_date
 - `promote` list: update strategy status per briefing guidelines
 
+
+### Update pipeline completion tracking
+```python
+import json, os
+from datetime import datetime, timezone
+ps_path = "state/pipeline_state.json"
+with open(ps_path) as f: ps = json.load(f)
+if "strategy-tester" not in ps.get("completed_today", []):
+    ps.setdefault("completed_today", []).append("strategy-tester")
+ps["last_update"] = datetime.now(timezone.utc).isoformat()
+tmp = ps_path + ".tmp"
+with open(tmp, "w") as f: json.dump(ps, f, indent=2)
+os.replace(tmp, ps_path)
+```
 ### Commit
 ```bash
 git add state/strategies.json state/signals.json state/lessons.json

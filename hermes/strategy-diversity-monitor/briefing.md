@@ -80,3 +80,25 @@ The chief-evaluator and orchestrator will use this report to identify areas wher
   }
 }
 ```
+
+## Step 3: Post Discord summary
+After writing data/analyst_reports/strategy_diversity.json, post a Discord embed:
+
+```python
+import sys
+sys.path.insert(0, '/home/btc-agent/btc-agents/tools')
+from discord_notify import post_embed
+
+covered = [a['name'] for a in archetypes if a.get('covered')]
+gaps = [g['name'] for g in gap_list]
+color = 0xff0000 if gaps else 0x00cc00
+fields = [
+    {"name": "Covered Archetypes", "value": ', '.join(covered) if covered else 'None', "inline": False},
+    {"name": "Gaps Found", "value": ', '.join(gaps) if gaps else 'None — full coverage', "inline": False},
+    {"name": "Total Strategies", "value": str(total_strategies), "inline": True},
+    {"name": "Archetypes Missing", "value": str(len(gaps)), "inline": True},
+]
+post_embed(f"Strategy Diversity — {date}", color=color, fields=fields)
+```
+
+Always post (weekly — operator should always see the coverage snapshot).

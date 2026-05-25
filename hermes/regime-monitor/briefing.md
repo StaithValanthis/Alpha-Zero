@@ -58,3 +58,26 @@ The Regime Monitor agent runs at 00:00 UTC, 30 minutes before the morning pipeli
 
 ## Specific and Actionable Advice
 The Regime Monitor agent provides specific and actionable advice to the orchestrator and synthesis agent by indicating whether a regime change has occurred and providing information about the current market regime. This information can be used to adjust strategies and make informed decisions.
+
+## Step 3: Post Discord summary
+After writing state/regime_state.json, post a compact Discord embed using tools/discord_notify.py:
+
+```python
+import sys
+sys.path.insert(0, '/home/btc-agent/btc-agents/tools')
+from discord_notify import post_embed
+
+# Color: red if regime_change=True, orange if warnings, green if stable
+color = 0xff0000 if regime_change else (0xffa500 if any_warnings else 0x00cc00)
+fields = [
+    {"name": "Regime", "value": current_regime, "inline": True},
+    {"name": "Confidence", "value": str(regime_confidence), "inline": True},
+    {"name": "Changed", "value": "YES ⚠️" if regime_change else "No", "inline": True},
+    {"name": "Volatility", "value": volatility_regime, "inline": True},
+    {"name": "Funding Inverted", "value": "YES ⚠️" if funding_inverted else "No", "inline": True},
+    {"name": "Timeframe Agreement", "value": "CONFLICT ⚠️" if multi_tf_contrary else "OK", "inline": True},
+]
+post_embed(f"Regime Monitor — {date}", color=color, fields=fields)
+```
+
+Only post if regime_change=True OR any warning flag is True. Silent on clean/stable days with no change.

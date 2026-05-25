@@ -1,1 +1,96 @@
-{"date": "purged", "market_regime": "unknown", "approved_hypotheses": [], "data_freshness": "bootstrap"}
+{
+  "date": "2026-05-24",
+  "produced_at": "2026-05-24T02:07:00Z",
+  "market_regime": "mean_reverting",
+  "regime_confidence": 0.65,
+  "btc_dominance_trend": "stable_within_uptrend",
+  "price_sentiment_divergence": "bearish",
+  "sentiment_momentum": "negative",
+  "alt_rotation_signal": "off",
+  "active_tier1_event": null,
+  "data_freshness": "all_fresh",
+  "approved_hypotheses": [
+    {
+      "hypothesis_chain_id": "hch_20260524_001",
+      "title": "Daily Mean Reversion Long from Extreme Oversold + Accumulation Setup",
+      "direction": "long",
+      "verdict": "bull_wins",
+      "confidence": 0.72,
+      "key_reason": "Daily RSI at 29.49 within established uptrend (price 9.65% above daily EMA200 at 70,154.37) is the highest-conviction mean reversion signal in the dataset. Onchain analyst's explicit extreme_fear_buy_signal combined with positive 24h price action (+1.45%) and moderate accumulation backdrop creates textbook setup. 4H bearish structure (price below EMA50 at 77,223.50 and EMA200 at 79,079.38) provides defined resistance but does not invalidate daily bounce thesis. 1.75 R:R with daily oversold context justifies trade entry.",
+      "supporting_evidence": [
+        "Daily RSI 29.49 is extreme statistical oversold within primary uptrend",
+        "Price at 76,848.90 is 9.65% above daily EMA200 (70,154.37) confirming uptrend intact",
+        "Onchain analyst labels FGI=25 as explicit 'extreme_fear_buy_signal'",
+        "Positive 24h price action (+1.45%) against fearful backdrop confirms smart-money accumulation pattern",
+        "Daily ATR of 1,994.46 (2.60% of price) means TP at 79,539 is reachable within single daily candle",
+        "Support structure at 76,253.55 provides defined risk at only 0.78% below entry"
+      ],
+      "risk_factors": [
+        "4H structure bearish with price below both EMA50 and EMA200 - intermediate resistance at 79,079.38",
+        "ETF outflows signal structural institutional demand erosion despite legislative tailwinds",
+        "Accumulation signal rated only 'moderate' not strong by onchain analyst",
+        "Funding rate rising trend may erode TP on extended hold beyond 4-5 days"
+      ],
+      "risk_reward": 1.75,
+      "target_pct": 3.5,
+      "stop_loss_pct": 2.0,
+      "max_duration_days": 7
+    }
+  ],
+  "rejected_hypotheses": [
+    {
+      "hypothesis_chain_id": "hch_20260524_002",
+      "title": "Short Liquidation Cascade from Crowded Long + OI Contraction Break",
+      "direction": "short",
+      "verdict": "bear_wins",
+      "confidence": 0.78,
+      "key_reason": "Onchain analyst's explicit 'extreme_fear_buy_signal' is a direct contradiction to shorting at these levels. Derivatives analyst characterizes OI contraction as 'traders cautiously winding down positions' (profit-taking), NOT forced liquidation cascade. Daily RSI at 29.49 creates dominant mean-reversion upward pressure that overpowers short-term overbought signals on 1H and 4H. Funding rate at 0.004% is explicitly 'below extreme thresholds' per analyst, negating carry-cost argument. 1.2 R:R combined with daily oversold context creates asymmetric squeeze risk that exceeds expected value.",
+      "rejection_reason": "Analyst data directly contradicts thesis: extreme_fear_buy_signal, cautious unwinding not cascade, below-threshold funding rates, daily mean-reversion dominant",
+      "unverified_claims": [
+        "Liquidation cascade characterization - analyst states 'cautious winding down' not forced liquidations",
+        "Funding rate as meaningful short carry cost - analyst: 'insufficient spread for profitable carry arbitrage'",
+        "FGI=25 as negative for shorts - analyst explicitly: 'extreme_fear_buy_signal'"
+      ]
+    },
+    {
+      "hypothesis_chain_id": "hch_20260524_004",
+      "title": "Short-Term Range Fade from 1H Extreme Overbought to Daily Support",
+      "direction": "short",
+      "verdict": "bear_wins",
+      "confidence": 0.76,
+      "key_reason": "Daily RSI at 29.49 is a dominant mean-reversion force that creates upward capital pressure contradicting short bias over any multi-day window. Hypothesis parameters (max_duration_days=3) are structurally misaligned with signal profile: 1.5% TP target (211 points from daily support) reaches within 1H ATR range, making this a sub-4-hour scalp, not a 3-day trade. Bull researcher concedes in Round 2 that '3-day max duration is incorrectly specified.' Expected edge evaporates if win probability drops to 45% from assumed 55% (only 10% shift in a daily mean-reversion buy environment). Time decay in mean-reversion uptrend makes position holding costly without concurrent momentum.",
+      "rejection_reason": "Dominant daily mean-reversion force contradicts short thesis; parameter misalignment (3-day duration for 4-hour signal); unsubstantiated win probability; time decay in bullish environment",
+      "unverified_claims": [
+        "Leveraged longs being liquidated - analyst: 'cautiously winding down positions'",
+        "3-day max duration appropriate for this setup - acknowledged by Bull as incorrect specification",
+        "55% win probability justified - unsubstantiated given daily RSI oversold context"
+      ]
+    }
+  ],
+  "inconclusive_hypotheses": [
+    {
+      "hypothesis_chain_id": "hch_20260524_003",
+      "title": "Consolidation Breakout Long Above 77,800 with Institutional Pivot Setup",
+      "direction": "long",
+      "verdict": "inconclusive",
+      "confidence": 0.55,
+      "key_reason": "Breakout setup is technically sound (2.25 R:R highest of all four), but execution risk is material and unproven. ARMA Bill is classified as Tier-2 by sentiment analyst with 'incremental legislative tailwinds' and explicitly NO current purchasing activity or execution timeline. Sentiment analyst states institutional conviction is 'weak amid regulatory friction.' Accumulation signal rated only 'moderate' not 'strong.' Negative social momentum conflicts with bull thesis. Technical analyst's own counterargument warns: 'breakout above 79,079 requires significant volume that ETF outflows suggest is not present.' Trade requires sequential breakout validation (above 77,223 then 79,079) with no guarantee either trigger fires. Win probability assumption of 60% is not evidenced by analyst data.",
+      "inconclusive_reason": "High execution conditionals; Tier-2 unexecuted catalyst; weak institutional conviction vs. confirmed ETF outflows; win rate unsubstantiated; analyst warns volume inadequate",
+      "technical_merit": "Consolidation structure well-defined; 2.25 R:R excellent; 10-day duration allows mean-reversion window",
+      "catalyst_risk": "ARMA Bill is Tier-2 with zero current execution vs. Tier-2 bearish ETF outflows that are actively occurring",
+      "volume_concern": "Analyst explicitly notes ETF outflows suggest insufficient volume for sustained breakout above 79,079"
+    }
+  ],
+  "synthesis": {
+    "market_assessment": "Daily extreme oversold (RSI 29.49) within intact primary uptrend (price 9.65% above daily EMA200) defines the primary edge. 4H bearish structure creates intermediate resistance but does not contradict daily bounce thesis. Extreme fear (FGI=25) is confirmed as 'buy_signal' by onchain analyst, supporting accumulation setup. ETF outflows represent structural institutional demand headwind that limits upside target achievement but does not prevent tactical bounce recovery.",
+    "approved_trade_logic": "Only hch_20260524_001 (Daily Mean Reversion Long) meets threshold for Strategy Tester. This hypothesis combines highest-conviction daily oversold signal with analyst-confirmed extreme_fear_buy_signal and defined risk structure. The trade is sized for 3.5% TP with 2.0% SL, 1.75 R:R, max 7-day duration. Support is well-defined at 76,253.55. 4H EMA200 resistance at 79,079.38 is factored into the risk-reward ratio.",
+    "rejected_trade_logic": "hch_002 (short cascade) is directly contradicted by analyst's 'extreme_fear_buy_signal' and 'cautious unwinding' characterization. hch_004 (1H scalp short) faces dominant daily mean-reversion pressure with misaligned time parameters. Both shorts carry asymmetric squeeze risk given daily RSI=29.49 context.",
+    "inconclusive_trade_logic": "hch_003 (breakout long) is technically valid but rests on unexecuted Tier-2 legislative catalyst (ARMA Bill) against confirmed Tier-2 bearish event (ETF outflows). Win probability of 60% is assertion not analysis. Sufficient execution risk and unproven catalyst warrant exclusion from Strategy Tester pending either ARMA Bill execution timeline clarification or accumulation signal upgrade from 'moderate' to 'strong.'",
+    "key_regime_drivers": [
+      "Daily RSI 29.49 - extreme oversold within uptrend = primary mean-reversion driver",
+      "Analyst-confirmed extreme_fear_buy_signal (FGI=25) - supports accumulation interpretation",
+      "4H bearish structure (price below EMA50 & EMA200) - defines resistance ceiling at 79,079",
+      "ETF structural outflows - limits institutional follow-through but doesn't prevent tactical bounce"
+    ]
+  }
+}

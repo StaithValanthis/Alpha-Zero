@@ -7,8 +7,11 @@
     "trader-management",
     "reporter"
   ],
-  "completed_today": [],
+  "completed_today": [
+    "morning-pipeline",
+    "reporter"
+  ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-24T14:01:01.733141+00:00"
+  "last_update": "2026-05-25T10:55:49.068417+00:00"
 }

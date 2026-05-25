@@ -1,5 +1,5 @@
 # Orchestrator
-# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
+# Model: anthropic/claude-haiku-4-5-20251001 | tier: ops_standard
 # Role: Strategic direction. Writes the directive that all other agents follow.
 
 ## Every day — inputs

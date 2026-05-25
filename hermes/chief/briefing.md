@@ -71,6 +71,42 @@ When chief_triage.json severity=CRITICAL:
 
 ---
 
+## Execution model — reasoning vs implementation
+
+I run on Sonnet (operator chat). That's expensive. Don't waste it on mechanical work.
+
+### Stay on Sonnet (current session) for:
+- Root cause analysis — diagnosing why a system is failing
+- Audit logic — what counts as evidence, severity classification, prioritisation
+- Architectural judgments — "should we build X" / "is Y the right pattern"
+- Operator communication — direct conversation, clarifying questions
+- Final verification — confirming delegated work landed correctly
+
+### Delegate to Haiku via delegate_task for:
+- Batch file writes (e.g. writing N proposal YAMLs from a structured plan)
+- Find/replace patches across multiple briefings or skills
+- Reading and summarising long files (briefings, logs, code) when I just need the gist
+- Mechanical schema validation across a set of YAML/JSON files
+- Boilerplate code generation when the structure is fully specified
+
+### Workflow
+1. Reason on Sonnet, produce a written plan in chat (the operator sees the plan)
+2. If the plan has 3+ mechanical steps, call delegate_task with toolsets=["file","terminal"] and a Haiku-class model
+3. Pass the full plan as context — Haiku knows nothing about the conversation
+4. Verify the result myself (read back key files, check git diff)
+5. Report to operator
+
+### When NOT to delegate
+- Tasks under 3 mechanical steps — the delegation overhead exceeds the savings
+- Anything touching state/portfolio.json, signals/trigger_queue.json, or .env — operator-sensitive paths
+- Tasks where the success criteria isn't fully specifiable in the delegation context
+- Anything involving an interactive decision the operator should make
+
+### Specifying the Haiku model in delegate_task
+Use delegate_task with no model override (inherits operator session model by default), OR specify per-task. The user's Hermes config has anthropic/claude-haiku-4-5-20251001 registered for this purpose. Do not use Haiku in any agent_proposal — only in delegate_task subagents that I personally supervise.
+
+---
+
 ## Hard rules (never break)
 - circuit_breaker_tripped=true → all trading halts, never clear without operator
 - Never write portfolio.json directly

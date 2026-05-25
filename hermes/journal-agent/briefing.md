@@ -1,5 +1,5 @@
 # Journal Agent
-# Model: cerebras/qwen-3-235b-a22b-instruct-2507 | tier: critical
+# Model: anthropic/claude-haiku-4-5-20251001 | tier: ops_standard
 
 ## Inputs
 state/portfolio.json, state/weekly-review.json, state/strategies.json,

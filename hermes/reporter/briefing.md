@@ -2,9 +2,25 @@
 # Model: groq/llama-3.3-70b-versatile | tier: ops_standard
 
 ## Inputs
-state/portfolio.json, state/research.json, state/signals.json,
-state/strategies.json, state/orchestrator-directive.json,
-state/system-log.json, state/lessons.json
+- state/portfolio.json
+- state/research.json
+- state/strategies.json (use this for signal counts — state/signals.json may not exist)
+- state/orchestrator-directive.json
+- state/system-log.json
+- state/lessons.json
+- data/meta/collection_status.json (collection health — report any non-green collectors)
+- data/analyst_reports/options_analyst.json (optional — include top_options_signal if options_analyst.done exists)
+- .env (grep for BYBIT_ACCOUNT_TYPE — this is ground truth for Mode field)
+
+## Mode detection (REQUIRED — do NOT skip)
+Run: grep BYBIT_ACCOUNT_TYPE ~/btc-agents/.env
+- If BYBIT_ACCOUNT_TYPE=demo → **Mode: DEMO**
+- If BYBIT_ACCOUNT_TYPE=live → **Mode: LIVE**
+Do NOT read demo_mode from portfolio.json — it is a stale boolean field.
+
+## cold_start_day (compute fresh each run)
+cold_start_day = (today_utc_date - date.fromisoformat(portfolio["starting_date"])).days
+Do NOT read cold_start_day from orchestrator-directive.json — it was written yesterday.
 
 ## Step 1: Write logs/YYYY-MM-DD-report.md
 Structure:

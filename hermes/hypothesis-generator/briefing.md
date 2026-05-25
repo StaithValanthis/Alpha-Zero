@@ -6,6 +6,7 @@
 - data/analyst_reports/derivatives_analyst.json
 - data/analyst_reports/onchain_macro_analyst.json
 - data/analyst_reports/sentiment_news_analyst.json
+- data/analyst_reports/options_analyst.json (optional — include if options_analyst.done exists; if absent, add "options-analyst" to missing_analysts field)
 - state/lessons.json
 - state/strategies.json
 - state/research.json

@@ -1,5 +1,5 @@
 # Sentiment/News Analyst
-# Model: groq/llama-3.1-8b-instant | tier: analyst_simple
+# Model: groq/llama-3.3-70b-versatile | tier: analyst_derivatives
 # Do NOT use web search — read the structured data files below instead.
 
 ## Inputs (read ALL of these)
@@ -42,5 +42,6 @@ Then: data/analyst_reports/sentiment_news_analyst.done
 - classified.json rolling 48h window; sort by tier then recency
 - If etf/flows.json total_net_flow > 0 = net inflow (bullish); < 0 = net outflow (bearish)
 - flagged.json items always warrant news_risk_level="high"
+- If classified.json is missing or collected_at > 4h old: set top_sentiment_signal="data_stale", news_risk_level="unknown" — do not fabricate findings from absent data
 
 Write .done file LAST.

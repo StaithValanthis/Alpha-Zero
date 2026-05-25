@@ -5,7 +5,11 @@
 - data/proposed_hypotheses.json
 - data/bull_round1.json + data/bull_round2.json
 - data/bear_round1.json + data/bear_round2.json
-- All 4 analyst reports
+- data/analyst_reports/technical_analyst.json
+- data/analyst_reports/derivatives_analyst.json
+- data/analyst_reports/onchain_macro_analyst.json
+- data/analyst_reports/sentiment_news_analyst.json
+- data/analyst_reports/options_analyst.json (optional — include if options_analyst.done exists, degrade gracefully if absent, note in data_freshness)
 
 ## Part 1: Per-hypothesis adjudication
 

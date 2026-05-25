@@ -8,7 +8,7 @@
 - data/whales/large_transactions.json — transactions ≥500 BTC, source and count
 - data/macro/fear_greed_7d.json — fear/greed index
 - data/macro/btc_market.json — price and market cap
-- data/options/btc_options.json — put/call ratio, IV, max pain
+- data/options/btc_options.json — put/call ratio, IV, max pain (raw source only — do NOT duplicate options_analyst findings; if data/analyst_reports/options_analyst.json exists, reference its top_options_signal instead of re-interpreting raw data)
 
 ## Output: data/analyst_reports/onchain_macro_analyst.json
 Then: data/analyst_reports/onchain_macro_analyst.done

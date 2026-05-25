@@ -9,11 +9,16 @@ Read ALL of these before making any decision:
 - state/research.json               (yesterday's regime, approved_hypotheses)
 - state/lessons.json                (accumulated learning — do not repeat documented mistakes)
 - state/system-log.json             (what happened yesterday)
-- state/pipeline_state.json         (what completed vs failed yesterday)
+- state/pipeline_state.json         (what completed vs failed yesterday — NOTE: completed_today may show [] even after successful pipeline runs due to known logging gap; verify via analyst_reports/*.json produced_at timestamps instead)
 - state/anomaly_state.json          (any active anomalies)
+- state/regime_state.json           (regime change detection — read FIRST if present; if regime_change_detected=true and regime_change_magnitude=major, factor into allocation reasoning)
 - hermes/orchestrator/memory/       (short_term.json, feedback.jsonl)
 - data/alts/watchlist_prices.json   (live prices and 24h change for ETH, SOL, BNB, XRP, ADA — alt rotation context)
-- state/watchlist.json              (alt scan results: btc_dominance_trend, btc_dominance_pct, alt_rotation_status, candidates)
+- state/watchlist.json              (alt scan results: btc_dominance_trend, btc_dominance_pct, alt_rotation_status, candidates — check last_updated; if > 48h old, treat as STALE and do not base alt rotation decisions on it)
+- data/analyst_reports/strategy_diversity.json (optional — if present, read priority_gap and include in focus_area)
+
+## cold_start_day (compute fresh each run — do NOT read from directive or stored state)
+cold_start_day = (today_utc_date - date.fromisoformat(portfolio["starting_date"])).days
 
 ## Every day — core decisions
 

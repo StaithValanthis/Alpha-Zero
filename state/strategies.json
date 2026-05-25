@@ -11,7 +11,7 @@
       "synthesis_confidence": 0.72,
       "status": "paper_testing",
       "created_date": "2026-05-24",
-      "thesis_last_validated": "2026-05-24",
+      "thesis_last_validated": "2026-05-25",
       "consecutive_losses": 0,
       "watcher_compatible": true,
       "data_dependencies": [
@@ -51,7 +51,7 @@
       "direction": "long",
       "type": "ta_signal",
       "risk_reward_ratio": 1.75,
-      "entry_price": 76848.90,
+      "entry_price": 76848.9,
       "tp_target": 79539,
       "sl_target": 76253.55,
       "support_level": 76253.55,
@@ -63,7 +63,7 @@
         "positive_24h_price_action_pct": 1.45,
         "accumulation_backdrop": "moderate",
         "4h_bearish_structure": true,
-        "4h_ema50": 77223.50,
+        "4h_ema50": 77223.5,
         "4h_ema200": 79079.38,
         "etf_outflows_risk": true
       },

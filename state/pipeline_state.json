@@ -9,9 +9,10 @@
   ],
   "completed_today": [
     "morning-pipeline",
-    "reporter"
+    "reporter",
+    "strategy-tester"
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-25T10:55:49.068417+00:00"
+  "last_update": "2026-05-25T11:10:19.773990+00:00"
 }

@@ -9,9 +9,10 @@
   ],
   "completed_today": [
     "orchestrator",
-    "morning-pipeline"
+    "morning-pipeline",
+    "strategy-tester"
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-26T00:48:49.701087+00:00"
+  "last_update": "2026-05-26T02:32:21.318879"
 }

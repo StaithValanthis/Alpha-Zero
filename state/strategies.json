@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-24T02:09:00Z",
+  "last_updated": "2026-05-26T02:32:21.316915Z",
   "strategies": [
     {
       "id": "strat_001",
@@ -80,15 +80,91 @@
         "out_of_sample_trades": 0,
         "backtest_score": 0,
         "backtest_status": "pending_live_data",
-        "backtest_error": "curve fit: historical sample too small for stable parameters"
+        "backtest_error": "curve fit: IS 22.3% vs OOS 45.5%"
+      }
+    },
+    {
+      "id": "strat_002",
+      "hypothesis_chain_id": "hch_20260526_001",
+      "parent_hypothesis_id": "hch_20260526_001",
+      "title": "Short-Term Pullback to 1H Support on Consolidation + Max Pain Gravity",
+      "debate_transcript_ref": "research.json:hypothesis_adjudications[0]",
+      "debate_verdict": "bull_wins",
+      "synthesis_confidence": 0.74,
+      "status": "paper_testing",
+      "created_date": "2026-05-26",
+      "thesis_last_validated": "2026-05-26",
+      "consecutive_losses": 0,
+      "watcher_compatible": true,
+      "data_dependencies": [
+        "1h_rsi",
+        "1h_ema50",
+        "daily_ema200",
+        "daily_price"
+      ],
+      "execution_urgency": "immediate",
+      "entry_conditions": [
+        {
+          "source": "/home/btc-agent/btc-agents/data/indicators/btc_1h.json",
+          "field": "rsi_14",
+          "operator": "lte",
+          "value": 30,
+          "description": "1H RSI <= 30 (oversold)"
+        },
+        {
+          "source": "/home/btc-agent/btc-agents/data/indicators/btc_1h.json",
+          "field": "ema50",
+          "operator": "lte",
+          "value": 77200,
+          "description": "Price at/below 1H EMA50 support (77083.58)"
+        },
+        {
+          "source": "/home/btc-agent/btc-agents/data/indicators/btc_1d.json",
+          "field": "price_vs_ema200_pct",
+          "operator": "gte",
+          "value": -2,
+          "description": "Price within -2% of daily EMA200 (daily uptrend intact)"
+        }
+      ],
+      "entry_logic": "ALL",
+      "take_profit_pct": 2.1,
+      "stop_loss_pct": 1.8,
+      "max_duration_days": 5,
+      "trade_pair": "BTC/USD",
+      "direction": "long",
+      "type": "ta_signal",
+      "risk_reward_ratio": 1.17,
+      "entry_price": 77083.58,
+      "tp_target": 78500,
+      "sl_target": 75831,
+      "support_level": 77083.58,
+      "resistance_level": 78500,
+      "key_factors": {
+        "1h_rsi_oversold": 27.74,
+        "1h_ema50_support": 77083.58,
+        "daily_ema200_verified": 71671.45,
+        "consolidation_pattern": "confirmed",
+        "institutional_positioning": "call_dominant_0.6935"
+      },
+      "performance": {
+        "trades_executed": 0,
+        "wins": 0,
+        "losses": 0,
+        "win_rate": null,
+        "out_of_sample_win_rate": null,
+        "sharpe_ratio": null,
+        "out_of_sample_trades": 0,
+        "backtest_score": 0,
+        "backtest_status": "pending_live_data",
+        "backtest_error": "curve fit: IS 32.7% vs OOS 50.0%"
       }
     }
   ],
   "summary": {
-    "total_strategies": 1,
+    "total_strategies": 2,
     "statuses": {
       "paper_testing": 1
     },
-    "next_strategy_id": "strat_002"
+    "next_strategy_id": "strat_003"
   }
 }

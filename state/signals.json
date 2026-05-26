@@ -1,34 +1,17 @@
 {
-  "date": "2026-05-25",
-  "produced_at": "2026-05-25T11:10:19.773360+00:00",
-  "regime": "consolidation_with_distribution_pressure",
-  "regime_confidence": 0.68,
-  "approved_signals": [],
-  "inconclusive_signals": [
-    {
-      "hypothesis_id": "hch_20260525_005",
-      "title": "Fear Sentiment Mean Reversion on Nasdaq Bitcoin Options Approval Catalyst",
-      "conviction": 0.68,
-      "verdict": "inconclusive",
-      "inconclusive_rationale": "Bull's sentiment mean reversion thesis is directionally sound (FGI 30 recoveries are historically reliable at 87% accuracy). However, timing is DEPENDENT on either: (a) Nasdaq options approval execution within 7 days (status 'pending,' no timeline announced), OR (b) autonomous sentiment recovery independent of catalyst. Bear correctly identifies catalyst timeline unknown, making Bull's 7-day timing speculative. Bear's counter-argument (FGI oscillation precedes deeper capitulation) is also valid historical pattern. Onchain data shows whale_tx_count_24h = 0 (weakens Bull accumulation context) and negative netflow (supports Bear distribution thesis). Both sides have legitimate positions. Data does not decisively favor either. NEITHER SIDE DEMONSTRATES CLEAR LOGICAL ERROR\u2014this is directional disagreement grounded in different historical pattern interpretations. Risk/reward slightly favors Bull (1.5-1.9x for recovery vs 1.0-1.3x for pullback), but timing uncertainty is HIGH. RECOMMENDATION: Mark inconclusive. Flag for manual review if Nasdaq approval announcement made within 24-48 hours. If approval executes with timeline, bull thesis becomes high-conviction. If approval delays past 48-hour window, bear thesis becomes default. Strategy Tester should run dual-track: short-term bearish entry (3-5 days pullback) + medium-term bullish entry (5-7 days if sentiment recovers).",
-      "recommendation": "DUAL-TRACK: short-term bearish entry (3-5 days) + medium-term bullish entry (5-7 days if sentiment recovers)"
-    }
-  ],
-  "rejected_signals": [
-    {
-      "hypothesis_id": "hch_20260525_004",
-      "title": "Institutional Hedging Imbalance: Bybit Puts vs Deribit Calls Creates Friction Trade",
-      "verdict": "bear_wins",
-      "conviction": 0.72,
-      "rejection_rationale": "Bull's friction trade thesis depends on Bybit put/call ratio (1.136) mean-reverting toward Deribit (0.6852) within 3-5 days due to 'mechanical rebalancing.' However, options_analyst explicitly classifies Bybit hedging as 'mild_bearish_lean' and 'institutional hedgers protecting downside,' NOT tactical rebalancing ready to unwind. No macro relief catalyst with timeline exists to trigger unwinding. Bybit puts are structural defensive positioning, not temporary extreme positioning. Bear's defensive-hedging interpretation is supported by analyst assessment. Entry conditions for friction trade are TIME-INDEFINITE without relief catalyst, making temporal validity unclear. Bear wins on catalyst-timing ambiguity and analyst-supported defensive-hedging interpretation."
-    },
-    {
-      "hypothesis_id": "hch_20260525_007",
-      "title": "Consolidation Breakout Above EMA200 on Whale Conviction Hold Through Resistance",
-      "verdict": "bear_wins",
-      "conviction": 0.78,
-      "rejection_rationale": "Bull's entire thesis depends on 'whale accumulation confirmed active.' Onchain_macro_analyst data directly contradicts: whale_tx_count_24h = 0 (ZERO whale transactions in last 24 hours). Bull confuses vtltvd historical signal (past accumulation) with current active buying. Analyst explicitly assesses current regime as 'accumulation_signal: distribution.' Whales accumulated at lower prices days ago; they are NOT buying at current $77,532 price. Entry condition validity has EXPIRED. Multiple data points support accumulation-to-distribution phase transition: zero whale transactions + negative netflow (-2,352 BTC) + explicit analyst distribution assessment. EMA support will degrade within 3-5 days as on-chain distribution continues. Max pain gravity ($76,000) provides mechanical downside support for Bear. Bear's pullback to $76,554 is higher-probability outcome. Bull has 24-48 hour window to validate whale_tx_count revival; current data strongly favors bear direction."
-    }
-  ],
-  "market_interpretation": "Bitcoin is in a CONSOLIDATION-TO-DISTRIBUTION phase with mechanical mean reversion likely in 3-5 days to $76,554 (daily support) and medium-term retracement risk to $76,000 (max pain gravity) or deeper to $70,400 (MVRV mean reversion target). Whale accumulation phase (likely occurred at $70-75k range 3-7 days ago) is COMPLETE. Current regime shows distribution netflow (-2,352 BTC), zero whale transactions (whale_tx_count_24h = 0), max pain gravity (-2.1% below spot), and institutional hedging bias (Bybit 1.136 put/call ratio). Fear sentiment (FGI 30) is at capitulation levels but shows oscillation (not sustained improvement), suggesting deeper capitulation may precede recovery. Nasdaq options approval is 'pending' with no execution timeline; sentiment recovery timing is UNCERTAIN. No near-term catalyst with confirmed timeline exists to support bullish breakout above $79,394 EMA200 resistance. SHORT technical structure and on-chain distribution flow favor Bear direction. Bull hypotheses rest on timing assumptions (catalyst execution, whale conviction revival) that are currently unvalidated. Strategy Tester should NOT approve any Bull long hypotheses. Should execute Bear SHORT hypotheses with high conviction."
+  "date": "2026-05-26",
+  "regime": {
+    "detected": "consolidation_with_distribution_uncertainty",
+    "confidence": 0.68,
+    "description": "Price is consolidating at 1H EMA50 support (77083.58) within a daily uptrend (+7.58% above EMA200), while experiencing distribution phase (netflow -2352 BTC/day, whale_tx=0). This is a mid-cycle consolidation, not a trend reversal. Multi-timeframe alignment is mixed: daily bullish, 4H overbought/pullback, 1H oversold. This alignment pattern is CLASSIC for consolidation zones within larger uptrends."
+  },
+  "generated_at": "2026-05-26T02:32:21.316890Z",
+  "active_signals": [],
+  "backtest_performance": {
+    "total_strategies_tested": 2,
+    "completed_backtests": 0,
+    "average_win_rate": 0,
+    "average_sharpe": 0
+  },
+  "signal_sources": []
 }

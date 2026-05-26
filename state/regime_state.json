@@ -1,17 +1,95 @@
 {
-  "schema_version": "1.0",
-  "produced_at": "2026-05-25T11:14:09Z",
-  "produced_by": "chief-bootstrap",
-  "note": "Bootstrapped from research.json \u2014 regime-monitor will overwrite on next run",
-  "current_regime": "consolidation_with_distribution_pressure",
-  "regime_confidence": 0.68,
-  "previous_regime": null,
-  "regime_changed": false,
-  "volatility_regime": "normal",
-  "funding_inverted": false,
-  "btc_dominance_pct": 58.13,
-  "btc_dominance_trend": "stable",
-  "multi_timeframe_agreement": true,
-  "active_tier1_event": "Fed_Chair_Transition_Kevin_Warsh",
-  "regime_change_alert": false
+  "date": "2026-05-26",
+  "computed_at": "2026-05-26T00:00:00Z",
+  "prior_regime_date": "2026-05-25",
+  "prior_regime_name": "consolidation_with_distribution_pressure",
+  "prior_regime_confidence": 0.68,
+  "volatility_regime": "contraction",
+  "funding_rate_inversion": true,
+  "btc_dominance_inflection": false,
+  "multi_timeframe_regime_contrary": true,
+  "regime_change": true,
+  "regime_change_rationale": "Multi-timeframe regime contradiction activates mechanical mean reversion. 4H RSI overbought (70.32) vs 1D RSI depressed (33.23) with 4H price below EMA200 (-2.16%) while 1D above (+7.69%) creates structural friction. Distribution pressure persists (whale_tx_count_24h=0, exchange_netflow=-2,352 BTC). IV skew +0.05 indicates defensive hedging continues. Volatility contracts (volume_ratio low 0.739-0.826, IV stable 30%). Funding rate shows sporadic negative periods in recent history (1 negative in last 10 periods), signaling potential inversion risk if distribution accelerates. Current state represents HIGHER conviction mean reversion setup vs prior day (prior 0.68 confidence; current multi-TF friction provides >0.75 conviction pullback target to $76,554 daily support).",
+  "key_metrics": {
+    "volatility_drivers": {
+      "implied_volatility_30d": 0.3,
+      "iv_skew_put_minus_call": 0.05,
+      "atr_1h_pct": 0.3274,
+      "atr_4h_pct": 0.8917,
+      "atr_1d_pct": 2.597,
+      "volume_ratio_20_1h": 0.739,
+      "volume_ratio_20_4h": 0.826,
+      "note": "IV stable, put skew defensive = hedging demand. Low volume_ratio across timeframes indicates contraction. ATR elevated on 1D but compressed 1H = range-bound consolidation."
+    },
+    "funding_rate_analysis": {
+      "current_funding_rate": 0.00007338,
+      "recent_5_period_avg": 0.00005479,
+      "negative_periods_last_10": 1,
+      "inversion_trend": "emerging",
+      "interpretation": "Positive funding persists but showing volatility with sporadic negative periods. Recent 1 negative funding event (-0.00000539, 8 periods ago) suggests longs are not aggressively overleveraged. Inversion risk present but not acute. Potential for acceleration if distribution netflow (-2,352 BTC) continues."
+    },
+    "multi_timeframe_rsi": {
+      "rsi_1h": 42.92,
+      "rsi_4h": 70.32,
+      "rsi_1d": 33.23,
+      "regime_contradiction": "YES",
+      "interpretation": "1H RSI neutral (42.92, no signal). 4H RSI overbought (70.32 = momentum fade risk). 1D RSI depressed (33.23 = no conviction in 1D uptrend). Contradiction: 4H wants to correct (overbought) while 1D shows consolidation range (RSI <40). This creates mechanical mean reversion friction where 4H pullback becomes HIGH probability within 24-48h."
+    },
+    "price_structure": {
+      "price_vs_ema200_1h": "above (+0.36%)",
+      "price_vs_ema200_4h": "below (-2.16%)",
+      "price_vs_ema200_1d": "above (+7.69%)",
+      "daily_support_target": 76554,
+      "max_pain_gravity": 76000,
+      "interpretation": "4H friction (below EMA200) creates reversal zone. Daily support at $76,554 (1D EMA50) backed by max pain gravity at $76,000 (-2.1% from spot $77,532). 1D long-term trend remains up, but 4H overbought setup triggers mechanical pullback before continuation."
+    },
+    "options_sentiment": {
+      "put_call_oi_ratio": 1.1404,
+      "put_premium_skew": 0.05,
+      "max_pain_weekly": 76500,
+      "max_pain_monthly": 76000,
+      "interpretation": "Bybit put/call ratio 1.14 indicates institutional hedging bias (defensive). Put premium at +0.05 skew shows put buyers willing to pay for downside protection. Max pain below spot (-2.1%) = MM incentive to suppress price. Defensive sentiment is structural, not temporary positioning."
+    },
+    "onchain_signals_prior_day": {
+      "whale_tx_count_24h": 0,
+      "accumulation_signal": "distribution",
+      "exchange_netflow_btc": -2352.739,
+      "distribution_interpretation": "Whale accumulation phase COMPLETE (zero transactions). Distribution active (-2,352 BTC netflow = $181.5M supply hitting market). Mechanical downside from on-chain selling pressure continues."
+    }
+  },
+  "regime_indicators_summary": {
+    "volatility_expansion": false,
+    "volatility_contraction": true,
+    "funding_normal": true,
+    "funding_inverted_risk": true,
+    "dominance_stable": true,
+    "multi_timeframe_aligned": false,
+    "multi_timeframe_friction": true
+  },
+  "next_24h_expectation": {
+    "primary_direction": "consolidation_with_pullback_bias",
+    "pullback_target": 76554,
+    "pullback_confidence": 0.76,
+    "rationale": "4H overbought (70.32 RSI) creates mechanical mean reversion into 1D support ($76,554). Multi-TF friction highest in 24h window. Distribution netflow provides downside momentum. Pullback is mechanical, not directional conviction.",
+    "catalyst_risk": "Nasdaq Bitcoin options approval (status 'pending'). If executed with 48-72h timeline, sentiment recovery accelerates and pullback thesis weakens. No execution date announced; treat as low-probability near-term catalyst."
+  },
+  "warnings": [
+    "MULTI-TIMEFRAME FRICTION ACTIVE: 4H overbought vs 1D neutral creates mechanical mean reversion setup over next 24-48 hours.",
+    "FUNDING_RATE_VOLATILITY: Recent negative funding periods (1 in last 10) suggest longs are vulnerable to liquidation if price breaks below $76,000 support.",
+    "WHALE_PHASE_TRANSITION_COMPLETE: Accumulation ended, distribution now active. On-chain selling pressure persists. No institutional bid support at current price.",
+    "IV_SKEW_DEFENSIVE: Put premium (+0.05) indicates options market pricing downside risk. Institutional hedging structural, not tactical."
+  ],
+  "confirmations": [
+    "Volatility regime contraction confirmed: IV stable 0.30, volume_ratio low (0.739-0.826), ATR stable 1H.",
+    "Multi-timeframe regime contrary confirmed: RSI divergence (4H overbought 70.32 vs 1D depressed 33.23) + price friction (4H below EMA200 vs 1D above).",
+    "Funding rate inversion risk emerging: Positive funding current (+0.00007338) but recent negative periods present. Not inverted yet, but risk elevated if distribution accelerates.",
+    "BTC dominance stable: No inflection point detected. Trend remains neutral."
+  ],
+  "research_integration": {
+    "prior_day_verdict_summary": "Bear wins 2/5 hypotheses (hch_004, hch_007, convictions 0.72-0.78). Inconclusive 1/5 (hch_005, 0.68). Rejected 2 bull long setups. Market regime: 'consolidation_with_distribution_pressure' (0.68 confidence).",
+    "updated_confidence_today": 0.76,
+    "confidence_change": "+8 bp from 0.68 to 0.76",
+    "confidence_driver": "Multi-timeframe friction becomes measurable and actionable. 4H overbought (70.32) vs 1D depressed (33.23) provides mechanical mean reversion signal that was less precise yesterday. On-chain whale phase transition now confirmed with zero whale transactions = distribution phase unambiguous.",
+    "strategy_tester_direction": "Execute Bear SHORT hypotheses (hch_20260525_002, hch_20260525_003) with conviction 0.72-0.78. Target: $76,554-$76,000 over 3-5 days. Do NOT approve Bull long entries. Sentiment recovery (hch_005 inconclusive) requires Nasdaq catalyst confirmation before bullish positioning."
+  }
 }

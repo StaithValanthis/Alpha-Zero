@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-26",
+  "date": "2026-05-27",
   "scheduled_today": [
     "orchestrator",
     "morning-pipeline",
@@ -8,14 +8,10 @@
     "reporter"
   ],
   "completed_today": [
-    "orchestrator",
-    "morning-pipeline",
-    "strategy-tester",
-    "trader-management",
-    "reporter"
+    "orchestrator"
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-26T09:01:49.697787+00:00",
+  "last_update": "2026-05-26T15:33:12.441760+00:00",
   "schema_version": "1.0"
 }

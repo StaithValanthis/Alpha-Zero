@@ -10,9 +10,10 @@
   "completed_today": [
     "orchestrator",
     "morning-pipeline",
-    "strategy-tester"
+    "strategy-tester",
+    "trader-management"
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-26T02:32:21.318879"
+  "last_update": "2026-05-26T03:04:05.568962+00:00"
 }

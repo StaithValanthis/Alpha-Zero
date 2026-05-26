@@ -1,0 +1,104 @@
+proposal_id: prop_20260526_001
+created_date: 2026-05-26
+created_by: chief-of-staff
+type: operational_change
+status: pending
+
+title: "Content-aware collection monitor — catch degraded-but-writing sources"
+
+problem_statement: |
+  collectors/collection_monitor.py checks only file mtime — not the data inside.
+  A collector that rewrites the output file every run (even with 0 records or stale content)
+  always looks green. This is confirmed live:
+    - data/news/articles.json: mtime age 854s → monitor reports health=green
+    - actual article count: 0 (both sources failed — primary 402, CoinDesk fallback also empty)
+    - data/news/articles.json last confirmed to have content: ~May 24
+
+  The news collector's _utils.py atomic_write always rewrites the file. When both
+  cryptocurrency.cv (402) and CoinDesk RSS fallback fail, it writes an empty articles.json.
+  Monitor sees fresh mtime → green. Agents downstream trust it.
+
+  This is a gap in our data quality layer, not just the news source. Any collector that uses
+  atomic_write will exhibit the same failure mode if its upstream source degrades.
+
+evidence:
+  - "Live check 2026-05-26T01:58Z: articles.json mtime=854s (monitor says green), data_count=0 (confirmed via python3 inspect)"
+  - "collectors/news_collector.py line 117: 'CoinDesk RSS also failed. Writing empty.' — still calls atomic_write(ARTICLES_PATH, envelope('news_collector', existing, ...)) with empty list"
+  - "collectors/_utils.py: envelope() always writes collected_at=now regardless of data count, so content timestamp gives false freshness signal"
+  - "collection_monitor.py inner loop: only checks os.path.getmtime(path) — zero envelope inspection"
+
+required_changes:
+  - file: collectors/collection_monitor.py
+    description: |
+      Replace the inner loop body with content-aware checks. The loop
+      currently reads only mtime. Replace the entire try/except block inside
+      the 'for name, (path, stale) in CHECKS.items():' loop.
+
+      OLD (exact text to match):
+        try:
+                    age = int(now - os.path.getmtime(path))
+                    h = 'green' if age < stale else 'yellow' if age < stale*2 else 'red'
+                    status[name] = {'health': h, 'age_seconds': age}
+                except:
+                    status[name] = {'health': 'red', 'age_seconds': -1}
+
+      NEW (replace with):
+        try:
+                    age = int(now - os.path.getmtime(path))
+                    h = 'green' if age < stale else 'yellow' if age < stale*2 else 'red'
+                    # Content-aware checks: read envelope for true freshness
+                    content_age = -1
+                    data_count = -1
+                    content_empty = False
+                    try:
+                        with open(path) as fp:
+                            d = json.load(fp)
+                        if 'collected_at' in d:
+                            cat = datetime.fromisoformat(d['collected_at'].replace('Z', '+00:00'))
+                            content_age = int((datetime.now(timezone.utc) - cat).total_seconds())
+                            ch = 'green' if content_age < stale else 'yellow' if content_age < stale*2 else 'red'
+                            if ch == 'red':
+                                h = 'red'
+                            elif ch == 'yellow' and h == 'green':
+                                h = 'yellow'
+                        if 'data' in d and isinstance(d['data'], list):
+                            data_count = len(d['data'])
+                            content_empty = data_count == 0
+                            if content_empty:
+                                h = 'red'
+                    except Exception:
+                        pass
+                    status[name] = {
+                        'health': h,
+                        'age_seconds': age,
+                        'content_age_seconds': content_age,
+                        'data_count': data_count,
+                        'content_empty': content_empty,
+                    }
+                except Exception:
+                    status[name] = {
+                        'health': 'red', 'age_seconds': -1,
+                        'content_age_seconds': -1, 'data_count': -1, 'content_empty': True,
+                    }
+
+    backward_compatible: true
+    notes: |
+      - Existing consumers of collection_status.json that only read 'health' and 'age_seconds'
+        are unaffected — those fields are still present.
+      - New fields added: content_age_seconds, data_count, content_empty.
+      - datetime is already imported in this file.
+      - The monitor's sleep(300) loop will pick up changes on next cycle automatically.
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  script_change_only: true
+
+estimated_cost_per_day: 0.00
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260526_001.yaml proposals/approved/
+  Deployer patches collectors/collection_monitor.py and restarts the monitor service.
+  Backward compatible — no downstream agent briefings need updating.
+  The alert watchdog (prop_20260526_002) should be deployed alongside this.

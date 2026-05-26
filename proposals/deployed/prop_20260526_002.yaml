@@ -1,0 +1,65 @@
+proposal_id: prop_20260526_002
+created_date: 2026-05-26
+created_by: chief-of-staff
+type: new_agent
+recommended_tier: no_llm
+status: pending
+
+title: "Collection degradation alerter — Discord notifications on stale/empty data"
+
+agent_name: collection-alert
+agent_role: |
+  No-LLM watchdog. Reads data/meta/collection_status.json every 15 minutes.
+  Prints nothing on clean runs (Hermes stays silent). Prints an alert message
+  when any collector is degraded — Hermes delivers it verbatim to Discord.
+  Catches three failure modes: mtime stale (health=red/yellow), data_count=0
+  (paywalled/broken source writing empty files), and content_age >> mtime
+  (source rewriting without new data).
+
+schedule: "*/15 * * * *"
+recommended_tier: no_llm
+script_path: services/collection_alert.py
+estimated_cost_per_day: 0.00
+
+problem_statement: |
+  When a collector degrades (e.g. news source 402s and writes empty files),
+  nobody is notified. The collection_monitor writes collection_status.json but
+  has no alerting path. Agents read stale/empty files silently. The system
+  owner only discovers the issue when reviewing analyst outputs — hours later.
+
+  After prop_20260526_001 (content-aware monitor) is deployed, the status file
+  will carry content_empty and content_age_seconds fields. This watchdog reads
+  those fields and fires an alert before the next agent run consumes bad data.
+
+evidence:
+  - "2026-05-26: news articles.json had 0 articles; monitor reported green for 15+ minutes before discovery"
+  - "No alerting path exists anywhere in the pipeline: collection_monitor has no notify() call, no Discord hook, no Hermes integration"
+  - "services/collection_alert.py already written at commit time — script is ready"
+
+inputs:
+  - data/meta/collection_status.json
+
+outputs:
+  - Discord alert (via Hermes no_agent stdout delivery) when any collector degrades
+  - Silence when all collectors healthy (no noise on clean runs)
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  no_llm: true
+  cost_under_10_cents: true
+  alert_only: true
+
+depends_on: prop_20260526_001
+notes: |
+  - The script already exists: services/collection_alert.py
+  - Must deploy prop_20260526_001 first (adds content_empty/content_age_seconds to status file)
+  - Deployer command: hermes cron create "*/15 * * * *" --name collection-alert --script services/collection_alert.py --no-agent --workdir /home/btc-agent/btc-agents
+  - 15-minute cadence: aggressive enough to catch degradation before the next agent run, quiet enough not to spam
+
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260526_002.yaml proposals/approved/
+  Script is already at services/collection_alert.py — no code to write.
+  Deploy prop_20260526_001 first to ensure the status file has the new fields.
+  Then approve this one; deployer runs hermes cron create for the no_llm watchdog.

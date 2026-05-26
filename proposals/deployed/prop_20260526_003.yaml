@@ -1,0 +1,61 @@
+proposal_id: prop_20260526_003
+created_date: 2026-05-26
+created_by: chief-of-staff
+type: operational_change
+status: pending
+
+title: "Fix dual-scheduled alt-watchlist — remove systemd timer, keep Hermes cron"
+
+problem_statement: |
+  alt_watchlist.py is scheduled in two places:
+    1. systemd timer: btc-alt-watchlist.timer (fires daily at 00:10 UTC per list-timers output)
+    2. Hermes no_agent cron: btc-alt-watchlist-daily (cron "50 23 * * *", script=collectors/alt_watchlist.py)
+
+  These fire within 20 minutes of each other every night. Both write to
+  data/alts/watchlist_prices.json. There is no coordination. The second write
+  clobbers the first (or vice versa depending on timing). Race conditions are possible.
+
+  More importantly: the systemd timer is unmanaged — Hermes does not know if it fails,
+  cannot restart it, and cannot observe its output. The Hermes cron is the correct path
+  for this collector (observable, logged, alertable). The systemd timer should be disabled.
+
+  This is the one collector that sits half in the Hermes-managed world and half outside it.
+  Eliminating the duplicate brings the full collector fleet under consistent governance.
+
+evidence:
+  - "systemctl list-timers output 2026-05-26T02:00Z: btc-alt-watchlist.timer fires Wed 2026-05-27 00:10:50 UTC"
+  - "hermes cron list output: btc-alt-watchlist-daily, schedule 50 23 * * * (= 23:50 UTC), script collectors/alt_watchlist.py, no_agent=true, enabled=true"
+  - "Gap: 20 minutes between 23:50 UTC (Hermes) and 00:10 UTC (systemd) — both write same output file"
+  - "No other collector has this dual-scheduling pattern — this is an anomaly from the migration"
+
+required_changes:
+  - description: |
+      Disable and mask the systemd alt-watchlist timer so it never fires again.
+      Run as root or via sudo.
+        systemctl disable btc-alt-watchlist.timer
+        systemctl stop btc-alt-watchlist.timer
+        systemctl mask btc-alt-watchlist.timer
+
+      The Hermes cron btc-alt-watchlist-daily (no_agent=True, script=collectors/alt_watchlist.py,
+      schedule="50 23 * * *") is already in place and working. No changes needed to the Hermes side.
+    backward_compatible: true
+    notes: |
+      - btc-alt-watchlist.service is only invoked by the timer; masking the timer makes the
+        service unreachable without disabling it separately.
+      - If btc-alt-watchlist.service is also started manually anywhere, that's a separate issue.
+      - The Hermes cron fires at 23:50 UTC (09:50 AEST) — 20 min before the old systemd slot.
+        No change to collection frequency from the agent side.
+
+guard_rails:
+  existing_data_only: true
+  no_trading_authority: true
+  cost_under_10_cents: true
+  no_llm: true
+
+estimated_cost_per_day: 0.00
+human_review_required: true
+approval_instructions: |
+  To approve: cp proposals/pending/prop_20260526_003.yaml proposals/approved/
+  Deployer will run: systemctl disable/stop/mask btc-alt-watchlist.timer
+  The Hermes cron already handles alt-watchlist — no gap in coverage.
+  Low risk: only removes the duplicate systemd schedule, touches nothing in Hermes or data files.

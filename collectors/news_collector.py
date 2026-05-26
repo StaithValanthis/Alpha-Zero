@@ -81,11 +81,18 @@ def load_existing():
 def parse_dt(s):
     if not s:
         return None
-    for fmt in ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z',
-                '%a, %d %b %Y %H:%M:%S %z', '%a, %d %b %Y %H:%M:%S %Z',
-                '%Y-%m-%d %H:%M:%S'):
+    # Try email.utils first — handles RFC 2822 format correctly without truncation.
+    # The old [:30] truncation silently corrupted CoinDesk timestamps (31 chars)
+    # causing all CoinDesk dates to return None and never expire from the 48h window.
+    try:
+        from email.utils import parsedate_to_datetime
+        return parsedate_to_datetime(s)
+    except Exception:
+        pass
+    # ISO 8601 and other formats — use the full string, not a truncated slice
+    for fmt in ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%d %H:%M:%S'):
         try:
-            dt = datetime.strptime(s[:30].strip(), fmt)
+            dt = datetime.strptime(s.strip(), fmt)
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
             return dt

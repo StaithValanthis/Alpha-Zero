@@ -32,8 +32,8 @@ STATUS_FILE = f'{BASE}/data/meta/collection_status.json'
 CONTENT_STALE_WARN = {
     'btc_candles':     360  * 6,     # candles every 5min — warn after 30min frozen
     'ta_engine':       400  * 6,     # TA every ~5min — warn after 40min frozen
-    'news':            1800 * 6,     # news every 15min — warn after 3h frozen
-    'news_classified': 5000 * 6,     # classified every ~80min — warn after 8h frozen
+    'news':            3600,         # warn after 1h of frozen content (was 10800 — too loose)
+    'news_classified': 3600,         # same
     'derivatives':     3600 * 6,     # derivatives every 60min — warn after 6h frozen
     'whales':          3600 * 6,
     'netflow':         8000 * 6,
@@ -42,6 +42,16 @@ CONTENT_STALE_WARN = {
     'fear_greed':      90000,        # daily
     'etf_flows':       50000 * 2,    # ~14h — allow two cycles before flagging
     'alt_watchlist':   90000,        # daily
+}
+
+# Human-readable thresholds for newest_record_age alerts (in seconds)
+SEMANTIC_STALE_WARN = {
+    'news':            6 * 3600,
+    'news_classified': 6 * 3600,
+    'netflow':         36 * 3600,
+    'etf_flows':       48 * 3600,
+    'fear_greed':      30 * 3600,
+    'whales':          4 * 3600,
 }
 
 
@@ -67,6 +77,7 @@ def main():
         age = info.get('age_seconds', -1)
         unchanged = info.get('content_unchanged_seconds', -1)
         data_count = info.get('data_count', -1)
+        newest_record_age = info.get('newest_record_age_seconds', -1)
         issues = []
 
         if health == 'red':
@@ -83,6 +94,15 @@ def main():
             if content_health == 'yellow' and data_count != 0:
                 h = unchanged // 3600 if unchanged > 0 else 0
                 issues.append(f"CONTENT STAGNATING ({unchanged}s / ~{h}h unchanged)")
+
+        # Semantic record age — surfaced regardless of overall health colour
+        # so operator sees "newest article 8h old" even when health is still green
+        if newest_record_age > 0 and name in SEMANTIC_STALE_WARN:
+            warn_thr = SEMANTIC_STALE_WARN[name]
+            if newest_record_age > warn_thr:
+                h = newest_record_age // 3600
+                severity = "STALE" if newest_record_age > warn_thr * 2 else "AGING"
+                issues.append(f"NEWEST RECORD {severity} (~{h}h old — source may be serving stale data)")
 
         # Degraded-but-writing: file_health=green but content frozen longer than our threshold
         if (

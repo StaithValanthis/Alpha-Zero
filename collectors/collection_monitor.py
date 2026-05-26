@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""Collection monitor — file-age AND content-freshness health for collectors.
+"""Collection monitor — file-age, content-freshness, AND semantic record age.
 
-Original behavior only checked file mtime, so a collector that keeps rewriting
-its file with identical data (e.g. a dead/paywalled source still serving a
-cached feed — see the cryptocurrency.cv 402 news incident) stayed 'green'
-forever. This version also fingerprints the meaningful content and flags a
-collector whose data hasn't actually changed in a long time.
+Three layers of health checking:
+  1. file_health   — mtime vs stale threshold
+  2. content_health — fingerprint (did meaningful data change?) + data_count=0 check
+  3. newest_record_age_seconds — age of the most-recent dated record inside the file
+     (catches "degraded-but-writing": file fresh, content changing, but all records old)
 
-Writes data/meta/collection_status.json (enriched, backward-compatible:
-'health' is still present; adds 'file_health', 'content_health',
-'content_unchanged_seconds'). Content-change state persists in
-data/meta/collection_content_state.json.
+Writes data/meta/collection_status.json (backward-compatible: 'health' always present).
+Content-change state persists in data/meta/collection_content_state.json.
 """
 import os, json, time, hashlib
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 B = os.path.expanduser('~/btc-agents')
 META = f'{B}/data/meta'
@@ -47,6 +46,81 @@ def content_stale_threshold(file_stale):
 # fingerprint so identical payloads hash the same across writes.
 _VOLATILE_KEYS = {'collected_at', 'checked_at', 'fetched_at', 'timestamp',
                   'last_updated', 'produced_at', 'generated_at', 'updated_at', 'as_of'}
+
+# Semantic date field mapping: collector -> dot-notation path to the date field
+# in each record of data[]. Used to compute newest_record_age_seconds.
+# Only collectors where record recency matters are listed.
+SEMANTIC_DATE_FIELDS = {
+    'news':            'published_at',   # RFC 2822 from CoinDesk / ISO from other sources
+    'news_classified': 'published_at',
+    'netflow':         'date',           # 'YYYY-MM-DD' daily
+    'etf_flows':       'date',           # 'YYYY-MM-DD' daily
+    'fear_greed':      'timestamp',      # unix timestamp string
+    'whales':          'timestamp',
+}
+
+# Alert threshold: if newest_record_age_seconds exceeds this, content_health -> yellow/red
+# Values tuned to each collector's expected data freshness (not file freshness)
+SEMANTIC_STALE_WARN = {
+    'news':            6 * 3600,         # news older than 6h is stale
+    'news_classified': 6 * 3600,
+    'netflow':         36 * 3600,        # daily data, some lag normal
+    'etf_flows':       48 * 3600,        # daily ETF flows, T+1 reporting lag
+    'fear_greed':      30 * 3600,        # updates daily
+    'whales':          4 * 3600,
+}
+
+
+def _parse_record_dt(value):
+    """Parse a date string from a data record. Tries RFC 2822, ISO 8601, and unix ts."""
+    if value is None:
+        return None
+    # Unix timestamp (integer or numeric string)
+    try:
+        ts = float(value)
+        # Binance-style ms timestamps
+        if ts > 1e12:
+            ts /= 1000
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    except (ValueError, TypeError):
+        pass
+    # RFC 2822
+    try:
+        return parsedate_to_datetime(str(value))
+    except Exception:
+        pass
+    # ISO 8601 / date-only
+    s = str(value).strip()
+    for fmt in ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%d'):
+        try:
+            dt = datetime.strptime(s, fmt)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except ValueError:
+            continue
+    return None
+
+
+def _newest_record_age(path, date_field):
+    """Return seconds since the newest record's date, or -1 on any error."""
+    try:
+        with open(path) as f:
+            d = json.load(f)
+        records = d.get('data', []) if isinstance(d, dict) else d
+        if not isinstance(records, list) or not records:
+            return -1
+        best_dt = None
+        for rec in records:
+            val = rec.get(date_field) if isinstance(rec, dict) else None
+            dt = _parse_record_dt(val)
+            if dt and (best_dt is None or dt > best_dt):
+                best_dt = dt
+        if best_dt is None:
+            return -1
+        return int((datetime.now(timezone.utc) - best_dt).total_seconds())
+    except Exception:
+        return -1
 
 
 def _content_fingerprint(path):
@@ -110,10 +184,22 @@ while True:
                     content_h = 'red'
         except Exception:
             pass
+        # Semantic record-age check: is the newest dated record actually recent?
+        # This catches degraded-but-writing sources (file fresh, content changing via
+        # article expiry, but no genuinely new records — e.g. the news 402 incident).
+        newest_record_age = -1
+        if name in SEMANTIC_DATE_FIELDS:
+            newest_record_age = _newest_record_age(path, SEMANTIC_DATE_FIELDS[name])
+            if newest_record_age > 0 and name in SEMANTIC_STALE_WARN:
+                warn_thr = SEMANTIC_STALE_WARN[name]
+                if newest_record_age > warn_thr * 2:
+                    content_h = 'red'
+                elif newest_record_age > warn_thr and content_h == 'green':
+                    content_h = 'yellow'
         overall = 'red' if 'red' in (file_h, content_h) else 'yellow' if 'yellow' in (file_h, content_h) else 'green'
         status[name] = {'health': overall, 'file_health': file_h, 'content_health': content_h,
                         'age_seconds': age, 'content_unchanged_seconds': unchanged,
-                        'data_count': data_count}
+                        'data_count': data_count, 'newest_record_age_seconds': newest_record_age}
     os.makedirs(META, exist_ok=True)
     tmp = f'{STATUS}.tmp'
     with open(tmp, 'w') as f:

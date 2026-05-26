@@ -43,5 +43,7 @@ Then: data/analyst_reports/sentiment_news_analyst.done
 - If etf/flows.json total_net_flow > 0 = net inflow (bullish); < 0 = net outflow (bearish)
 - flagged.json items always warrant news_risk_level="high"
 - If classified.json is missing or collected_at > 4h old: set top_sentiment_signal="data_stale", news_risk_level="unknown" — do not fabricate findings from absent data
+- **Record freshness check (mandatory):** Before writing findings, find the newest `published_at` value across all records in classified.json. Parse it and compute age in hours. If newest article is > 6h old: set `top_sentiment_signal="news_source_stale — newest article Xh old"`, `news_risk_level="unknown"`, and note the staleness in `sentiment_summary`. Do not treat old articles as current signals — a 3-day-old article about a price move is not today's news.
+- **ETF flow freshness check:** Check `collected_at` in etf/flows.json. If > 48h old: set `etf_flow_signal="unavailable"` and `etf_total_net_flow_musd=null`.
 
 Write .done file LAST.

@@ -166,5 +166,6 @@
       "paper_testing": 1
     },
     "next_strategy_id": "strat_003"
-  }
+  },
+  "schema_version": "1.0"
 }

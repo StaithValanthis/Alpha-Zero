@@ -2,5 +2,9 @@
   "date": "2026-05-26",
   "lessons": [],
   "regression_tests": [],
-  "strategy_feedback": []
+  "strategy_feedback": [],
+  "schema_version": "1.0",
+  "recurring_failure_patterns": [],
+  "what_has_worked": [],
+  "last_updated": "2026-05-26T08:25:11Z"
 }

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "System State Schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "computed_at",
+    "cold_start_day",
+    "is_cold_start"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "computed_at": {
+      "type": "string"
+    },
+    "cold_start_day": {
+      "type": "integer"
+    },
+    "is_cold_start": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

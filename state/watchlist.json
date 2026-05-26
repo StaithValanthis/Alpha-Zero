@@ -9,16 +9,72 @@
   "candidates_above_threshold": 0,
   "candidates": [],
   "alt_rotation_status": "OFF",
-  "scan_notes": "Bybit proxy restored this run — full altcoin scan completed for first time today. 7 BTC-denominated spot pairs confirmed on Bybit. Best 24h relative performer XLMBTC (+2.20% vs BTC) has only 0.34 BTC/day volume — hard liquidity rejection. ETHBTC has the most liquidity (50.7 BTC/day) but is in a 7-day downtrend vs BTC (-1.59%) — ETH underperforming BTC, wrong direction for rotation. No qualifying candidates above score threshold (65).",
-  "alt_rotation_notes": "Alt rotation OFF. Sixth consecutive day with zero qualifying candidates. BTC dominance 58.13% (stable, +0.02pp from yesterday 58.11%). The 7-pair Bybit BTC spot universe remains structurally thin. NEAR +27% today would be a compelling alt rotation target IF a NEARBTC spot pair existed on Bybit — it does not. NEAR can only be accessed via NEARUSDT perp (included in research.json perp_opportunities). Conditions for reconsidering: BTC dominance below 57.0% AND at least one BTC-denominated pair showing >2% 7-day uptrend vs BTC AND >100 BTC/day volume AND verified fundamental catalyst. None met.",
+  "scan_notes": "Bybit proxy restored this run \u2014 full altcoin scan completed for first time today. 7 BTC-denominated spot pairs confirmed on Bybit. Best 24h relative performer XLMBTC (+2.20% vs BTC) has only 0.34 BTC/day volume \u2014 hard liquidity rejection. ETHBTC has the most liquidity (50.7 BTC/day) but is in a 7-day downtrend vs BTC (-1.59%) \u2014 ETH underperforming BTC, wrong direction for rotation. No qualifying candidates above score threshold (65).",
+  "alt_rotation_notes": "Alt rotation OFF. Sixth consecutive day with zero qualifying candidates. BTC dominance 58.13% (stable, +0.02pp from yesterday 58.11%). The 7-pair Bybit BTC spot universe remains structurally thin. NEAR +27% today would be a compelling alt rotation target IF a NEARBTC spot pair existed on Bybit \u2014 it does not. NEAR can only be accessed via NEARUSDT perp (included in research.json perp_opportunities). Conditions for reconsidering: BTC dominance below 57.0% AND at least one BTC-denominated pair showing >2% 7-day uptrend vs BTC AND >100 BTC/day volume AND verified fundamental catalyst. None met.",
   "universe_details": [
-    {"symbol": "XLMBTC", "lastPrice": "0.000001908", "price24hPcnt": "+2.20%", "volume24h_native": "180508", "volume_btc_estimate": "0.34", "eligible": false, "rejection": "liquidity too thin"},
-    {"symbol": "SOLBTC", "lastPrice": "0.0011249", "price24hPcnt": "+0.83%", "volume24h_native": "10047", "volume_btc_estimate": "11.3", "eligible": false, "rejection": "liquidity too thin"},
-    {"symbol": "ETHBTC", "lastPrice": "0.027463", "price24hPcnt": "+0.16%", "volume24h_native": "1847 ETH", "volume_btc_estimate": "50.7", "eligible": false, "rejection": "7d trend -1.59% vs BTC AND liquidity below threshold"},
-    {"symbol": "LTCBTC", "lastPrice": "0.0006991", "price24hPcnt": "+0.42%", "volume24h_native": "163", "volume_btc_estimate": "0.11", "eligible": false, "rejection": "liquidity too thin"},
-    {"symbol": "XRPBTC", "lastPrice": "0.00001758", "price24hPcnt": "-0.51%", "volume24h_native": "274883", "volume_btc_estimate": "4.83", "eligible": false, "rejection": "negative relative performance AND thin liquidity"},
-    {"symbol": "MNTBTC", "lastPrice": "0.00000859", "price24hPcnt": "-1.86%", "volume24h_native": "22278", "volume_btc_estimate": "0.19", "eligible": false, "rejection": "negative relative performance AND thin liquidity"},
-    {"symbol": "WBTCBTC", "lastPrice": "0.9973", "price24hPcnt": "0.00%", "volume24h_native": "10.4 BTC", "volume_btc_estimate": "10.4", "eligible": false, "rejection": "wrapped BTC synthetic — not a rotation target"}
+    {
+      "symbol": "XLMBTC",
+      "lastPrice": "0.000001908",
+      "price24hPcnt": "+2.20%",
+      "volume24h_native": "180508",
+      "volume_btc_estimate": "0.34",
+      "eligible": false,
+      "rejection": "liquidity too thin"
+    },
+    {
+      "symbol": "SOLBTC",
+      "lastPrice": "0.0011249",
+      "price24hPcnt": "+0.83%",
+      "volume24h_native": "10047",
+      "volume_btc_estimate": "11.3",
+      "eligible": false,
+      "rejection": "liquidity too thin"
+    },
+    {
+      "symbol": "ETHBTC",
+      "lastPrice": "0.027463",
+      "price24hPcnt": "+0.16%",
+      "volume24h_native": "1847 ETH",
+      "volume_btc_estimate": "50.7",
+      "eligible": false,
+      "rejection": "7d trend -1.59% vs BTC AND liquidity below threshold"
+    },
+    {
+      "symbol": "LTCBTC",
+      "lastPrice": "0.0006991",
+      "price24hPcnt": "+0.42%",
+      "volume24h_native": "163",
+      "volume_btc_estimate": "0.11",
+      "eligible": false,
+      "rejection": "liquidity too thin"
+    },
+    {
+      "symbol": "XRPBTC",
+      "lastPrice": "0.00001758",
+      "price24hPcnt": "-0.51%",
+      "volume24h_native": "274883",
+      "volume_btc_estimate": "4.83",
+      "eligible": false,
+      "rejection": "negative relative performance AND thin liquidity"
+    },
+    {
+      "symbol": "MNTBTC",
+      "lastPrice": "0.00000859",
+      "price24hPcnt": "-1.86%",
+      "volume24h_native": "22278",
+      "volume_btc_estimate": "0.19",
+      "eligible": false,
+      "rejection": "negative relative performance AND thin liquidity"
+    },
+    {
+      "symbol": "WBTCBTC",
+      "lastPrice": "0.9973",
+      "price24hPcnt": "0.00%",
+      "volume24h_native": "10.4 BTC",
+      "volume_btc_estimate": "10.4",
+      "eligible": false,
+      "rejection": "wrapped BTC synthetic \u2014 not a rotation target"
+    }
   ],
   "ethbtc_watch_note": "ETHBTC is the strongest candidate by liquidity (50.7 BTC/day) but ETH is currently underperforming BTC on a 7-day basis. Watch: if ETHBTC 7d trend turns positive AND volume exceeds 100 BTC/day AND a major ETH catalyst emerges (ETF staking approval, protocol upgrade), ETHBTC could qualify as a rotation target. Track daily.",
   "watch_threshold": {
@@ -29,5 +85,6 @@
     "fundamental_catalyst_required": true
   },
   "proxy_status": "WORKING",
-  "proxy_note": "Bybit proxy restored via curl (IP 152.67.114.55). Full universe scan completed with live data."
+  "proxy_note": "Bybit proxy restored via curl (IP 152.67.114.55). Full universe scan completed with live data.",
+  "schema_version": "1.0"
 }

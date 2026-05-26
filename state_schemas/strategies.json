@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Strategies Schema",
+  "description": "JSON Schema for strategies.json - tracks trading strategy definitions and performance",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "last_updated",
+    "strategies",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Schema version identifier"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime of last update"
+    },
+    "strategies": {
+      "type": "array",
+      "description": "Array of trading strategies",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "created_date",
+          "consecutive_losses",
+          "watcher_compatible",
+          "entry_conditions",
+          "entry_logic",
+          "performance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^strat_\\d{3}$",
+            "description": "Unique strategy identifier (e.g., strat_001)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "paper_testing",
+              "ready_to_trade",
+              "live",
+              "retired",
+              "underperforming",
+              "thesis_expired",
+              "suspended"
+            ],
+            "description": "Current status of the strategy"
+          },
+          "created_date": {
+            "type": "string",
+            "description": "Date when strategy was created"
+          },
+          "consecutive_losses": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of consecutive losing trades"
+          },
+          "watcher_compatible": {
+            "type": "boolean",
+            "description": "Whether strategy can be monitored by watcher system"
+          },
+          "entry_conditions": {
+            "type": "array",
+            "description": "Array of conditions for strategy entry",
+            "items": {
+              "type": "object",
+              "required": [
+                "source",
+                "field",
+                "operator",
+                "value"
+              ],
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "Data source for the condition"
+                },
+                "field": {
+                  "type": "string",
+                  "description": "Field name to evaluate"
+                },
+                "operator": {
+                  "type": "string",
+                  "description": "Comparison operator (e.g., >, <, ==, >=, <=, !=)"
+                },
+                "value": {
+                  "description": "Value to compare against"
+                }
+              }
+            }
+          },
+          "entry_logic": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "ANY"
+            ],
+            "description": "Logic for combining entry conditions (ALL = all must be true, ANY = at least one)"
+          },
+          "performance": {
+            "type": "object",
+            "required": [
+              "trades_executed",
+              "wins",
+              "losses"
+            ],
+            "properties": {
+              "trades_executed": {
+                "type": "integer",
+                "description": "Total number of trades executed"
+              },
+              "wins": {
+                "type": "integer",
+                "description": "Number of winning trades"
+              },
+              "losses": {
+                "type": "integer",
+                "description": "Number of losing trades"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_strategies",
+        "next_strategy_id"
+      ],
+      "properties": {
+        "total_strategies": {
+          "type": "integer",
+          "description": "Total number of strategies in the system"
+        },
+        "next_strategy_id": {
+          "type": "string",
+          "description": "Next strategy ID to be assigned"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

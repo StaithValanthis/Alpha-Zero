@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lessons Schema",
+  "description": "JSON Schema for lessons.json - tracks trading lessons, patterns, and feedback",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "last_updated",
+    "lessons",
+    "recurring_failure_patterns",
+    "what_has_worked",
+    "regression_tests",
+    "strategy_feedback"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Schema version identifier"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime of last update"
+    },
+    "lessons": {
+      "type": "array",
+      "description": "Array of trading lessons learned",
+      "items": {
+        "type": "object",
+        "required": [
+          "lesson_id",
+          "lesson_type",
+          "date",
+          "actionable_takeaway"
+        ],
+        "properties": {
+          "lesson_id": {
+            "type": "string",
+            "pattern": "^(lesson|perp_lesson|alt_lesson|alloc_lesson)_\\d{8}_\\d{3}$",
+            "description": "Unique lesson identifier with pattern: type_YYYYMMDD_###"
+          },
+          "lesson_type": {
+            "type": "string",
+            "enum": [
+              "strategy",
+              "perp_position",
+              "alt_rotation",
+              "allocation",
+              "operational"
+            ],
+            "description": "Category of the lesson"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date when lesson was learned (YYYY-MM-DD)"
+          },
+          "actionable_takeaway": {
+            "type": "string",
+            "description": "Concrete action or insight derived from this lesson"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "recurring_failure_patterns": {
+      "type": "array",
+      "description": "Patterns that have repeatedly caused losses or failures",
+      "items": {
+        "type": "string"
+      }
+    },
+    "what_has_worked": {
+      "type": "array",
+      "description": "Strategies, approaches, or conditions that have been successful",
+      "items": {
+        "type": "string"
+      }
+    },
+    "regression_tests": {
+      "type": "array",
+      "description": "Tests to ensure past lessons are still applied correctly",
+      "items": true
+    },
+    "strategy_feedback": {
+      "type": "array",
+      "description": "Feedback on strategy performance and adjustments",
+      "items": true
+    }
+  },
+  "additionalProperties": true
+}

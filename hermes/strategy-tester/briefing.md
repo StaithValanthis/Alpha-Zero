@@ -45,3 +45,31 @@ Strategies scoring <30 after 20+ trades → status="underperforming"
 git add state/strategies.json state/signals.json state/lessons.json
 git commit -m "strategy-tester: $(date -u +%Y-%m-%d)"
 git push origin HEAD:main
+
+## Lessons write rule (CRITICAL)
+Never overwrite lessons.json. It is an append-only accumulation file.
+
+When retiring a strategy, call append_lessons() from tools/_state_utils.py:
+
+```python
+import sys; sys.path.insert(0, '/home/btc-agent/btc-agents')
+from tools._state_utils import append_lessons
+
+append_lessons({
+    "lesson_id": "lesson_YYYYMMDD_001",
+    "lesson_type": "strategy",          # strategy | perp_position | alt_rotation | allocation | operational
+    "date": "YYYY-MM-DD",
+    "strategy_name": "name of retired strategy",
+    "signals_it_used": ["rsi_14", "ema200"],
+    "what_it_assumed": "one-sentence core assumption",
+    "why_it_failed": "specific evidence-based cause",
+    "market_regime_when_it_failed": "consolidation_with_distribution_uncertainty",
+    "net_return_vs_btc_pct": -2.1,
+    "trades_taken": 5,
+    "actionable_takeaway": "what future hypotheses should avoid or do differently"
+})
+```
+
+append_lessons() is idempotent (same lesson_id is never double-written).
+Do NOT use json.dump() or save_json_atomic() on lessons.json directly.
+To ensure the file exists at the start of a run: call ensure_lessons_file() — it creates the file if missing, does nothing if present.

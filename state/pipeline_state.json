@@ -15,5 +15,6 @@
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-26T03:04:05.568962+00:00"
+  "last_update": "2026-05-26T03:04:05.568962+00:00",
+  "schema_version": "1.0"
 }

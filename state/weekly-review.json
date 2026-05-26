@@ -21,9 +21,9 @@
   "hypotheses_approved": 1,
   "hypotheses_rejected": 3,
   "system_issues_detected": [
-    "onchain_collector_red: mempool.json stale ~10h (one-shot collector, runs in pipeline only — not emergency unless pipeline failed)",
-    "pipeline_state_not_updated: completed_today shows [] despite morning pipeline running — known logging gap",
-    "mode_reporting_mismatch: daily report states 'LIVE' but BYBIT_ACCOUNT_TYPE=demo in .env — reporter using portfolio.demo_mode field (stale) instead of .env; fix required"
+    "onchain_collector_red: mempool.json stale ~10h (one-shot collector, runs in pipeline only \u2014 not emergency unless pipeline failed)",
+    "pipeline_state_not_updated: completed_today shows [] despite morning pipeline running \u2014 known logging gap",
+    "mode_reporting_mismatch: daily report states 'LIVE' but BYBIT_ACCOUNT_TYPE=demo in .env \u2014 reporter using portfolio.demo_mode field (stale) instead of .env; fix required"
   ],
   "recommend_crisis_mode": false,
   "strategy_diversity_score": "too_early",
@@ -44,5 +44,6 @@
   "journal_committed": true,
   "memory_backup_committed": true,
   "computed_at": "2026-05-24T11:10:00Z",
-  "chief_review_note": "21:00 AEST Sunday Chief review pass. Journal and memory backup confirmed committed. Mode discrepancy flagged."
+  "chief_review_note": "21:00 AEST Sunday Chief review pass. Journal and memory backup confirmed committed. Mode discrepancy flagged.",
+  "schema_version": "1.0"
 }

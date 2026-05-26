@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orchestrator Directive Schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "date",
+    "produced_at",
+    "cold_start_day",
+    "signal_watcher_paused",
+    "dca_enabled",
+    "allocation"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "date": {
+      "type": "string"
+    },
+    "produced_at": {
+      "type": "string"
+    },
+    "cold_start_day": {
+      "type": "integer"
+    },
+    "signal_watcher_paused": {
+      "type": "boolean"
+    },
+    "dca_enabled": {
+      "type": "boolean"
+    },
+    "allocation": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

@@ -9,7 +9,8 @@
     {
       "timestamp": "2026-05-26T03:00:00Z",
       "event": "trader_management_run",
-      "message": "Daily trader-management complete. open_positions=0. No duration/correlation checks needed. Balance reconciliation: BTC 0.00367232 (0.00% divergence), USDT 0.1588055 (0.00% divergence) — exact match. No stale signals found. No consecutive-loss violations. Execution quality: 0 trades, no slippage data yet. Cold start day 7 of 14."
+      "message": "Daily trader-management complete. open_positions=0. No duration/correlation checks needed. Balance reconciliation: BTC 0.00367232 (0.00% divergence), USDT 0.1588055 (0.00% divergence) \u2014 exact match. No stale signals found. No consecutive-loss violations. Execution quality: 0 trades, no slippage data yet. Cold start day 7 of 14."
     }
-  ]
+  ],
+  "schema_version": "1.0"
 }

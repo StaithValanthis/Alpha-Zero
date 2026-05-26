@@ -33,4 +33,23 @@ Generate 2-5 concrete, testable trade hypotheses from analyst findings.
 - Active Tier-1 negative event is set
 - Cannot find at least 2 supporting signals across different analysts
 
+## How to read lessons.json (schema v1.0)
+lessons.json has schema_version: "1.0". Structure:
+```json
+{
+  "schema_version": "1.0",
+  "lessons": [ { "lesson_id": "...", "lesson_type": "...", "actionable_takeaway": "..." } ],
+  "recurring_failure_patterns": [ "string pattern description" ],
+  "what_has_worked": [ "string description" ]
+}
+```
+
+Before generating any hypothesis:
+1. Read lessons[*].actionable_takeaway — each one is a hard constraint on what NOT to do.
+2. Read recurring_failure_patterns — these are elevated; patterns seen 2+ times. Any hypothesis that repeats a recurring failure pattern must be explicitly rejected, not just modified.
+3. Read what_has_worked — use these as positive signals to build on.
+4. For each hypothesis you generate, add a field: "avoids_failure_patterns": "explicit statement of which lessons.json lessons this hypothesis avoids and how"
+
+If lessons.json is missing, empty, or has schema_version != "1.0": proceed but note "lessons_unavailable" in the hypothesis output.
+
 ## Maximum 5 hypotheses per run. Quality over quantity.

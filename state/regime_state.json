@@ -22,8 +22,8 @@
       "note": "IV stable, put skew defensive = hedging demand. Low volume_ratio across timeframes indicates contraction. ATR elevated on 1D but compressed 1H = range-bound consolidation."
     },
     "funding_rate_analysis": {
-      "current_funding_rate": 0.00007338,
-      "recent_5_period_avg": 0.00005479,
+      "current_funding_rate": 7.338e-05,
+      "recent_5_period_avg": 5.479e-05,
       "negative_periods_last_10": 1,
       "inversion_trend": "emerging",
       "interpretation": "Positive funding persists but showing volatility with sporadic negative periods. Recent 1 negative funding event (-0.00000539, 8 periods ago) suggests longs are not aggressively overleveraged. Inversion risk present but not acute. Potential for acceleration if distribution netflow (-2,352 BTC) continues."
@@ -91,5 +91,6 @@
     "confidence_change": "+8 bp from 0.68 to 0.76",
     "confidence_driver": "Multi-timeframe friction becomes measurable and actionable. 4H overbought (70.32) vs 1D depressed (33.23) provides mechanical mean reversion signal that was less precise yesterday. On-chain whale phase transition now confirmed with zero whale transactions = distribution phase unambiguous.",
     "strategy_tester_direction": "Execute Bear SHORT hypotheses (hch_20260525_002, hch_20260525_003) with conviction 0.72-0.78. Target: $76,554-$76,000 over 3-5 days. Do NOT approve Bull long entries. Sentiment recovery (hch_005 inconclusive) requires Nasdaq catalyst confirmation before bullish positioning."
-  }
+  },
+  "schema_version": "1.0"
 }

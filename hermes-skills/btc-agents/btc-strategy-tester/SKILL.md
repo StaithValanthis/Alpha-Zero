@@ -62,3 +62,7 @@ git add state/strategies.json state/signals.json state/lessons.json
 git commit -m "strategy-tester: daily run $(date -u +%Y-%m-%d)"
 git push origin HEAD:main
 ```
+
+### Lessons writes
+Use tools/_state_utils.append_lessons() — NEVER overwrite lessons.json.
+See hermes/strategy-tester/briefing.md "Lessons write rule" section for full schema.

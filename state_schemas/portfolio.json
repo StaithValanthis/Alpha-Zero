@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Portfolio Schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "last_updated",
+    "exchange",
+    "starting_date",
+    "btc_holdings",
+    "usdt_holdings",
+    "circuit_breaker_tripped",
+    "max_alt_allocation_pct",
+    "open_positions",
+    "closed_trades",
+    "performance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "last_updated": {
+      "type": "string"
+    },
+    "exchange": {
+      "type": "string"
+    },
+    "starting_date": {
+      "type": "string"
+    },
+    "btc_holdings": {
+      "type": "number"
+    },
+    "usdt_holdings": {
+      "type": "number"
+    },
+    "circuit_breaker_tripped": {
+      "type": "boolean"
+    },
+    "max_alt_allocation_pct": {
+      "type": "number"
+    },
+    "open_positions": {
+      "type": "array"
+    },
+    "closed_trades": {
+      "type": "array"
+    },
+    "performance": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

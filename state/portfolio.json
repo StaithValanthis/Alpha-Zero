@@ -76,5 +76,6 @@
   "max_concurrent_perp_positions": 15,
   "total_perp_risk_pct": 0,
   "usdt_balance": 0.0,
-  "starting_btc": 0.00367232
+  "starting_btc": 0.00367232,
+  "schema_version": "1.0"
 }

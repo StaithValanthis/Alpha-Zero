@@ -13,5 +13,6 @@
     "average_win_rate": 0,
     "average_sharpe": 0
   },
-  "signal_sources": []
+  "signal_sources": [],
+  "schema_version": "1.0"
 }

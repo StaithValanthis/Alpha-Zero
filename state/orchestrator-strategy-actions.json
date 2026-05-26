@@ -1,1 +1,7 @@
-{"date":"BOOTSTRAP","retire":[],"promote":[],"reasons":{}}
+{
+  "date": "BOOTSTRAP",
+  "retire": [],
+  "promote": [],
+  "reasons": {},
+  "schema_version": "1.0"
+}

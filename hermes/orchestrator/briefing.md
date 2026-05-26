@@ -78,3 +78,45 @@ Every decision must be framed in BTC-accumulation terms.
 git add state/orchestrator-directive.json state/lessons.json
 git commit -m "orchestrator: directive $(date -u +%Y-%m-%d)"
 git push origin HEAD:main
+
+## Lessons write rule (CRITICAL — read this before touching lessons.json)
+lessons.json is an APPEND-ONLY accumulation file. Schema version 1.0.
+Never overwrite it. Never json.dump() to it directly.
+
+Use tools/_state_utils.append_lessons() for every lesson write:
+
+```python
+import sys; sys.path.insert(0, '/home/btc-agent/btc-agents')
+from tools._state_utils import append_lessons
+
+# Strategy retirement lesson:
+append_lessons({
+    "lesson_id": "lesson_YYYYMMDD_001",
+    "lesson_type": "strategy",
+    "date": "YYYY-MM-DD",
+    "strategy_name": "...",
+    "signals_it_used": ["rsi_14", "ema200"],
+    "what_it_assumed": "one-sentence core assumption",
+    "why_it_failed": "specific evidence-based cause — not just 'it lost money'",
+    "market_regime_when_it_failed": "...",
+    "net_return_vs_btc_pct": -2.1,
+    "trades_taken": 5,
+    "actionable_takeaway": "what future hypotheses must avoid or do differently"
+}, recurring_update="optional: add to recurring_failure_patterns if pattern seen 2+ times")
+
+# Allocation lesson (daily — on every closed USDT/alt trade):
+append_lessons({
+    "lesson_id": "alloc_lesson_YYYYMMDD_001",
+    "lesson_type": "allocation",
+    "date": "YYYY-MM-DD",
+    "action": "sold BTC for USDT at $X",
+    "signals_used": ["..."],
+    "outcome": "take_profit | stop_loss | expired",
+    "sats_gained_or_lost": -5000,
+    "what_went_wrong_or_right": "...",
+    "actionable_takeaway": "..."
+}, worked_update="optional: add to what_has_worked if it was profitable")
+```
+
+append_lessons() is idempotent (duplicate lesson_id silently skipped).
+The file is always at state/lessons.json with schema_version: "1.0".

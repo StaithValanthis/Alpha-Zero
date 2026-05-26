@@ -7,5 +7,6 @@
     "ADAUSDT"
   ],
   "last_updated": "2026-05-24",
-  "note": "Static fallback \u2014 update manually or via orchestrator"
+  "note": "Static fallback \u2014 update manually or via orchestrator",
+  "schema_version": "1.0"
 }

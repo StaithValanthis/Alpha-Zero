@@ -1,29 +1,182 @@
 {
-  "date": "2026-05-25",
-  "mode": "daily",
-  "cold_start": true,
-  "cold_start_day": 5,
-  "priority_this_week": "validate",
-  "focus_area": "Maintain BTC accumulation floor during cold start; validate strat_001 thesis and system stability",
-  "strategy_to_retire": null,
-  "max_position_size_pct": 5,
-  "target_btc_allocation_pct": 99.94,
-  "allocation_reasoning": "Cold start day 5 of 14 enforces \u226590% BTC allocation. No corroborating signals (3+) for USDT trade. Regime is mean-reverting but confidence (0.65) insufficient to deviate from BTC accumulation floor. No alt rotation signals (BTC dominance stable, candidates_above_threshold = 0).",
-  "allocation_confidence": "high",
-  "usdt_trade_active": false,
-  "usdt_trade_entry_btc_price": null,
-  "usdt_trade_target_rebuy_price": null,
-  "usdt_trade_stoploss_rebuy_price": null,
-  "usdt_trade_max_duration_days": null,
-  "usdt_trade_opened_date": null,
-  "alt_rotation_active": false,
-  "perp_trading_enabled": true,
-  "max_risk_per_trade_pct": 2,
-  "max_concurrent_perp_positions": 15,
+  "schema_version": "1.1",
+  "date": "2026-05-26",
+  "produced_at": "2026-05-26T15:30:00Z",
+  "cold_start_day": 7,
+  "cold_start_active": true,
+  "cold_start_note": "Day 7 of 14. Hard floor 90% BTC. All strategies remain in paper_testing. No live alpha trades until day 14+.",
+
+  "allocation": {
+    "target_btc_pct": 100,
+    "max_alt_pct": 0,
+    "usdt_reserve_pct": 0,
+    "rationale": "Cold start day 7 of 14 — hard floor 90% BTC enforced. Currently at 99.94% BTC (within floor). All 1 strategy in paper_testing only. No live entries permitted. Regime shows pullback bias to $76,554 but cold start precludes any re-allocation regardless of signals.",
+    "change_from_prior": "none"
+  },
+
+  "dca_enabled": false,
+  "dca_rationale": "FGI=34 does not meet strict DCA threshold (< 30 required). DCA disabled.",
+
   "signal_watcher_paused": false,
-  "dca_enabled": true,
-  "crisis_mode": false,
-  "circuit_breaker_active": false,
-  "notes": "Cold start constraints dominate allocation. strat_001 thesis_last_validated (2026-05-24) remains recent; no revalidation required today. System error ('content' KeyError) logged; input validation fallback implemented. BTC dominance stable (58.13%), alt rotation OFF. No anomalies or Tier-1 events. Focus: validate strat_001 paper trades and monitor system stability.",
-  "alt_rotation_signal": "none"
+  "signal_watcher_rationale": "No active Tier-1 negative events in anomaly_state.json. Signal watcher runs normally.",
+
+  "alt_rotation_signal": "watch",
+  "alt_rotation_rationale": "3 of 5 tracked alts show positive 24h change (ETH +0.22%, BNB +0.70%, ADA +0.25%) from fresh watchlist_prices.json (2026-05-26T00:10:48Z). Watchlist.json is STALE (last updated 2026-05-22, 4 days old > 48h threshold) — cannot verify btc_dominance_trend or candidates_above_threshold. 'watch' signal set on ≥3 alts positive criterion only. 'active' cannot be confirmed without fresh watchlist scan. BTC dominance last known: 58.13% (stale — target trigger is below 57.0%). NO capital reallocation from this signal — flag for human awareness only.",
+  "alt_rotation_alts_positive": ["ETH +0.22%", "BNB +0.70%", "ADA +0.25%"],
+  "alt_rotation_alts_negative": ["SOL -0.57%", "XRP -0.34%"],
+  "alt_watchlist_stale": true,
+  "alt_watchlist_last_updated": "2026-05-22",
+
+  "regime": {
+    "current": "consolidation_with_pullback_bias",
+    "regime_change_detected": true,
+    "regime_change_magnitude": "moderate",
+    "confidence": 0.76,
+    "pullback_target": 76554,
+    "pullback_confidence": 0.76,
+    "key_signals": {
+      "4h_rsi": 70.32,
+      "1d_rsi": 33.23,
+      "1h_rsi": 42.92,
+      "multi_tf_friction": true,
+      "whale_tx_count_24h": 0,
+      "exchange_netflow_btc": -2352.739,
+      "btc_vs_ema200_1d": "+7.69%",
+      "btc_vs_ema200_4h": "-2.16%",
+      "funding_rate": 0.00007338,
+      "iv_skew_put_minus_call": 0.05,
+      "put_call_oi_ratio": 1.1404
+    },
+    "regime_implications": "Multi-timeframe friction: 4H overbought (70.32) vs 1D depressed (33.23) — mechanical pullback to $76,554 daily support highly probable in 24-48h. Distribution phase ongoing (whale_tx=0, netflow -2,352 BTC/day). Options market defensive (put/call 1.14, put premium +0.05 skew). Max pain gravity $76,000. Daily uptrend structurally intact (+7.69% above EMA200).",
+    "warnings": [
+      "MULTI-TIMEFRAME FRICTION ACTIVE: 4H overbought vs 1D neutral — mechanical mean reversion setup in 24-48h window",
+      "WHALE PHASE TRANSITION COMPLETE: Distribution active. No institutional bid support at current price",
+      "FUNDING INVERSION RISK EMERGING: 1 negative period in last 10 — longs vulnerable below $76,000",
+      "IV SKEW DEFENSIVE: Put premium (+0.05) indicates options market pricing downside risk"
+    ]
+  },
+
+  "research_summary": {
+    "today_verdict": "bull_wins",
+    "overall_confidence": 0.73,
+    "fgi": 34,
+    "market_regime": "consolidation_with_distribution_uncertainty",
+    "approved_hypotheses": [
+      {
+        "id": "hch_20260526_001",
+        "title": "Short-Term Pullback to 1H Support on Consolidation + Max Pain Gravity",
+        "confidence": 0.74,
+        "timeframe": "3-5 days",
+        "action": "LONG",
+        "entry_zone": "77083-77200",
+        "stop_loss": 76554,
+        "target_1": 78500,
+        "target_2": 79038
+      },
+      {
+        "id": "hch_20260526_003",
+        "title": "Distribution Fade into Max Pain as Whale Accumulation Completes",
+        "confidence": 0.71,
+        "timeframe": "5-7 days",
+        "action": "LONG_WITH_CONTINGENCY",
+        "entry_zone": "current or 75000-75500",
+        "stop_loss": 74500,
+        "target_1": 77500,
+        "target_2": "79000-80500"
+      }
+    ],
+    "conditional_hypotheses": [
+      {
+        "id": "hch_20260526_002",
+        "title": "Contrarian Long on Autonomous FGI Capitulation IF FGI < 25 Holds 72+ Hours",
+        "confidence": 0.68,
+        "condition": "FGI < 25 confirmed for 24+ hours",
+        "status": "WATCH_AND_SCALE"
+      }
+    ]
+  },
+
+  "strategy_health": {
+    "total_strategies": 1,
+    "all_paper_testing": true,
+    "strategies": [
+      {
+        "id": "strat_001",
+        "title": "Daily Mean Reversion Long from Extreme Oversold + Accumulation Setup",
+        "status": "paper_testing",
+        "consecutive_losses": 0,
+        "thesis_last_validated": "2026-05-25",
+        "thesis_age_days": 1,
+        "thesis_status": "current",
+        "health": "healthy",
+        "backtest_status": "pending_live_data",
+        "note": "No trades executed yet. Thesis fresh (validated yesterday). Entry conditions require RSI<=30, FGI<=30, price >5% above EMA200. Currently not all conditions met (FGI=34 > 30 threshold). Continue paper monitoring."
+      }
+    ],
+    "strategies_flagged_for_review": [],
+    "strategies_to_suspend": []
+  },
+
+  "focus_areas": [
+    {
+      "priority": 1,
+      "area": "Regime pullback — protect paper position",
+      "detail": "Regime monitor flags mechanical pullback to $76,554 (0.76 confidence) within 24-48h due to 4H RSI overbought (70.32) vs 1D depressed (33.23). Strategy Tester should assess whether strat_001's paper position would survive a -2.1% move. Monitor daily netflow for acceleration past -3,000 BTC/day as deterioration signal."
+    },
+    {
+      "priority": 2,
+      "area": "Stale alt watchlist — needs fresh scan",
+      "detail": "state/watchlist.json is 4 days old (last updated 2026-05-22). Alt rotation signal is degraded — 'watch' is set based only on fresh watchlist_prices.json data. Watchlist scanner must run and update state/watchlist.json before tomorrow's orchestrator directive can properly assess alt rotation. BTC dominance last known at 58.13% — target trigger is 57.0%."
+    },
+    {
+      "priority": 3,
+      "area": "FGI Capitulation trigger monitoring",
+      "detail": "hch_20260526_002 (0.68 confidence) activates IF FGI < 25 confirmed for 24+ hours. Current FGI=34. 7-day trend: [27,29,28,28,25,30,34]. Monitor for drop to ≤25. On first touch of FGI=25, check whale_tx_count simultaneously. If whale_tx=0 continues, reduce capitulation position scaling to 30-50% of planned. If whale_tx increases, full scaling activates."
+    },
+    {
+      "priority": 4,
+      "area": "Distribution netflow monitoring",
+      "detail": "Exchange netflow -2,352 BTC/day ongoing. Contingency for hch_20260526_003: if netflow remains >-1,500 BTC/day by paper day 5, reduce paper exposure 50%. Monitor for stabilization signal: netflow decelerating to <-500 BTC/day = distribution completion approaching. ETF outflows -$105.2M — watch for acceleration past -$150M as bearish signal."
+    },
+    {
+      "priority": 5,
+      "area": "Cold start day 7 — 7 days remaining",
+      "detail": "7 days until cold start period ends (day 14 = 2026-06-02). No live trades permitted. Paper testing strat_001 continues. Prepare strategy for live testing readiness review on day 13-14. Need at least 5 valid paper signals before thesis can graduate to ready_to_trade."
+    }
+  ],
+
+  "performance": {
+    "vs_hodl_sats": -1688,
+    "vs_hodl_pct": -0.4575,
+    "btc_equivalent_total": 0.00367438,
+    "hodl_benchmark": 0.003691263,
+    "note": "Deficit is entirely bootstrap rebalance fees (4.977e-06 BTC). No alpha trades yet — this is expected at cold start day 7. Zero live trades means zero alpha and zero losses.",
+    "drawdown_pct_btc": 0.4323,
+    "circuit_breaker_tripped": false
+  },
+
+  "system_health": {
+    "circuit_breaker": "clear",
+    "active_anomalies": 0,
+    "pipeline_status": {
+      "completed_today": ["orchestrator", "morning-pipeline"],
+      "pending": ["strategy-tester", "trader-management", "reporter"],
+      "failed": []
+    },
+    "known_issues": [
+      "live_triggers.json 'content' KeyError fixed (2026-05-25). Validation implemented in bridge_live_triggers()."
+    ]
+  },
+
+  "instructions_for_agents": {
+    "strategy_tester": "Today's research approves 2 long hypotheses (hch_20260526_001 confidence 0.74, hch_20260526_003 confidence 0.71). HOWEVER: regime monitor signals HIGH-PROBABILITY pullback to $76,554 within 24-48h (4H RSI 70.32 overbought, multi-TF friction). Do NOT front-run long entries in paper testing — wait for pullback to $76,554-$77,083 support zone before entering paper long. If price reaches $76,554: assess 1H RSI for oversold confirmation before paper entry. Continue monitoring strat_001 entry conditions (RSI<=30, FGI<=30 — currently not all met).",
+    "trader_management": "No open positions. Portfolio at 99.94% BTC. Cold start day 7 — no live entries permitted. Confirm portfolio balances match portfolio.json. No rebalancing needed (99.94% BTC vs 100% target — within tolerance).",
+    "reporter": "Include in daily report: cold start day 7 of 14, vs_hodl -1688 sats (bootstrap fees only, no alpha trades), regime pullback warning ($76,554 target, 0.76 confidence), distribution active (netflow -2,352 BTC/day), alt watchlist stale (action required).",
+    "morning_pipeline": "Tomorrow (2026-05-27): prioritize fresh alt watchlist scan. Include netflow trend analysis (is -2,352 BTC/day accelerating, stabilizing, or decelerating?). FGI monitoring critical — report exact value and 24h trend direction."
+  },
+
+  "lessons_update": {
+    "new_lesson": null,
+    "note": "No new lessons today — regime data confirms existing distribution/cold-start lessons. Watchlist staleness is a recurring monitoring gap; watchlist scanner must run daily to keep alt rotation data fresh."
+  }
 }

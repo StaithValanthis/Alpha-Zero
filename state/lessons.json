@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-24T21:52:44.424052+00:00",
+  "last_updated": "2026-05-25T15:32:33.689211+00:00",
   "lessons": [
     {
       "date": "2026-05-25",
@@ -21,6 +21,13 @@
       "category": "strategy",
       "severity": "info",
       "lesson": "Cold start BTC allocation floor (90%) effectively limits drawdown risk during strategy validation phase. vs_hodl -0.4575% reflects only bootstrap fees, no alpha trades yet."
+    },
+    {
+      "date": "2026-05-25",
+      "observation": "FGI=30 is a boundary condition for DCA: the rule requires F&G strictly < 30. At exactly 30, DCA does NOT trigger. System code and agents must use strict < operator, not <=.",
+      "category": "strategy",
+      "severity": "info",
+      "lesson": "DCA strict threshold: F&G < 30, not <= 30. Value of exactly 30 does not qualify. Boundary conditions must use strict comparison."
     }
   ],
   "recurring_failure_patterns": [],

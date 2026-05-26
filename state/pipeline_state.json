@@ -11,10 +11,11 @@
     "orchestrator",
     "morning-pipeline",
     "strategy-tester",
-    "trader-management"
+    "trader-management",
+    "reporter"
   ],
   "in_progress": null,
   "failed_today": [],
-  "last_update": "2026-05-26T03:04:05.568962+00:00",
+  "last_update": "2026-05-26T09:01:49.697787+00:00",
   "schema_version": "1.0"
 }
